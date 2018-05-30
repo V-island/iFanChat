@@ -1,4 +1,4 @@
-// require('../adapter');
+require('./adapter');
 
 let Modal = {
 	defaults: {
