@@ -93,6 +93,7 @@
 
 		i.icon{
 			@include size(3.15rem);
+		    border-radius: 50%;
 		}
 
 		span{
