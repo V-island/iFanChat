@@ -6,23 +6,24 @@
                 <h2 class="login-title">{{LOGIN.Title}}</h2>
 
                 <form class="login-form">
+                    <input type="hidden" name="phoneCode" value="{{LOGIN.Froms.Telephone.Title}}" />
                 	<div class="form-group">
                 		<label class="form-label">{{LOGIN.Froms.Country.Title}}</label>
-						<div class="form-control country">English</div>
+						<div class="form-control country">{{LOGIN.Froms.Country.Name}}</div>
 						<i class="icon user-arrow-forward mete"></i>
                 	</div>
                 	<!-- /.form-group -->
 
                 	<div class="form-group">
-                		<label class="form-label">+86</label>
-            		    <input type="tel" class="form-control" placeholder="{{LOGIN.Froms.Telephone.Placeholder}}">
+                		<label class="form-label">+{{LOGIN.Froms.Telephone.Title}}</label>
+            		    <input type="tel" name="userPhone" class="form-control" placeholder="{{LOGIN.Froms.Telephone.Placeholder}}">
                 	</div>
                 	<!-- /.form-group -->
 
                 	<div class="form-group">
                 		<label class="form-label">{{LOGIN.Froms.Password.Title}}</label>
-            		    <input type="password" class="form-control" placeholder="{{LOGIN.Froms.Password.Placeholder}}">
-            		    <i class="icon icon-eye-black"></i>
+            		    <input type="password" name="userPassword" class="form-control" placeholder="{{LOGIN.Froms.Password.Placeholder}}">
+            		    <i class="icon icon-eye-black btn-bright"></i>
                 	</div>
                 	<!-- /.form-group -->
 
@@ -42,16 +43,16 @@
             <div class="login-footer">
                 <p>{{LOGIN.Third_party.Title}}</p>
                 <div class="tag">
-                    <label class="share-label" data-ripple>
-                        <i class="icon modals-fecebook"></i>
+                    <label class="share-label">
+                        <i class="icon modals-fecebook" data-ripple></i>
                         <span>Facebook</span>
                     </label>
-                    <label class="share-label" data-ripple>
-                        <i class="icon modals-Twitter"></i>
+                    <label class="share-label">
+                        <i class="icon modals-Twitter" data-ripple></i>
                         <span>Twitter</span>
                     </label>
-                    <label class="share-label" data-ripple>
-                        <i class="icon modals-tumblr"></i>
+                    <label class="share-label">
+                        <i class="icon modals-tumblr" data-ripple></i>
                         <span>Tumblr</span>
                     </label>
                 </div>

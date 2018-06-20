@@ -1,4 +1,12 @@
 import Swiper from 'swiper';
+import Modal from '../modal';
+import {
+    getLangConfig
+} from '../lang';
+
+const LANG = getLangConfig();
+const HOME = LANG.HOME;
+const modal = new Modal();
 
 let home = {
 	init: function() {
@@ -7,12 +15,10 @@ let home = {
 		this.event();
 	},
 	event: function() {
-		const LANG = $.langConfig.HOME.Madal;
-
 		$('.card-content','.card-list').on('click', function() {
-			let _notCoins = LANG.NotCoins;
+			let _notCoins = HOME.Madal.NotCoins;
 
-			$.alert(_notCoins.Text, _notCoins.Title, function() {
+			modal.alert(_notCoins.Text, _notCoins.Title, function() {
 				// modal.popup();
 				location.hash = '#/live';
 			}, _notCoins.ButtonsText);

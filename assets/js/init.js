@@ -1,3 +1,6 @@
+import Modal from './modal';
+const modal = new Modal();
+
 +function($) {
     'use strict';
 
@@ -26,27 +29,27 @@
     if ($.fcConfig.showPageLoadingIndicator) {
         //这里的 以 push 开头的是私有事件，不要用
         $(window).on('pageLoadStart', function() {
-            $.showIndicator();
+            modal.showIndicator();
 
         });
         $(window).on('pageAnimationStart', function() {
-            $.hideIndicator();
+            modal.hideIndicator();
         });
         $(window).on('pageLoadCancel', function() {
-            $.hideIndicator();
+            modal.hideIndicator();
         });
         $(window).on('pageLoadComplete', function() {
-            $.hideIndicator();
+            modal.hideIndicator();
         });
         $(window).on('pageLoadError', function() {
-            $.hideIndicator();
-            $.toast('加载失败');
+            modal.hideIndicator();
+            modal.toast('加载失败');
         });
     }
 
     $(window).on('pageAnimationStart', function(event,id,page) {
         // 在路由切换页面动画开始前,为了把位于 .page 之外的 popup 等隐藏,此处做些处理
-        $.closeModal();
+        modal.closeModal();
         $.closePanel();
         // 如果 panel 的 effect 是 reveal 时,似乎是 page 的动画或别的样式原因导致了 transitionEnd 时间不会触发
         // 这里暂且处理一下
@@ -55,7 +58,7 @@
     });
 
     $(window).on('pageInit', function() {
-        $.hideIndicator();
+        modal.hideIndicator();
         $.lastPosition({
             needMemoryClass: [
                 '.content'

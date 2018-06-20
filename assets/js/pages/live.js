@@ -1,5 +1,7 @@
 import AgoraRTC from '../components/AgoraRTCSDK-2.3.0';
+import Modal from '../modal';
 
+const modal = new Modal();
 const MSG = {
 	// browser is no support webRTC
 	errorWebRTC: '浏览器不支持webRTC',
@@ -48,7 +50,7 @@ let live = {
 
 		$('.icon-news', btn).on('click', function() {
 			console.log('评论');
-			$.actions(_self.templateDOM.live_news, {
+			modal.actions(_self.templateDOM.live_news, {
 				title: false,
 				closeBtn: false
 			});
@@ -56,7 +58,7 @@ let live = {
 
 		$('.icon-share', btn).on('click', function() {
 			console.log('分享');
-			$.actions(_self.templateDOM.live_share, {
+			modal.actions(_self.templateDOM.live_share, {
 				title: 'Share to',
 				closeBtn: true
 			});
@@ -64,7 +66,7 @@ let live = {
 
 		$('.icon-gift', btn).on('click', function() {
 			console.log('礼物');
-			$.actions(_self.templateDOM.live_gift, {
+			modal.actions(_self.templateDOM.live_gift, {
 				title: 'Gift',
 				closeBtn: true
 			});

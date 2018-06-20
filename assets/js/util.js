@@ -4,6 +4,11 @@ const REGEXP_HYPHEN = /([a-z\d])([A-Z])/g;
 const toString = Object.prototype.toString;
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
+export function refreshURL() {
+    return window.location.reload();
+};
+
+
 export function compareVersion(a, b) {
     var as = a.split('.');
     var bs = b.split('.');

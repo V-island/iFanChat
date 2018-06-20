@@ -46,9 +46,11 @@ const Lang = {
 		Title: 'Welcome',
 		Froms: {
 			Country: {
-				Title: 'Country'
+				Title: 'Country',
+				Name: 'English'
 			},
 			Telephone: {
+				Title: 1,
 				Placeholder: 'Your  telephone  number'
 			},
 			Password: {
@@ -286,7 +288,8 @@ const Lang = {
 		ModalButtonOk: 'YES',
 		ModalButtonCancel: 'NO',
 		ConfirmButtonOk: 'Confirm',
-		ConfirmButtonCancel: 'Cancel'
+		ConfirmButtonCancel: 'Cancel',
+		modalPreloaderTitle: 'Loading'
 	},
 	COUNTRY: {
 		Title: 'Country',

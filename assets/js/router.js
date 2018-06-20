@@ -1,3 +1,7 @@
+import {
+    getLangConfig
+} from './lang';
+
 +function($) {
     'use strict';
 
@@ -40,6 +44,8 @@
         component: false,
         dom: 'body'
     }
+
+    const LANG = getLangConfig();
 
     /**
      * 验证浏览器是否支持CustomEvent
@@ -491,8 +497,7 @@
          * @private
          */
         _parseDocument(url, $doc, $component) {
-            $doc = Template.render($doc, $.langConfig);
-
+            $doc = Template.render($doc, LANG);
             this._saveDocumentIntoCache($doc, url, $component);
         }
 

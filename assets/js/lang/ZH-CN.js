@@ -35,6 +35,31 @@ const Lang = {
 			Setting: '设置'
 		}
 	},
+	LOGIN: {
+		Title: '您好',
+		Froms: {
+			Country: {
+				Title: '国家',
+				Name: '中国'
+			},
+			Telephone: {
+				Title: 86,
+				Placeholder: '您的手机号码'
+			},
+			Password: {
+				Title: '密码',
+				Placeholder: '8-12 位'
+			}
+		},
+		Buttons: {
+			Login: '登录',
+			Forget_password: '忘记密码?',
+			Register: '注册'
+		},
+		Third_party: {
+			Title: '第三方'
+		}
+	},
 	PERSONAL_DETAIL: {
 		Profile_Photo: '头像照片',
 		Username: {
@@ -117,29 +142,37 @@ const Lang = {
 		Status: {
 			Busy: '繁忙',
 			Waiting: '等待'
-		}
+		},
+		ModalButtonOk: '是',
+		ModalButtonCancel: '否',
+		ConfirmButtonOk: '确定',
+		ConfirmButtonCancel: '取消',
+		modalPreloaderTitle: '等待中'
 	},
-	COUNTRY: [{
-		text: '中国',
-		value: '+86',
-		lang: 'zh_cn'
-	}, {
-		text: '英国',
-		value: '+44',
-		lang: 'en'
-	}, {
-		text: '美国',
-		value: '+1',
-		lang: 'en'
-	}, {
-		text: '法国',
-		value: '+33',
-		lang: 'en'
-	}, {
-		text: '巴西',
-		value: '+55',
-		lang: 'en'
-	}]
+	COUNTRY: {
+		Title: 'Country',
+		Lists: [{
+			text: '中国',
+			value: '+86',
+			lang: 'zh_cn'
+		}, {
+			text: '英国',
+			value: '+44',
+			lang: 'en'
+		}, {
+			text: '美国',
+			value: '+1',
+			lang: 'en'
+		}, {
+			text: '法国',
+			value: '+33',
+			lang: 'en'
+		}, {
+			text: '巴西',
+			value: '+55',
+			lang: 'en'
+		}]
+	}
 
 }
 

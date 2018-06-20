@@ -20,7 +20,6 @@ module.exports = {
 			'./assets/js/lang',
 			'./assets/js/device',
 			'./assets/js/fastclick',
-			'./assets/js/modal',
 			// './assets/js/calendar',//日历
 			// './assets/js/iscroll',
 			'./assets/js/scroller',

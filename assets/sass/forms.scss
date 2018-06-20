@@ -80,6 +80,9 @@ textarea {
             flex: 1 0 0.35rem;
         }
     }
+    &.active{
+        border-color: $color-text;
+    }
 }
 
 // Form Button

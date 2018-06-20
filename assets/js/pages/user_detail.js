@@ -1,4 +1,11 @@
-// import Picker from 'better-picker';
+import Modal from '../modal';
+import {
+    getLangConfig
+} from '../lang';
+
+const LANG = getLangConfig();
+const DETAIL = LANG.PERSONAL_DETAIL;
+const modal = new Modal();
 
 let userDetail = {
 	event: function() {
@@ -8,9 +15,9 @@ let userDetail = {
 		// 用户名
 		Info.on('click', '.list-item[data-madal-username]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Username.Madal;
+			let _madal = DETAIL.Username.Madal;
 
-			$.prompt(_madal.Placeholder, _madal.Title,
+			modal.prompt(_madal.Placeholder, _madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
 					_self.find(metaClass).text(value);
@@ -24,9 +31,9 @@ let userDetail = {
 		// 性别
 		Info.on('click', '.list-item[data-madal-gender]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Gender.Madal;
+			let _madal = DETAIL.Gender.Madal;
 
-			$.options({
+			modal.options({
 				buttons: [{
 					text: _madal.Male,
 					value: _madal.Male,
@@ -49,9 +56,9 @@ let userDetail = {
 		// 年龄
 		Info.on('click', '.list-item[data-madal-age]', function(e) {
 			let _self = $(this);
-			let _title = $.langConfig.PERSONAL_DETAIL.Age.Madal.Title;
+			let _title = DETAIL.Age.Madal.Title;
 
-			$.dateTimePickerModal(_title,
+			modal.dateTimePickerModal(_title,
 				function(value) {
 					console.log('确认修改' + value);
 					_self.find(metaClass).text(value);
@@ -62,10 +69,10 @@ let userDetail = {
 		// 身高
 		Info.on('click', '.list-item[data-madal-height]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Height.Madal;
-			let _unit = $.langConfig.PERSONAL_DETAIL.Height.Unit;
+			let _madal = DETAIL.Height.Madal;
+			let _unit = DETAIL.Height.Unit;
 
-			$.prompt(_madal.Placeholder, _madal.Title,
+			modal.prompt(_madal.Placeholder, _madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
 					_self.find(metaClass).text(value + _unit);
@@ -79,10 +86,10 @@ let userDetail = {
 		// 体重
 		Info.on('click', '.list-item[data-madal-weight]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Body_Weight.Madal;
-			let _unit = $.langConfig.PERSONAL_DETAIL.Body_Weight.Unit;
+			let _madal = DETAIL.Body_Weight.Madal;
+			let _unit = DETAIL.Body_Weight.Unit;
 
-			$.prompt(_madal.Placeholder, _madal.Title,
+			modal.prompt(_madal.Placeholder, _madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
 					_self.find(metaClass).text(value + _unit);
@@ -95,9 +102,9 @@ let userDetail = {
 
 		Info.on('click', '.list-item[data-madal-interest]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Interest.Madal;
+			let _madal = DETAIL.Interest.Madal;
 
-			$.checkboxModal({
+			modal.checkboxModal({
 				text: _madal.Text,
 				title: _madal.Title,
 				data: _madal.Lists,
@@ -115,9 +122,9 @@ let userDetail = {
 
 		Info.on('click', '.list-item[data-madal-type]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Your_Type.Madal;
+			let _madal = DETAIL.Your_Type.Madal;
 
-			$.checkboxModal({
+			modal.checkboxModal({
 				text: _madal.Text,
 				title: _madal.Title,
 				data: _madal.Lists,
@@ -135,9 +142,9 @@ let userDetail = {
 
 		Info.on('click', '.list-item[data-madal-love]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Love.Madal;
+			let _madal = DETAIL.Love.Madal;
 
-			$.checkboxModal({
+			modal.checkboxModal({
 				text: _madal.Text,
 				title: _madal.Title,
 				data: _madal.Lists,
@@ -155,9 +162,9 @@ let userDetail = {
 
 		Info.on('click', '.list-item[data-madal-friends]', function(e) {
 			let _self = $(this);
-			let _madal = $.langConfig.PERSONAL_DETAIL.Why_Make_Friends.Madal;
+			let _madal = DETAIL.Why_Make_Friends.Madal;
 
-			$.pickerModal(_madal.Lists, _madal.Title,
+			modal.pickerModal(_madal.Lists, _madal.Title,
 				function(value, text) {
 					console.log('确认修改' + text);
 					_self.find(metaClass).text(text);
