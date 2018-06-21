@@ -1,13 +1,45 @@
+import {
+    getLangConfig
+} from './lang';
+
+const LANG = getLangConfig();
+
 const REGEXP_SPACES = /\s+/;
 const REGEXP_TOKENS = /(Y|M|D|H|m|s|S)\1+/g;
 const REGEXP_HYPHEN = /([a-z\d])([A-Z])/g;
 const toString = Object.prototype.toString;
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
+// 刷新页面
 export function refreshURL() {
     return window.location.reload();
 };
 
+// 判断是否为手机号
+export function isPoneAvailable(pone) {
+    var myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+    if (!myreg.test(pone)) {
+        return false;
+    } else {
+        return true;
+    }
+};
+
+
+// 倒计时60s
+export function addCountdown(element, val) {
+    if (val == 0) {
+        element.removeClass('disabled');
+        element.text(LANG.PUBLIC.Froms.Telephone.Verification);
+        return false;
+    } else {
+        element.text(val + 's');
+        val--;
+        setTimeout(function() {
+            addCountdown(element, val)
+        }, 1000)
+    }
+};
 
 export function compareVersion(a, b) {
     var as = a.split('.');

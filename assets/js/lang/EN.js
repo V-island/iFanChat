@@ -44,20 +44,6 @@ const Lang = {
 	},
 	LOGIN: {
 		Title: 'Welcome',
-		Froms: {
-			Country: {
-				Title: 'Country',
-				Name: 'English'
-			},
-			Telephone: {
-				Title: 1,
-				Placeholder: 'Your  telephone  number'
-			},
-			Password: {
-				Title: 'Password',
-				Placeholder: '8-12 bit character'
-			}
-		},
 		Buttons: {
 			Login: 'Login',
 			Forget_password: 'Forget  password?',
@@ -65,6 +51,23 @@ const Lang = {
 		},
 		Third_party: {
 			Title: 'or login'
+		},
+		Find_Password: {
+			Title: 'Find password',
+			Buttons: {
+				Next: 'Next',
+				Confirm: 'Confirm'
+			}
+		}
+	},
+	REGISTER: {
+		Title: 'Register',
+		Buttons: {
+			Title: 'Sign up'
+		},
+		Terms: {
+			Text: 'Registration indicates that you agree to the',
+			Title: 'terms of service'
 		}
 	},
 	PERSONAL_DETAIL: {
@@ -284,6 +287,26 @@ const Lang = {
 		Status: {
 			Busy: 'Busy',
 			Waiting: 'waiting'
+		},
+		Froms: {
+			Country: {
+				Title: 'Country',
+				Name: 'English',
+				Lang: 'en'
+			},
+			Telephone: {
+				Title: 1,
+				Placeholder: 'Your  telephone  number',
+				Verification: 'code'
+			},
+			Verification: {
+				Title: 'Verification',
+				Placeholder: '4 -6 numbers'
+			},
+			Password: {
+				Title: 'Password',
+				Placeholder: '8-12 bit character'
+			}
 		},
 		ModalButtonOk: 'YES',
 		ModalButtonCancel: 'NO',

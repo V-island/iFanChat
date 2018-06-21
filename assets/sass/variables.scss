@@ -20,10 +20,12 @@ $color-primary: rgba(255,221,51,1);//#FFDD33
 $color-danger: rgba(246,64,51,1);//#F64033
 $color-warning: rgba(255,102,0,1);//#f60
 $color-success: rgba(31,201,105,1);//#1FC969
+$color-gray: rgba(136,136,136,1);//#888
 $color-primary-active: transparentize($color-primary, 0.2);
 $color-danger-active: transparentize($color-danger, 0.2);
 $color-warning-active: transparentize($color-warning, 0.2);
 $color-success-active: transparentize($color-success, 0.2);
+$color-gray-active: transparentize($color-gray, 0.2);
 $color-split: #383840;
 $color-gift-txt: #FC496A;
 $color-money: $color-gift-txt;
@@ -133,7 +135,7 @@ $list-message-border-color: #666;
 //---------------------------------------------------
 $form-group-margin-bottom: 1.05rem;
 $input-height-base: 1.5rem;
-$padding-base-horizontal: 0.6rem;
+$padding-base-horizontal: 0.3rem;
 $font-size-base: 0.6rem;
 $line-height-base: 1.42857143;
 $input-color: $color-text;

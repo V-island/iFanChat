@@ -106,6 +106,12 @@ $themes: primary, danger, warning, success, recharge;
 .button {
     @each $theme in $themes {
         &.button-#{$theme} {
+
+            &.disabled {
+                @include button-variant($color-gray, $color-gray-active);
+                cursor: not-allowed;
+            }
+
             @if $theme == primary {
                 @include button-variant($color-primary, $color-primary-active);
                 color: $btn-primary-txt-color;
@@ -124,6 +130,17 @@ $themes: primary, danger, warning, success, recharge;
         &.fill-#{$theme} {
             background: none;
 
+            &.disabled {
+                cursor: not-allowed;
+                border-color: $color-gray;
+                color: $color-gray;
+
+                &:active {
+                    background-color: transparent;
+                    color: $color-gray;
+                }
+            }
+
             @if $theme == primary {
                 @include button-themes($color-primary);
             }
@@ -139,17 +156,6 @@ $themes: primary, danger, warning, success, recharge;
             @else if $theme == recharge {
                 @include button-themes($color-gift-txt);
             }
-        }
-
-    }
-
-}
-
-.button {
-    &, &.button-primary, &.button-success, &.button-danger, &.button-warning {
-        &.disabled {
-            @include button-variant(#c8c9cb, #c8c9cb);
-            cursor: not-allowed;
         }
 
     }

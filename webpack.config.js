@@ -13,37 +13,22 @@ module.exports = {
 			// 'es5-shim',
 			// 'es6-shim',
 			'./assets/js/components/webcomponents-bundle',
-			// './assets/js/components/template-web',
-			// './assets/js/components/AgoraRTCSDK-2.3.0',
 			'./assets/js/intro',
 			'./assets/js/zepto-adapter',
 			'./assets/js/lang',
 			'./assets/js/device',
 			'./assets/js/fastclick',
-			// './assets/js/calendar',//日历
-			// './assets/js/iscroll',
 			'./assets/js/scroller',
-			// './assets/js/tabs',
-			// './assets/js/fixed-tab',
-			// './assets/js/pull-to-refresh-js-scroll',
-			// './assets/js/pull-to-refresh',
-			// './assets/js/infinite-scroll',
-			// './assets/js/searchbar',
 			'./assets/js/panels',
 			'./assets/js/init',
 			'./assets/js/router',
 			'./assets/js/last-position',
 			'./assets/js/navigator',
 			'./assets/sass/fc.scss'
-			// './assets/js/scroll-fix'
 		],
 		'fc-extend': [
 			'jquery-ripple'
 		]
-		// ,cityPicker: [
-		// 	'./assets/js/city-data.js',
-		// 	'./assets/js/city-picker.js'
-		// ]
 	},
 	devtool: 'inline-source-map',
 	output: {

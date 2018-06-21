@@ -2,13 +2,21 @@ import Modal from '../modal';
 import {
     getLangConfig
 } from '../lang';
+import {
+    sendVerificationCode,
+    getRegister
+} from '../api';
+import {
+    isPoneAvailable,
+    addCountdown
+} from '../util';
 
 const LANG = getLangConfig();
 const modal = new Modal();
 
 let login = {
 	init: function() {
-		console.log('这里是登录js');
+		console.log('这里是注册js');
 		this.event();
 	},
 	event: function() {
@@ -29,7 +37,31 @@ let login = {
 		}).on('focus', '.form-control', function() {
 			let $self = $(this);
 			let $group = $self.parent();
+			let $btnVer = $group.find('.btn-verification');
+
 			$group.addClass('active');
+			if ($btnVer.length > 0) {
+				$btnVer.removeClass('disabled');
+			}
+		});
+
+		// 发送验证码
+		Group.on('click', '.btn-verification', function(e) {
+			let $self = $(this);
+
+			if ($self.hasClass('disabled')) {
+				return e.preventDefault();
+			}
+
+			let $input = $self.siblings('input.form-control');
+			let _value = $input.val();
+
+			if (isPoneAvailable(_value)) {
+				sendVerificationCode(_value, function() {
+					$self.addClass('disabled');
+					addCountdown($self, 60);
+				});
+			}
 		});
 
 		// 明密文

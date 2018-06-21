@@ -45,6 +45,7 @@
   "dependencies": {
     "@webcomponents/webcomponentsjs": "^1.1.0",
     "art-template": "^4.12.2",
+    "axios": "^0.18.0",
     "better-scroll": "^1.12.1",
     "ionicons": "^4.1.1",
     "jquery": "^3.3.1",

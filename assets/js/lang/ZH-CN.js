@@ -40,7 +40,8 @@ const Lang = {
 		Froms: {
 			Country: {
 				Title: '国家',
-				Name: '中国'
+				Name: '中国',
+				Lang: 'zh_cn'
 			},
 			Telephone: {
 				Title: 86,

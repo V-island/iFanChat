@@ -1,5 +1,9 @@
 // gages
 import Login from './pages/login';
+import Register from './pages/register';
+import FindPassword from './pages/find_password';
+import ResetPassword from './pages/reset_password';
+
 import Home from './pages/home';
 import Live from './pages/live';
 import Favorite from './pages/favorite';
@@ -7,7 +11,8 @@ import Message from './pages/message';
 import User from './pages/user';
 import UserDetail from './pages/user_detail';
 
-+ function($) {
++
+function($) {
     "use strict";
 
     //全局配置
@@ -37,50 +42,43 @@ import UserDetail from './pages/user_detail';
             name: 'login',
             path: '../pages/login.html',
             component: Login,
-            dom: 'body',
-            init: 1
+            children: [{
+                name: 'find',
+                path: '../pages/find_password.html',
+                component: FindPassword
+            }, {
+                name: 'reset',
+                path: '../pages/reset_password.html',
+                component: ResetPassword
+            }]
         }, {
-            name: 'sign',
-            path: '/sign'
+            name: 'register',
+            path: '../pages/register.html',
+            component: Register
         }, {
             name: 'home',
             path: '../pages/home.html',
-            component: Home,
-            dom: 'body',
-            init: 1
+            component: Home
         }, {
             name: 'live',
             path: '../pages/live.html',
-            component: Live,
-            mode: 'replace',
-            dom: 'body',
-            init: 1
+            component: Live
         }, {
             name: 'favorite',
             path: '../pages/favorite.html',
-            component: Favorite,
-            dom: 'body',
-            init: 1
+            component: Favorite
         }, {
             name: 'message',
             path: '../pages/message.html',
-            component: Message,
-            dom: 'body',
-            init: 1
+            component: Message
         }, {
             name: 'user',
             path: '../pages/user.html',
             component: User,
-            mode: 'replace',
-            dom: 'body',
-            init: 1,
             children: [{
                 name: 'detail',
                 path: '../pages/user_detail.html',
-                component: UserDetail,
-                mode: 'replace',
-                dom: 'body',
-                init: 1
+                component: UserDetail
             }]
         }]
     };

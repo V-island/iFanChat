@@ -8,7 +8,7 @@ const modal = new Modal();
 
 let login = {
 	init: function() {
-		console.log('这里是登录js');
+		console.log('这里是忘记密码js');
 		this.event();
 	},
 	event: function() {
@@ -34,6 +34,7 @@ let login = {
 
 		// 明密文
 		Group.on('click', 'i.btn-bright', function() {
+			console.log('进入米明文');
 			let $self = $(this);
 			let $input = $self.siblings('input.form-control');
 

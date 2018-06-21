@@ -652,7 +652,7 @@ export default class Modal extends EventEmitter {
      * 国家语言选择
      * @return {[type]}            [description]
      */
-    countryModal() {
+    countryModal(lang) {
         const self = this;
         let params = COUNTRY;
         let modalHTML = '',
@@ -661,7 +661,7 @@ export default class Modal extends EventEmitter {
         let closeHTML = '<div class="icon-btn close-popup" data-ripple><i class="icon icon-arrow-back"></i></div>';
 
         params.Lists.forEach((_data, index) => {
-            listHTML += '<li class="list-item" data-lang="'+ _data.lang +'" data-ripple><span class="list-item-text">'+ _data.text +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
+            listHTML += '<li class="list-item '+ (lang == _data.lang ? 'active' : '') +'" data-lang="'+ _data.lang +'" data-ripple><span class="list-item-text">'+ _data.text +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
         modalHTML = '<div class="popup"><header class="bar bar-flex no-bg">'+ (closeHTML + titleHTML) +'</header><div class="content block"><ul class="list list-user list-info popup-list no-bg">'+ listHTML +'</ul></div></div>';
         return self.popup(modalHTML, function(modal) {
