@@ -2,7 +2,7 @@
 import Login from './pages/login';
 import Register from './pages/register';
 import FindPassword from './pages/find_password';
-import ResetPassword from './pages/reset_password';
+import SetPassword from './pages/set_password';
 
 import Home from './pages/home';
 import Live from './pages/live';
@@ -47,14 +47,19 @@ function($) {
                 path: '../pages/find_password.html',
                 component: FindPassword
             }, {
-                name: 'reset',
-                path: '../pages/reset_password.html',
-                component: ResetPassword
+                name: 'set',
+                path: '../pages/set_password.html',
+                component: SetPassword
             }]
         }, {
             name: 'register',
             path: '../pages/register.html',
-            component: Register
+            component: Register,
+            children: [{
+                name: 'terms',
+                path: '../pages/terms_service.html',
+                component: Register
+            }]
         }, {
             name: 'home',
             path: '../pages/home.html',

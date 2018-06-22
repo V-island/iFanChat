@@ -20,7 +20,8 @@ export default class Modal extends EventEmitter {
 
         this.defaults = {
             modalStack: true,
-            modalTitle: false,
+            modalTitle: PUBLIC.ModalTitle,
+            modalAlertButton: PUBLIC.modalAlertButton,
             modalButtonOk: PUBLIC.ModalButtonOk,
             modalButtonCancel: PUBLIC.ModalButtonCancel,
             confirmButtonOk: PUBLIC.ConfirmButtonOk,
@@ -283,7 +284,7 @@ export default class Modal extends EventEmitter {
 
         let modal = $(_modalTemplateTempDiv).children();
 
-        $(defaults.modalContainer).append(modal[0]);
+        $(self.defaults.modalContainer).append(modal[0]);
 
         let picker;
         if (typeof params.onEvent === 'function') {
@@ -367,11 +368,11 @@ export default class Modal extends EventEmitter {
         }
         return self.modal({
             text: text || '',
-            title: typeof title === 'undefined' ? defaults.modalTitle : title,
+            title: typeof title === 'undefined' ? self.defaults.modalTitle : title,
             closeBtn: true,
             verticalButtons: true,
             buttons: [{
-                text: typeof button === 'undefined' ? defaults.modalButtonOk : button,
+                text: typeof button === 'undefined' ? self.defaults.modalAlertButton : button,
                 onClick: callbackOk
             }]
         });
@@ -397,14 +398,14 @@ export default class Modal extends EventEmitter {
         }
         return self.modal({
             text: text || '',
-            title: typeof title === 'undefined' ? defaults.modalTitle : title,
+            title: typeof title === 'undefined' ? self.defaults.modalTitle : title,
             closeBtn: true,
             buttons: [{
-                text: typeof prompt === 'undefined' ? defaults.confirmButtonCancel : defaults.modalButtonCancel,
+                text: typeof prompt === 'undefined' ? self.defaults.confirmButtonCancel : self.defaults.modalButtonCancel,
                 fill: true,
                 onClick: callbackCancel
             }, {
-                text: typeof prompt === 'undefined' ? defaults.confirmButtonOk : defaults.modalButtonOk,
+                text: typeof prompt === 'undefined' ? self.defaults.confirmButtonOk : self.defaults.modalButtonOk,
                 onClick: callbackOk
             }]
         });
@@ -429,16 +430,16 @@ export default class Modal extends EventEmitter {
             title = undefined;
         }
         return self.modal({
-            title: typeof title === 'undefined' ? defaults.modalTitle : title,
+            title: typeof title === 'undefined' ? self.defaults.modalTitle : title,
             closeBtn: true,
             afterText: '<input type="text" class="modal-text-input" placeholder="'+ text +'">',
             buttons: [
                 {
-                    text: typeof prompt === 'undefined' ? defaults.confirmButtonCancel : defaults.modalButtonCancel,
+                    text: typeof prompt === 'undefined' ? self.defaults.confirmButtonCancel : self.defaults.modalButtonCancel,
                     fill: true
                 },
                 {
-                    text: typeof prompt === 'undefined' ? defaults.confirmButtonOk : defaults.modalButtonOk
+                    text: typeof prompt === 'undefined' ? self.defaults.confirmButtonOk : self.defaults.modalButtonOk
                 }
             ],
             onClick: function (modal, index) {

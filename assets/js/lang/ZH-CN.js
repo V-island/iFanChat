@@ -37,21 +37,6 @@ const Lang = {
 	},
 	LOGIN: {
 		Title: '您好',
-		Froms: {
-			Country: {
-				Title: '国家',
-				Name: '中国',
-				Lang: 'zh_cn'
-			},
-			Telephone: {
-				Title: 86,
-				Placeholder: '您的手机号码'
-			},
-			Password: {
-				Title: '密码',
-				Placeholder: '8-12 位'
-			}
-		},
 		Buttons: {
 			Login: '登录',
 			Forget_password: '忘记密码?',
@@ -59,6 +44,23 @@ const Lang = {
 		},
 		Third_party: {
 			Title: '第三方'
+		},
+		Find_Password: {
+			Title: '忘记密码',
+			Buttons: {
+				Next: '下一步',
+				Confirm: '确定'
+			}
+		}
+	},
+	REGISTER: {
+		Title: '注册',
+		Buttons: {
+			Title: '确认注册'
+		},
+		Terms: {
+			Text: 'Registration indicates that you agree to the',
+			Title: '服务条款'
 		}
 	},
 	PERSONAL_DETAIL: {
@@ -144,6 +146,27 @@ const Lang = {
 			Busy: '繁忙',
 			Waiting: '等待'
 		},
+		Froms: {
+			Country: {
+				Title: '国家',
+				Name: '中国',
+				Lang: 'zh_cn'
+			},
+			Telephone: {
+				Title: '密码',
+				Placeholder: '8-12 位',
+				Verification: 'code'
+			},
+			Verification: {
+				Title: 'Verification',
+				Placeholder: '4 -6 numbers'
+			},
+			Password: {
+				Title: '密码',
+				Placeholder: '8-12 位'
+			}
+		},
+		ModalTitle: '提示',
 		ModalButtonOk: '是',
 		ModalButtonCancel: '否',
 		ConfirmButtonOk: '确定',

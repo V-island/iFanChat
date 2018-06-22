@@ -1,12 +1,16 @@
 import {
     getLangConfig
 } from './lang';
+import {
+    checkLogin
+} from './api';
 
 +function($) {
     'use strict';
 
     const CONFIG = {
-        rootUrl: 'home'
+        rootUrl: 'home',
+        loginUrl: 'login'
     }
 
     const EVENTS = {
@@ -265,6 +269,7 @@ import {
             this.cache = {};
             let $pages = $('.' + routerConfig.pageClass);
             let currentUrl = location.href;
+
             if (!$pages.length) {
                 this._switchToDocument(currentUrl);
             }
@@ -338,17 +343,18 @@ import {
                 ignoreCache = false;
             }
 
-            console.log('验证登录状态');
-            if (location.hash == '' || location.hash == '#/' || location.hash === undefined) {
-                console.log('hash为空默认调转 #/home');
-                return location.hash = '#/' + routerConfig.rootUrl;
+            if (checkLogin() && location.hash !== '#/login' && location.hash !== '#/login/find' && location.hash !== '#/register') {
+                return location.hash = '#/login';
             }
 
+            if (location.hash == '' || location.hash == '#/' || location.hash === undefined) {
+                return location.href = '#/' + routerConfig.rootUrl;
+            }
             console.log(url);
-            console.log('验证成功正加载：' + url + '页面');
             if (ignoreCache) {
                 delete this.cache[url];
             }
+
             let cacheDocument = this.cache[url];
             let context = this;
             if (cacheDocument) {

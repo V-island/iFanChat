@@ -21,11 +21,16 @@ textarea {
     background-color: $input-bg;
     border-radius: 0 0 0 0;
     box-shadow: none;
+    outline:none;
 }
 
 input[type="date"],
 input[type="datetime-local"] {
     line-height: 2.2rem;
+}
+input:-webkit-autofill {
+    color: $input-color;
+    -webkit-box-shadow: 0 0 0px 1000px $color-bg inset !important;
 }
 
 select {
@@ -74,10 +79,10 @@ textarea {
     .btn-verification{
         border-radius: 1rem;
         margin: 0;
-        font-size: 0.35rem;
+        font-size: 0.6rem;
         padding: 0 0.3rem;
         height: 1rem;
-        line-height: 1rem;
+        line-height: 1.5;
         width: auto;
         max-width: 5rem;
         min-width: 2.5rem;

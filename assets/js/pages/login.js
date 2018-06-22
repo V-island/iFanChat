@@ -2,6 +2,9 @@ import Modal from '../modal';
 import {
     getLangConfig
 } from '../lang';
+import {
+    getLogin
+} from '../api';
 
 const LANG = getLangConfig();
 const modal = new Modal();
@@ -12,6 +15,7 @@ let login = {
 		this.event();
 	},
 	event: function() {
+		let Form = $('form.form-login');
 		let Group = $('.form-group');
 
 		// 选择国家
@@ -44,6 +48,16 @@ let login = {
 				$self.removeClass('icon-eye').addClass('icon-eye-black'); //密码不可见
 				$input.prop('type', 'password');
 			};
+		});
+
+		// 表单提交
+		Form.submit(function(e) {
+			let $self = $(this);
+			// let $input = $(this).find('input.form-control');
+			let _params = $self.serialize();
+
+			getLogin(_params);
+			e.preventDefault();
 		});
 	}
 }

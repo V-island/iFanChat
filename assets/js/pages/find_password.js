@@ -1,17 +1,25 @@
 import Modal from '../modal';
 import {
-    getLangConfig
+	getLangConfig
 } from '../lang';
+import {
+    sendVerificationCode,
+    getFindPassword
+} from '../api';
+import {
+    isPoneAvailable,
+    addCountdown
+} from '../util';
 
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let login = {
+let FindPassWord = {
 	init: function() {
-		console.log('这里是忘记密码js');
 		this.event();
 	},
 	event: function() {
+		let FormFindPassword = $('form.form-find-password');
 		let Group = $('.form-group');
 
 		// 选择国家
@@ -29,12 +37,35 @@ let login = {
 		}).on('focus', '.form-control', function() {
 			let $self = $(this);
 			let $group = $self.parent();
+			let $btnVer = $group.find('.btn-verification');
+
 			$group.addClass('active');
+			if ($btnVer.length > 0) {
+				$btnVer.removeClass('disabled');
+			}
+		});
+
+		// 发送验证码
+		Group.on('click', '.btn-verification', function(e) {
+			let $self = $(this);
+
+			if ($self.hasClass('disabled')) {
+				return e.preventDefault();
+			}
+
+			let $input = $self.siblings('input.form-control');
+			let _value = $input.val();
+			// isPoneAvailable(_value)；
+			if (true) {
+				sendVerificationCode(_value, function() {
+					$self.addClass('disabled');
+					addCountdown($self, 60);
+				});
+			}
 		});
 
 		// 明密文
 		Group.on('click', 'i.btn-bright', function() {
-			console.log('进入米明文');
 			let $self = $(this);
 			let $input = $self.siblings('input.form-control');
 
@@ -46,6 +77,18 @@ let login = {
 				$input.prop('type', 'password');
 			};
 		});
+
+		// 表单提交
+		FormFindPassword.submit(function(e) {
+			let $self = $(this);
+			// let $input = $(this).find('input.form-control');
+			let _params = $self.serialize();
+			console.log(_params);
+			getFindPassword(_params, function() {
+				location.href = '#/login/set';
+			});
+			e.preventDefault();
+		});
 	}
 }
-export default login;
+export default FindPassWord;

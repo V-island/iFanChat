@@ -2,24 +2,20 @@ import Modal from '../modal';
 import {
     getLangConfig
 } from '../lang';
+import {
+    getUpdatePassword
+} from '../api';
 
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let login = {
+let SetPassWord = {
 	init: function() {
-		console.log('这里是忘记密码js');
 		this.event();
 	},
 	event: function() {
+		let FormSetPassword = $('form.form-set-password');
 		let Group = $('.form-group');
-
-		// 选择国家
-		Group.on('click', '.form-control.country', function() {
-			let $self = $(this);
-			let lang = $self.data('lang');
-			modal.countryModal(lang);
-		});
 
 		// 输入状态
 		Group.on('blur', '.form-control', function() {
@@ -34,7 +30,6 @@ let login = {
 
 		// 明密文
 		Group.on('click', 'i.btn-bright', function() {
-			console.log('进入米明文');
 			let $self = $(this);
 			let $input = $self.siblings('input.form-control');
 
@@ -46,6 +41,18 @@ let login = {
 				$input.prop('type', 'password');
 			};
 		});
+
+		// 表单提交
+		FormSetPassword.submit(function(e) {
+			let $self = $(this);
+			// let $input = $(this).find('input.form-control');
+			let _params = $self.serialize();
+			console.log(_params);
+			getUpdatePassword(_params, function() {
+				location.href = '#/login';
+			});
+			e.preventDefault();
+		});
 	}
 }
-export default login;
+export default SetPassWord;

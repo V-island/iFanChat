@@ -14,12 +14,12 @@ import {
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let login = {
+let Register = {
 	init: function() {
-		console.log('这里是注册js');
 		this.event();
 	},
 	event: function() {
+		let Form = $('form.form-register');
 		let Group = $('.form-group');
 
 		// 选择国家
@@ -55,8 +55,8 @@ let login = {
 
 			let $input = $self.siblings('input.form-control');
 			let _value = $input.val();
-
-			if (isPoneAvailable(_value)) {
+			// isPoneAvailable(_value)；
+			if (true) {
 				sendVerificationCode(_value, function() {
 					$self.addClass('disabled');
 					addCountdown($self, 60);
@@ -77,6 +77,16 @@ let login = {
 				$input.prop('type', 'password');
 			};
 		});
+
+		// 表单提交
+		Form.submit(function(e) {
+			let $self = $(this);
+			// let $input = $(this).find('input.form-control');
+			let _params = $self.serialize();
+			console.log(_params);
+			getRegister(_params);
+			e.preventDefault();
+		});
 	}
 }
-export default login;
+export default Register;

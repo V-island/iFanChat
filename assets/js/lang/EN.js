@@ -58,6 +58,9 @@ const Lang = {
 				Next: 'Next',
 				Confirm: 'Confirm'
 			}
+		},
+		Set_Password: {
+			Title: 'Set password'
 		}
 	},
 	REGISTER: {
@@ -308,6 +311,8 @@ const Lang = {
 				Placeholder: '8-12 bit character'
 			}
 		},
+		ModalTitle: 'Prompt',
+		modalAlertButton: 'I know',
 		ModalButtonOk: 'YES',
 		ModalButtonCancel: 'NO',
 		ConfirmButtonOk: 'Confirm',

@@ -41,6 +41,50 @@ export function addCountdown(element, val) {
     }
 };
 
+//用于生成uuid
+function S4() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+}
+export function getUuid() {
+    return (S4() + "-" + S4() + "-" + S4() + S4());
+}
+
+// 保存
+export function setLocalStorage(name, data) {
+    return localStorage.setItem(name, JSON.stringify(data));
+}
+
+// 获取
+export function getLocalStorage(name) {
+    let data = localStorage.getItem(name);
+    return JSON.parse(data);
+}
+
+// 删除
+export function removeLocalStorage(name) {
+    return localStorage.removeItem(name);
+}
+
+
+/**
+ * 解析FORM参数
+ * @example  phoneCode=1&userPhone=123456
+ * @return Object {phoneCode:1,userPhone:123456}
+ * */
+export function urlParse(data) {
+    let obj = {};
+    let arr = data.match(/[^?&]+=[^?&]+/g);
+    if (arr) {
+        arr.forEach((item) => {
+            let tempArr = item.substring(0).split('=');
+            let key = decodeURIComponent(tempArr[0]);
+            let val = decodeURIComponent(tempArr[1]);
+            obj[key] = val;
+        });
+    }
+    return obj;
+};
+
 export function compareVersion(a, b) {
     var as = a.split('.');
     var bs = b.split('.');
