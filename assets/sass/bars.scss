@@ -133,8 +133,8 @@
         }
         &.icons{
             >.icon{
-                height: 2.1rem;
-                width: 2.1rem;
+                @include size(2.1rem);
+                border-radius: 50%;
             }
         }
 
@@ -159,12 +159,11 @@
         // Tab icon
         .icon {
             top: 0.05rem;
-            width: 1.2rem;
-            height: 1.2rem;
             font-size: 1.2rem;
             line-height: 1.2rem;
             padding-top: 0;
             padding-bottom: 0;
+            @include size(1.2rem);
 
             // Make the text smaller if it's used with an icon '
             ~.tab-label {
@@ -361,8 +360,7 @@
     line-height: 1.8rem;
     .icon {
         padding: 0;
-        width: 1rem;
-        height: 1rem;
+        @include size(1rem);
     }
     .icon-filter{
         width: .8rem;

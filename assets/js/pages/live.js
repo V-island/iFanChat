@@ -1,5 +1,6 @@
 import AgoraRTC from '../components/AgoraRTCSDK-2.3.0';
 import Modal from '../modal';
+import fcConfig from '../intro';
 
 const modal = new Modal();
 const MSG = {
@@ -44,7 +45,7 @@ const agoraConfig = {
 
 let live = {
 	templateDOM: {},
-	event: function() {
+	_bindEvent: function() {
 		let _self = this;
 		let btn = $('.live-buttons');
 
@@ -74,7 +75,7 @@ let live = {
 	},
 	agora: function() {
 		// 用户可选关闭Agora DSK功能
-		if (!$.fcConfig.agora) {
+		if (!fcConfig.agora) {
 			return;
 		}
 
@@ -319,7 +320,7 @@ let live = {
 		console.log('这里是livejs');
 		// let publicTpl = HTMLImport.attachTo(PUBLICFILE.actions_lives);
 		// this.templateDOM = publicTpl.tpl;
-		this.event();
+		this._bindEvent();
 		this.agora();
 	}
 }

@@ -13,7 +13,6 @@ module.exports = {
 			// 'es5-shim',
 			// 'es6-shim',
 			'./assets/js/components/webcomponents-bundle',
-			'./assets/js/intro',
 			'./assets/js/zepto-adapter',
 			'./assets/js/lang',
 			'./assets/js/device',
@@ -137,7 +136,7 @@ module.exports = {
 		}]),
 		new webpack.ProvidePlugin({
 			$: 'jquery',
-			Template: 'art-template/lib/template-web'
+			// Template: 'art-template/lib/template-web'
 			// ,Zepto: 'zepto'
 			// _: 'lodash'
 		}),

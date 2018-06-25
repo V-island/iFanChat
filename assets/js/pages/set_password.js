@@ -11,9 +11,9 @@ const modal = new Modal();
 
 let SetPassWord = {
 	init: function() {
-		this.event();
+		this._bindEvent();
 	},
-	event: function() {
+	_bindEvent: function() {
 		let FormSetPassword = $('form.form-set-password');
 		let Group = $('.form-group');
 

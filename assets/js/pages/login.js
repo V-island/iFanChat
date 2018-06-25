@@ -12,9 +12,9 @@ const modal = new Modal();
 let login = {
 	init: function() {
 		console.log('这里是登录js');
-		this.event();
+		this._bindEvent();
 	},
-	event: function() {
+	_bindEvent: function() {
 		let Form = $('form.form-login');
 		let Group = $('.form-group');
 

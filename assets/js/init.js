@@ -1,4 +1,6 @@
 import Modal from './modal';
+import fcConfig from './intro';
+
 const modal = new Modal();
 
 +function($) {
@@ -26,7 +28,7 @@ const modal = new Modal();
         if ($.initSwiper) $.initSwiper($content);
     };
 
-    if ($.fcConfig.showPageLoadingIndicator) {
+    if (fcConfig.showPageLoadingIndicator) {
         //这里的 以 push 开头的是私有事件，不要用
         $(window).on('pageLoadStart', function() {
             modal.showIndicator();
@@ -91,7 +93,7 @@ const modal = new Modal();
         //直接绑定
         FastClick.attach(document.body);
 
-        if ($.fcConfig.autoInit) {
+        if (fcConfig.autoInit) {
             $.init();
         }
 

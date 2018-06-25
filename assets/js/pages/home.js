@@ -1,5 +1,6 @@
 import Swiper from 'swiper';
 import Modal from '../modal';
+import Tabs from '../tabs';
 import {
     getLangConfig
 } from '../lang';
@@ -10,11 +11,11 @@ const modal = new Modal();
 
 let home = {
 	init: function() {
-		console.log('这里是homejs');
 		this.homeSwiper();
-		this.event();
+		this._bindEvent();
+		Tabs.attachTo(document.querySelector('.bar-tab'));
 	},
-	event: function() {
+	_bindEvent: function() {
 		$('.card-content','.card-list').on('click', function() {
 			let _notCoins = HOME.Madal.NotCoins;
 

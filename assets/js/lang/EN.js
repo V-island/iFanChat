@@ -14,6 +14,11 @@ const Lang = {
 				Title: 'Not enough coins',
 				Text: 'She is looking forward to your true love',
 				ButtonsText: 'BUY NOW'
+			},
+			DataIncomplete: {
+				Title: 'Data incomplete',
+				Text: 'Confirm that you are already 18 years old , then, go to Improve',
+				ButtonsText: 'GO'
 			}
 		}
 	},
@@ -74,6 +79,7 @@ const Lang = {
 		}
 	},
 	PERSONAL_DETAIL: {
+		Title: 'Personal details',
 		Profile_Photo: 'Profile photo',
 		Username: {
 			Title: 'Username',
@@ -283,7 +289,10 @@ const Lang = {
 		Favorite: 'Favorite',
 		Message: 'Message',
 		Me: 'Me',
-		PERSONAL_DETAIL: 'Personal details'
+		Lives_Btn: {
+			Live: 'Live',
+			Video: 'Video'
+		}
 	},
 	PUBLIC: {
 		Billing: 'Gold/Min',

@@ -8,7 +8,7 @@ const DETAIL = LANG.PERSONAL_DETAIL;
 const modal = new Modal();
 
 let userDetail = {
-	event: function() {
+	_bindEvent: function() {
 		let Info = $('.list-info');
 		let metaClass = '.list-item-meta-txt';
 
@@ -174,7 +174,7 @@ let userDetail = {
 	},
 	init: function() {
 		console.log('这里是userDetailjs');
-		this.event();
+		this._bindEvent();
 	}
 }
 export default userDetail;

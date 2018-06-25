@@ -20,6 +20,9 @@ export default class Modal extends EventEmitter {
 
         this.defaults = {
             modalStack: true,
+            modalCloseByOutside: true,
+            actionsCloseByOutside: true,
+            popupCloseByOutside: false,
             modalTitle: PUBLIC.ModalTitle,
             modalAlertButton: PUBLIC.modalAlertButton,
             modalButtonOk: PUBLIC.ModalButtonOk,
@@ -46,8 +49,6 @@ export default class Modal extends EventEmitter {
         $(document).on('click', ' .modal-overlay, .popup-overlay, .close-popup, .open-popup, .close-picker', function(e) {
             let clicked = $(this);
             let url = clicked.attr('href');
-
-
             //Collect Clicked data- attributes
             let clickedData = clicked.dataset();
 
@@ -72,6 +73,7 @@ export default class Modal extends EventEmitter {
             if (clicked.hasClass('modal-overlay')) {
                 if ($('.modal.modal-in').length > 0 && self.defaults.modalCloseByOutside)
                     self.closeModal('.modal.modal-in');
+
                 if ($('.actions-modal.modal-in').length > 0 && self.defaults.actionsCloseByOutside)
                     self.closeModal('.actions-modal.modal-in');
 
@@ -140,7 +142,7 @@ export default class Modal extends EventEmitter {
             isNotToast = !modal.hasClass('toast');
         if ($('.modal.modal-in:not(.modal-out)').length && self.defaults.modalStack && isModal && isNotToast) {
             $.modalStack.push(function () {
-                $.openModal(modal, cb);
+                self.openModal(modal, cb);
             });
             return;
         }
@@ -192,6 +194,7 @@ export default class Modal extends EventEmitter {
         if (typeof cb === 'function') {
           cb.call(this);
         }
+        $('[data-ripple]').ripple();
         return true;
     }
 
@@ -451,16 +454,18 @@ export default class Modal extends EventEmitter {
 
     /**
      * 操作表
-     * @param  {[type]} params [description]
+     * @param  {[string]} modal         [description]
+     * @param  {[type]} params          [description]
+     * @param  {[function]} callbackOk  通过事件
      * @return {[type]}        [description]
      */
-    actions(modal, params) {
+    actions(modal, params, callback) {
         const self = this;
-        let titleHTML = params.title ? '<div class="modal-title">' + params.title + '</div>' : '';
+        let titleHTML = '<div class="modal-title">' + (params.title ? params.title : '') + '</div>';
         let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="ion ion-md-close"></i></a>' : '';
         let headerHTML = titleHTML || closeHTML ? '<div class="modal-header">' + (titleHTML + closeHTML) + '</div>' : '';
-        let cancelHTML = params.cancelBtn ? '<a href="javascript: void(0)" class="button button-link actions-button-cancel" data-ripple>Cancel</a>' : '';
-        let modalHTML = '<div class="actions-modal">' + (headerHTML + modal + cancelHTML) + '</div>';
+        let cancelHTML = params.cancelBtn ? '<a href="javascript: void(0)" class="actions-button-cancel" data-ripple>' + (params.cancelIcon ? '<i class="icon modals-close"></i>' : self.defaults.confirmButtonCancel) + '</a>' : '';
+        let modalHTML = '<div class="actions-modal '+ (params.theme ? params.theme : '') +'">' + (headerHTML + modal + cancelHTML) + '</div>';
 
         _modalTemplateTempDiv.innerHTML = modalHTML;
 
@@ -468,19 +473,16 @@ export default class Modal extends EventEmitter {
 
         $(self.defaults.modalContainer).append(_modal[0]);
 
+        // Add events on buttons
         _modal.find('.modal-close').on('click', function (e) {
             self.closeModal(_modal);
         });
-        // Add events on buttons
-        // _modal.find('.modal-close').each(function (index, el) {
-        //     $(el).on('click', function (e) {
-        //         if (params.buttons[index].close !== false) $.closeModal(modal);
-        //         // if (params.buttons[index].onClick) params.buttons[index].onClick(modal, e);
-        //         // if (params.onClick) params.onClick(modal, index);
-        //     });
-        // });
+        _modal.find('.actions-button-cancel').on('click', function (e) {
+            self.closeModal(_modal);
+        });
+
         self.openModal(_modal);
-        return modal[0];
+        return _modal[0];
     }
 
     /**
@@ -645,7 +647,6 @@ export default class Modal extends EventEmitter {
                 });
                 callbackOk(_Data);
             });
-            $('[data-ripple]').ripple();
         });
     }
 
@@ -672,7 +673,6 @@ export default class Modal extends EventEmitter {
                 setLangConfig(_lang);
                 refreshURL();
             });
-            $('[data-ripple]').ripple();
         });
     }
 

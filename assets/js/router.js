@@ -1,10 +1,11 @@
+import Template from 'art-template/lib/template-web';
+import fcConfig from './intro';
 import {
     getLangConfig
 } from './lang';
 import {
     checkLogin
 } from './api';
-
 +function($) {
     'use strict';
 
@@ -42,11 +43,10 @@ import {
     }
 
     const RULE = {
-        path: '/test',
         name: 'test',
-        template: '../pages/test.html',
+        path: '../test/test.html',
         component: false,
-        dom: 'body'
+        init: 0
     }
 
     const LANG = getLangConfig();
@@ -72,7 +72,7 @@ import {
      */
     if (!('import' in document.createElement('link'))) {
         console.log(MSG.nosupport);
-        require($.routesConfig.importJs);
+        require(fcConfig.importJs);
     }
 
     let Util = {
@@ -311,7 +311,8 @@ import {
                 name: matchAs === undefined ? route.name : matchAs,
                 path: route.path,
                 component: route.component,
-                template: route.template || true,
+                // template: route.template || true,
+                init: route.init
             };
 
             if (route.children) {
@@ -341,10 +342,6 @@ import {
         _switchToDocument(url, ignoreCache, direction) {
             if (ignoreCache === undefined) {
                 ignoreCache = false;
-            }
-
-            if (checkLogin() && location.hash !== '#/login' && location.hash !== '#/login/find' && location.hash !== '#/register') {
-                return location.hash = '#/login';
             }
 
             if (location.hash == '' || location.hash == '#/' || location.hash === undefined) {
@@ -443,6 +440,11 @@ import {
         _loadDocument(url, callback) {
             let _self = this;
             let param = _self._createTemplate(url);
+
+            if (checkLogin() && param.init === 1) {
+                return location.hash = '#/login';
+            }
+
             let link = document.createElement('link');
             link.rel = 'import';
             link.id = param.name;
@@ -730,13 +732,13 @@ import {
     /**
      * 自定义是否执行路由功能的过滤器
      *
-     * 可以在外部定义 $.config.routerFilter 函数，实参是点击链接的 Zepto 对象。
+     * 可以在外部定义 fcConfig.routerFilter 函数，实参是点击链接的 Zepto 对象。
      *
      * @param $link 当前点击的链接的 Zepto 对象
      * @returns {boolean} 返回 true 表示执行路由功能，否则不做路由处理
      */
     function customClickFilter($link) {
-        var customRouterFilter = $.fcConfig.routerFilter;
+        var customRouterFilter = fcConfig.routerFilter;
         if ($.isFunction(customRouterFilter)) {
             var filterResult = customRouterFilter($link);
             if (typeof filterResult === 'boolean') {
@@ -749,7 +751,7 @@ import {
 
     $(function() {
         // 用户可选关闭router功能
-        if (!$.fcConfig.router) {
+        if (!fcConfig.router) {
             return;
         }
 
@@ -757,7 +759,7 @@ import {
             return;
         }
 
-        let router = $.router = new Router($.routesConfig.pagesFile);
+        let router = $.router = new Router(fcConfig.pagesFile);
 
         $(document).on('click', 'a', function(e) {
             let $target = $(e.currentTarget);

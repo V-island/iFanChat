@@ -52,7 +52,6 @@
     "jquery-ripple": "^0.2.4",
     "lodash": "^4.17.10",
     "pickerjs": "^0.2.0",
-    "swiper": "^4.2.6",
-    "zepto": "^1.2.0"
+    "swiper": "^4.2.6"
   }
 }

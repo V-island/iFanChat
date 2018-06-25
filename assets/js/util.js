@@ -65,6 +65,43 @@ export function removeLocalStorage(name) {
     return localStorage.removeItem(name);
 }
 
+/**
+ * import html 导入
+ * @param  {[type]}   param    [description]
+ * @param  {Function} callback [description]
+ * @return {[type]}            [description]
+ */
+export function importTemplate(param, callback) {
+    let self = this;
+
+    let link = document.createElement('link');
+    let Tpl = {};
+    link.rel = 'import';
+    link.id = param.name;
+    link.href = param.path;
+
+    link.onload = function(e) {
+        console.log('Loaded import: ' + e.target.href);
+        let _target = e.target.import;
+
+        if (typeof(_target.head) != 'undefined' && _target.head != '') {
+            for (let i = 0; i < _target.head.children.length; i++) {
+                callback(_target.head.children[i].id, replaceNote(_target.head.children[i].innerHTML));
+            }
+        }
+
+        //加载完成后清除头部引用
+        if (!link.readyState || 'link' === link.readyState || 'complete' === link.readyState) {
+            link.onload = link.onreadystatechange = null;
+            link.parentNode.removeChild(link);
+        }
+    };
+    link.onerror = function(e) {
+        console.error(MSG.errorsupport + e.target.href);
+        return false;
+    };
+    document.head.appendChild(link);
+}
 
 /**
  * 解析FORM参数
@@ -83,6 +120,22 @@ export function urlParse(data) {
         });
     }
     return obj;
+};
+
+/**
+ * 去注释以及style script 换行符 标签空格
+ * @param  {[type]} str [description]
+ * @return {[type]}     [description]
+ */
+export function replaceNote(str) {
+    return str.replace(/(\n)/g, '')
+        .replace(/(\t)/g, '')
+        .replace(/(\r)/g, '')
+        .replace(/<!--[\s\S]*?--\>/g, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/[^>]*style>/gi, '')
+        //.replace(/<script[^>]*>[\s\S]*?<\/[^>]*script>/gi,'')
+        .replace(/>\s*/g, '>')
+        .replace(/\s*</g, '<');
 };
 
 export function compareVersion(a, b) {

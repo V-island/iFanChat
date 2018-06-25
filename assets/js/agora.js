@@ -1,4 +1,5 @@
 import AgoraRTC from './components/AgoraRTCSDK-2.3.0';
+import fcConfig from './intro';
 
 +function($) {
     'use strict';
@@ -126,7 +127,7 @@ import AgoraRTC from './components/AgoraRTCSDK-2.3.0';
 
     $(function() {
         // 用户可选关闭Agora DSK功能
-        if (!$.fcConfig.agora) {
+        if (!fcConfig.agora) {
             return;
         }
 

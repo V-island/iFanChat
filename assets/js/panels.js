@@ -1,3 +1,4 @@
+import fcConfig from './intro';
 import {
     getCurrentPage
 } from './util';
@@ -79,8 +80,8 @@ import {
      ======================================================*/
     $.initSwipePanels = function () {
         var panel, side;
-        var swipePanel = $.fcConfig.swipePanel;
-        var swipePanelOnlyClose = $.fcConfig.swipePanelOnlyClose;
+        var swipePanel = fcConfig.swipePanel;
+        var swipePanelOnlyClose = fcConfig.swipePanelOnlyClose;
         var swipePanelCloseOpposite = true;
         var swipePanelActiveArea = false;
         var swipePanelThreshold = 2;

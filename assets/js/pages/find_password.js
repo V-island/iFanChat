@@ -16,9 +16,9 @@ const modal = new Modal();
 
 let FindPassWord = {
 	init: function() {
-		this.event();
+		this._bindEvent();
 	},
-	event: function() {
+	_bindEvent: function() {
 		let FormFindPassword = $('form.form-find-password');
 		let Group = $('.form-group');
 

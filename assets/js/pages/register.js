@@ -16,9 +16,9 @@ const modal = new Modal();
 
 let Register = {
 	init: function() {
-		this.event();
+		this._bindEvent();
 	},
-	event: function() {
+	_bindEvent: function() {
 		let Form = $('form.form-register');
 		let Group = $('.form-group');
 

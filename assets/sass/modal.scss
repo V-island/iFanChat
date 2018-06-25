@@ -247,6 +247,16 @@ html.with-statusbar-overlay {
     .modal-close{
         right: 0.6rem;
     }
+    &.theme-black{
+        background: $theme-actions-modal-bg-color;
+        .modal-title, span{
+            color: $theme-actions-modal-title-color;
+        }
+        > .actions-button-cancel{
+            color: $theme-actions-modal-title-color !important;
+            @include hairline(top, $theme-actions-modal-color-split);
+        }
+    }
 }
 .actions-modal-group {
     padding: 0.4rem;
@@ -254,8 +264,19 @@ html.with-statusbar-overlay {
 .actions-button-cancel{
     color: $color-text-gray !important;
     position: relative;
+    padding: 0.3rem 0.5rem;
+    height: 2.1rem;
+    line-height: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.6rem;
+    display: block;
     @include hairline(top, $actions-modal-color-split);
+    >i.icon{
+        @include size(0.6rem);
+    }
 }
+
 // toast
 .toast {
   background: rgba(0, 0, 0, .8);

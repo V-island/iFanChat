@@ -11,6 +11,9 @@
 		justify-content: start;
 		margin: auto -0.75rem;
 	}
+	&.tag-share{
+		@include flex-spindle(space-around);
+	}
 	label.tag-label {
 		background: $tag-bg-color;
 		border-radius: $tag-border-radius;

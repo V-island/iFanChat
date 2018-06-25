@@ -75,8 +75,8 @@ $tag-bg-color: transparent;
 $tag-bg-color-active: #4E87FA;
 $tag-recharge-border-default: $tag-border-width solid $color-text-gray-light;
 
-//Modal
-//---------------------------------------------------
+// Modal
+// ---------------------------------------------------
 $modal-bg-color: #3D4150;
 $modal-close-color: $color-text-secondary;
 $modal-buton-color: $modal-bg-color;
@@ -120,7 +120,7 @@ $border-default: $border-default-width solid $border-default-color;
 $border-radius: 0.3rem;
 
 // Lists
-//---------------------------------------------------
+// ----------------------------------------------------
 $list-block-border-color: $color-split;
 $list-block-bg: #fff;
 $list-side-padding: 0.8rem;
@@ -132,7 +132,7 @@ $list-message-meta-color: #FF5E5E;
 $list-message-border-color: #666;
 
 // Forms
-//---------------------------------------------------
+// ---------------------------------------------------
 $form-group-margin-bottom: 1.05rem;
 $input-height-base: 1.5rem;
 $padding-base-horizontal: 0.3rem;
@@ -143,7 +143,16 @@ $input-label-color: #B2B2B2;
 $input-bg: transparent;
 $input-border: 1px solid #666;
 
-//live
-//---------------------------------------------------
+// live
+// ---------------------------------------------------
 $live-mask-bg-color: rgba(51, 51, 51, 0.2);//#333
 $live-anchor-txt-color: #FF3376;
+
+
+// Theme-black
+// ---------------------------------------------------
+// Modal
+// ---------------------------------------------------
+$theme-actions-modal-bg-color: #535969;
+$theme-actions-modal-title-color: $color-text;
+$theme-actions-modal-color-split: #666;
