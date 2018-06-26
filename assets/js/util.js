@@ -65,6 +65,11 @@ export function removeLocalStorage(name) {
     return localStorage.removeItem(name);
 }
 
+// 删除全部
+export function clearLocalStorage(name) {
+    return localStorage.clear();
+}
+
 /**
  * import html 导入
  * @param  {[type]}   param    [description]

@@ -6,6 +6,7 @@ import {
     setLangConfig
 } from './lang';
 import {
+    createDom,
     refreshURL
 } from './util';
 

@@ -1,49 +1,57 @@
 import Modal from './modal';
+import fcConfig from './intro';
 import {
 	getLangConfig
 } from './lang';
 import {
+	extend,
 	isObject,
 	getUuid,
 	urlParse,
 	getLocalStorage,
 	setLocalStorage,
-	removeLocalStorage
+	removeLocalStorage,
+	clearLocalStorage
 } from './util';
 
 const LANG = getLangConfig();
 const modal = new Modal();
 
-const baseURL = 'http://10.30.11.112:8080/live-app';
+const baseURL = 'http://10.30.11.112:8080/live-app/open/gate';
 const Type = 'POST';
+const MacType = 1; // 设备类型 1.手机 2.PC
+const PhoneType = null;
+const LofinMode = 2; // 登入方式 1.APP 2.web 3.PC
 
 // localStorage KEY
 const TOKEN_NAME = 'TOKEN';
 const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
 
-function getPost(_url,param,_type,_header,async) {
+function getPost(_url, param, _type, _header, async, callback) {
+	if (typeof _type === 'function') {
+	    callback = arguments[2];
+	    _type = undefined;
+	    _header = undefined;
+	    async = undefined;
+	}
+
 	let token = localStorage.getItem('token');
 		_type = _type == undefined ? Type : _type;
-		_url = _url.indexOf('http')>-1 ? _url : baseURL + _url;
+		// _url = _url.indexOf('http')>-1 ? _url : baseURL + _url;
 		async = async != undefined ? async : '';
 		_header = _header != undefined ? _header : '';
 		param = param != undefined ? param : '';
 
+	param.keyword = _url.indexOf('/') > -1 ? _url.slice(1) : _url;
 
-
-	if(token !== null && _header == ''){
-		_header = {
-			"Authorization":"Bearer "+token
-		}
-	}
 	let ajaxOpt ={
 		type: _type,
-		url: _url,
+		url: baseURL,
 		cache: false,
 	    statusCode: {
 	        200: function() {console.log(200)},
-	        400: function() {toastr.error('400 用户不存在或者密码错误，登录失败')},
+	        400: function() {toastr.error('400 你已经在其它设备登入，请重新登入');clearLocalStorage();location.href = '#/login';},
 	        401: function() {toastr.error('401');removeLocalStorage(TOKEN_NAME);session.jumpPage('session/#/login');},
 	        403: function() {toastr.error('403 用户没有对应操作权限')},
 	        404: function() {toastr.error('404')},
@@ -62,7 +70,18 @@ function getPost(_url,param,_type,_header,async) {
 		ajaxOpt.async = async;
 	}
 	console.log(ajaxOpt);
-	let post = Promise.resolve($.ajax(ajaxOpt));
+	let post = Promise.resolve($.ajax(ajaxOpt)).then(function(response) {
+		if (response.code === 1000) {
+			return callback(response);
+		}
+
+		modal.alert(response.message, function(_modal) {
+			modal.closeModal(_modal);
+		});
+
+	}, function(error) {
+		console.log(error);
+	});
 	return post;
 }
 
@@ -74,6 +93,21 @@ function getMac() {
 	uuid = getUuid();
 	setLocalStorage(UUID, uuid);
 	return uuid;
+}
+
+// 获取用户信息
+export function getUserInfo() {
+	return getLocalStorage(UER_NAME);
+}
+
+// 判断是否是主播
+export function checkAuth() {
+	let auth = getLocalStorage(UER_NAME);
+
+	if (auth.user_authentication === 2) {
+		return false;
+	}
+	return true;
 }
 
 // 验证登录状态
@@ -90,7 +124,7 @@ export function checkLogin() {
 export function sendVerificationCode(_phone, callbackOk, callbackCancel) {
 	getPost('/sendAuthCode', {
 		phone: _phone
-	}).then(function(response) {
+	}, function(response) {
 		callbackOk();
 	});
 };
@@ -104,24 +138,12 @@ export function sendVerificationCode(_phone, callbackOk, callbackCancel) {
  */
 export function getRegister(params, callbackOk, callbackCancel) {
 	let _params = isObject(params) ? params : urlParse(params);
-	console.log(_params);
-	getPost('/insRegister', _params)
-	.then(function(response) {
-		switch(response.code) {
-			case 1:
-				if (response.data) {
-					getLogin({
-						phoneCode: _params.phoneCode,
-						userPhone: _params.userPhone,
-						userPassword: _params.userPassword
-					});
-				}
-				break;
-			default:
-				modal.alert(response.message, function(_modal) {
-					modal.closeModal(_modal);
-				});
-		}
+	getPost('/insRegister', _params, function(response) {
+		getLogin({
+			phoneCode: _params.phoneCode,
+			userPhone: _params.userPhone,
+			userPassword: _params.userPassword
+		});
 	});
 };
 
@@ -134,32 +156,41 @@ export function getRegister(params, callbackOk, callbackCancel) {
  */
 export function getLogin(params, callbackOk, callbackCancel) {
 	let _params = isObject(params) ? params : urlParse(params);
-	_params.mac = getMac();
-	_params.macType = 1;
-	_params.phoneType = null;
-	_params.loginMode = 2;
+	let _mac = getMac();
+	_params.mac = _mac;
+	_params.macType = MacType;
+	_params.phoneType = PhoneType;
+	_params.loginMode = LofinMode;
 	_params.status = 1;
-	getPost('/appLogin', _params)
-	.then(function(response) {
-		switch(response.code) {
-			case 1:
-				modal.toast(response.message);
-				if (response.data) {
-					setLocalStorage(TOKEN_NAME, response.data.token);
-					setLocalStorage(UER_NAME, {
-						userId: response.data.userId,
-						phoneCode: response.data.phoneCode,
-						userPhone: response.data.userPhone,
-						userPassword: _params.userPassword
-					});
-					location.href = '#/home';
-				}
-				break;
-			default:
-				modal.alert(response.message, function(_modal) {
-					modal.closeModal(_modal);
-				});
-		}
+	getPost('/appLogin', _params, function(response) {
+		modal.toast(response.message);
+		setLocalStorage(TOKEN_NAME, response.data.token);
+		personCenter({
+			userId: response.data.userId,
+			phoneCode: response.data.phoneCode,
+			userPhone: response.data.userPhone,
+			userPassword: _params.userPassword
+		}, response.data.token, _mac);
+	});
+};
+
+/**
+ * 个人中心/个人信息
+ * @return {[type]} [description]
+ */
+export function personCenter(params, token, mac) {
+	let _info = isObject(params) ? params : getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: token,
+		loginMode: LofinMode,
+		mac: mac
+	}
+	getPost('/personCenter', _params, function(response) {
+		modal.toast(response.message);
+		extend(_info, response.data);
+		setLocalStorage(UER_NAME, _info);
+		location.href = '#/home';
 	});
 };
 
@@ -172,21 +203,12 @@ export function getLogin(params, callbackOk, callbackCancel) {
  */
 export function getFindPassword(params, callbackOk, callbackCancel) {
 	let _params = isObject(params) ? params : urlParse(params);
-	getPost('/findPassword', _params)
-	.then(function(response) {
-		switch(response.code) {
-			case 1:
-				setLocalStorage(UER_NAME, {
-					phoneCode: _params.phoneCode,
-					userPhone: _params.userPhone
-				});
-				callbackOk();
-				break;
-			default:
-				modal.alert(response.message, function(_modal) {
-					modal.closeModal(_modal);
-				});
-		}
+	getPost('/findPassword', _params, function(response) {
+		setLocalStorage(UER_NAME, {
+			phoneCode: _params.phoneCode,
+			userPhone: _params.userPhone
+		});
+		callbackOk();
 	});
 };
 
@@ -200,22 +222,11 @@ export function getFindPassword(params, callbackOk, callbackCancel) {
 export function getUpdatePassword(params, callbackOk, callbackCancel) {
 	let _params = isObject(params) ? params : urlParse(params);
 	let _info = getLocalStorage(UER_NAME);
-	console.log(_info);
 	_params.phoneCode = _info.phoneCode;
 	_params.userPhone = _info.userPhone;
-	console.log(_params);
-	getPost('/updatePassword', _params)
-	.then(function(response) {
-		switch(response.code) {
-			case 1:
-				modal.toast(response.message);
-				callbackOk();
-				break;
-			default:
-				modal.alert(response.message, function(_modal) {
-					modal.closeModal(_modal);
-				});
-		}
+	getPost('/updatePassword', _params, function(response) {
+		modal.toast(response.message);
+		callbackOk();
 	});
 };
 
@@ -232,18 +243,19 @@ export function loginOut(callbackOk, callbackCancel) {
 		token: getLocalStorage(TOKEN_NAME),
 		status: 2
 	}
-	console.log(_params);
-	getPost('/updatePassword', _params)
-	.then(function(response) {
-		switch(response.code) {
-			case 1:
-				modal.toast(response.message);
-				callbackOk();
-				break;
-			default:
-				modal.alert(response.message, function(_modal) {
-					modal.closeModal(_modal);
-				});
-		}
+	getPost('/updatePassword', _params, function(response) {
+		modal.toast(response.message);
+		callbackOk();
 	});
+};
+
+/**
+ * 每日一录
+ * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callbackCancel 取消事件
+ * @return {[type]} [description]
+ */
+export function newDayRecord(callbackOk, callbackCancel) {
+	let start = true;
+	return start ? callbackOk() : callbackCancel();
 };

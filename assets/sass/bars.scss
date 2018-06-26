@@ -91,7 +91,7 @@
         border-radius: 0.9rem;
     }
 
-    .title {
+    .back + .title {
         margin-left: -2rem;
     }
 
@@ -114,6 +114,7 @@
     height: $bar-tab-height;
     padding: 0;
     table-layout: fixed;
+    z-index: 2002;
     @include hairline(top, $border-default-color);
     @include hairline-remove(bottom);
 

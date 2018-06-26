@@ -1,7 +1,12 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from './eventEmitter';
 import Modal from './modal';
+import Record from './record';
 import fcConfig from './intro';
+import {
+    checkAuth,
+    newDayRecord
+} from './api';
 import {
     getLangConfig
 } from './lang';
@@ -10,45 +15,66 @@ import {
     addEvent,
     importTemplate,
     createDom,
+    hasClass,
     addClass,
     removeClass
 } from './util';
 
 const LANG = getLangConfig();
+const MADAL = LANG.HOME.Madal;
 const modal = new Modal();
 
 export default class Tabs extends EventEmitter {
-    constructor(element, options) {
+    constructor(options) {
         super();
 
-        this.element = element;
         this.options = {
-            selectedIndex: null,
+            itemClass: 'bar-item',
             startLiveClass: 'btn-live',
             liveBtnClass: 'modals-live',
             videoBtnClass: 'modals-video',
             showClass: 'active'
         };
+        this.tabFile = fcConfig.publicFile.bar_tabs;
 
         extend(this.options, options);
 
-        this.modalFile = fcConfig.publicFile.tabs_lives;
-        this.modallLiveEl = this.element.getElementsByClassName(this.options.startLiveClass)[0];
+        this.tabsEl = createDom(this._tabsTemplate(LANG.BAR));
+
+        document.body.append(this.tabsEl);
+
+        this.itemEl = this.tabsEl.getElementsByClassName(this.options.itemClass);
+        this.modallLiveEl = this.tabsEl.getElementsByClassName(this.options.startLiveClass)[0];
         this.init();
     }
 
     init() {
         const self = this;
-        this.tpl = {};
+        self.tpl = {};
 
-        importTemplate(this.modalFile, function(id, _template) {
-            self.tpl[id] = Template.render(_template, LANG);;
+        importTemplate(self.tabFile, function(id, _template) {
+            self.tpl[id] = Template.render(_template, LANG);
         });
+
         this._bindEvent();
     }
 
     _bindEvent() {
         let self = this;
+
+        // 页面切换
+        for (let i = 0; i < self.itemEl.length; i++) {
+            addEvent(self.itemEl[i], 'click', function() {
+                let itemActive = self.tabsEl.getElementsByClassName(self.options.showClass)[0];
+
+                if (hasClass(self.itemEl[i], self.options.showClass)) {
+                    return false;
+                }
+
+                removeClass(itemActive, self.options.showClass);
+                addClass(self.itemEl[i], self.options.showClass);
+            });
+        }
 
         // 直播开始按钮
         addEvent(self.modallLiveEl, 'click', function() {
@@ -62,21 +88,58 @@ export default class Tabs extends EventEmitter {
     }
 
     _LivesEvent(modalEl) {
+        let self = this;
         let liveEl = modalEl.getElementsByClassName(this.options.liveBtnClass)[0];
         let videoEl = modalEl.getElementsByClassName(this.options.videoBtnClass)[0];
 
         // 直播
         addEvent(liveEl, 'click', function() {
-            console.log('live');
+            modal.closeModal(modalEl);
+
+            if (!checkAuth()) {
+                let _dataIncomplete = MADAL.DataIncomplete;
+
+                modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, function() {
+                    location.href = '#/user';
+                }, _dataIncomplete.ButtonsText);
+            }
+
+            newDayRecord(function() {
+                Record.attachTo();
+            }, function() {
+                // body...
+            });
+
         });
 
         // 小视频
         addEvent(videoEl, 'click', function() {
+            modal.closeModal(modalEl);
+
             console.log('video');
         });
     }
 
-    static attachTo(element, options) {
-        return new Tabs(element, options);
+    _tabsTemplate(options) {
+        let html = '';
+        let hash = location.hash;
+        html = '<nav class="bar bar-tab">';
+        html += '<a class="bar-item tab-item '+ (hash == '#/home' ? 'active' : '') +'" href="#/home" data-ripple><span class="icon icon-home"></span><span class="tab-label">'+ options.Home +'</span></a>';
+        html += '<a class="bar-item tab-item '+ (hash == '#/favorite' ? 'active' : '') +'" href="#/favorite" data-ripple><span class="icon icon-favorite"></span><span class="tab-label">'+ options.Favorite +'</span></a>';
+        html += '<a class="tab-item icons" href="javascript:void(0);"><span class="icon icon-live btn-live" data-ripple></span></a>';
+        html += '<a class="bar-item tab-item '+ (hash == '#/message' ? 'active' : '') +'" href="#/message" data-ripple><span class="icon icon-message"></span><span class="tab-label">'+ options.Message +'</span></a>';
+        html += '<a class="bar-item tab-item '+ (hash == '#/user' ? 'active' : '') +'" href="#/user" data-ripple><span class="icon icon-me"></span><span class="tab-label">'+ options.Me +'</span></a>';
+        html += '</nav>';
+
+        return html;
     }
+
+    static attachTo(options) {
+        return new Tabs(options);
+    }
+
+    static remove(tabsEl) {
+        return document.body.removeChild(tabsEl);
+    }
+
 }

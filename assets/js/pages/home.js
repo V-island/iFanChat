@@ -1,27 +1,25 @@
 import Swiper from 'swiper';
 import Modal from '../modal';
-import Tabs from '../tabs';
 import {
     getLangConfig
 } from '../lang';
 
 const LANG = getLangConfig();
-const HOME = LANG.HOME;
+const MADAL = LANG.HOME.Madal;
 const modal = new Modal();
 
 let home = {
 	init: function() {
 		this.homeSwiper();
 		this._bindEvent();
-		Tabs.attachTo(document.querySelector('.bar-tab'));
 	},
 	_bindEvent: function() {
+
 		$('.card-content','.card-list').on('click', function() {
-			let _notCoins = HOME.Madal.NotCoins;
+			let _notCoins = MADAL.NotCoins;
 
 			modal.alert(_notCoins.Text, _notCoins.Title, function() {
-				// modal.popup();
-				location.hash = '#/live';
+				location.href = '#/live';
 			}, _notCoins.ButtonsText);
 		});
 	},

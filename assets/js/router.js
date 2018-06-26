@@ -1,5 +1,6 @@
 import Template from 'art-template/lib/template-web';
 import fcConfig from './intro';
+import Tabs from './tabs';
 import {
     getLangConfig
 } from './lang';
@@ -224,6 +225,8 @@ import {
         visiblePageClass: 'page-visible',
         // 表示是 page 的 class，注意，仅是标志 class，而不是所有的 class
         pageClass: 'page',
+        // 表示是当前 nav 的 class
+        barTabClass: '.bar-tab',
         // 根目录
         rootUrl: 'home'
     }
@@ -311,8 +314,9 @@ import {
                 name: matchAs === undefined ? route.name : matchAs,
                 path: route.path,
                 component: route.component,
-                // template: route.template || true,
-                init: route.init
+                template: route.template || true,
+                init: route.init || 0,
+                navTabs: route.navTabs || 0
             };
 
             if (route.children) {
@@ -358,9 +362,9 @@ import {
                 this._doSwitchDocument(url, direction);
             } else {
                 this._loadDocument(url, {
-                    success: function($doc, $component) {
+                    success: function($doc, param) {
                         try {
-                            context._parseDocument(url, $doc, $component);
+                            context._parseDocument(url, $doc, param);
                             context._doSwitchDocument(url, direction);
                         } catch (e) {
                             // location.hash = url;
@@ -392,6 +396,12 @@ import {
             let $allSection = $newDoc.find('.' + routerConfig.pageClass);
             let $visibleSection = $newDoc.find('.' + routerConfig.curPageClass);
 
+            let $barTab = document.querySelector(routerConfig.barTabClass);
+            // 判断是否登录
+            if (checkLogin() && this.cache[url].init !== 1) {
+                return location.hash = '#/login';
+            }
+
             if (!$visibleSection.length) {
                 $visibleSection = $allSection.eq(0);
             }
@@ -417,6 +427,13 @@ import {
             console.log(this.cache);
             this._readyImport(this.cache[url].$component,'init');
             if ($currentSection.length) this._animateDocument($currentDoc, $newDoc, $visibleSection, direction);
+
+            // 判断Nav Tabs
+            if (!$barTab && this.cache[url].navTabs === 1) {
+                Tabs.attachTo();
+            }else if($barTab && this.cache[url].navTabs !== 1) {
+                Tabs.remove($barTab);
+            }
         }
 
         /**
@@ -440,11 +457,6 @@ import {
         _loadDocument(url, callback) {
             let _self = this;
             let param = _self._createTemplate(url);
-
-            if (checkLogin() && param.init === 1) {
-                return location.hash = '#/login';
-            }
-
             let link = document.createElement('link');
             link.rel = 'import';
             link.id = param.name;
@@ -456,9 +468,8 @@ import {
                 let _target = e.target.import;
                 let bodyHTML = typeof(_target.body) == 'undefined' ? _target.innerHTML : _target.body.innerHTML;
                 let $doc = Util.replaceNote(bodyHTML);
-                // let $doc = $(_target);
-                // console.log($doc);
-                callback.success && callback.success.call(null, $doc, param.component);
+
+                callback.success && callback.success.call(null, $doc, param);
 
                 //加载完成后清除头部引用
                 if (!link.readyState || 'link' === link.readyState || 'complete' === link.readyState) {
@@ -504,9 +515,9 @@ import {
          * @param $doc import html
          * @private
          */
-        _parseDocument(url, $doc, $component) {
+        _parseDocument(url, $doc, param) {
             $doc = Template.render($doc, LANG);
-            this._saveDocumentIntoCache($doc, url, $component);
+            this._saveDocumentIntoCache($doc, url, param);
         }
 
         /**
@@ -519,7 +530,7 @@ import {
          * @param {*} component component
          * @private
          */
-        _saveDocumentIntoCache(doc, url, component) {
+        _saveDocumentIntoCache(doc, url, param) {
             let $doc = $(doc);
 
             if (!$doc.hasClass(routerConfig.sectionGroupClass)) {
@@ -528,7 +539,9 @@ import {
 
             this.cache[url] = {
                 $content: $doc,
-                $component: component
+                $component: param.component,
+                navTabs: param.navTabs,
+                init: param.init
             };
         }
 

@@ -21,9 +21,9 @@ const fcConfig = {
     swipePanelOnlyClose: true, //只允许滑动关闭，不允许滑动打开侧栏
     importJs: '@webcomponents/webcomponentsjs/webcomponents-lite',
     publicFile: {
-        tabs_lives: {
-            name: 'tabs_lives',
-            path: '../public/tabs_lives.html'
+        bar_tabs: {
+            name: 'bar_tabs',
+            path: '../public/bar_tabs.html'
         },
         actions_lives: {
             name: 'actions_lives',
@@ -34,59 +34,57 @@ const fcConfig = {
         name: 'login',
         path: '../pages/login.html',
         component: Login,
-        init: 0,
+        init: 1,
         children: [{
             name: 'find',
             path: '../pages/find_password.html',
             component: FindPassword,
-            init: 0
+            init: 1
         }, {
             name: 'set',
             path: '../pages/set_password.html',
             component: SetPassword,
-            init: 0
+            init: 1
         }]
     }, {
         name: 'register',
         path: '../pages/register.html',
         component: Register,
-        init: 0,
+        init: 1,
         children: [{
             name: 'terms',
             path: '../pages/terms_service.html',
             component: Register,
-            init: 0
+            init: 1
         }]
     }, {
         name: 'home',
         path: '../pages/home.html',
         component: Home,
-        init: 1
+        navTabs: 1
     }, {
         name: 'live',
         path: '../pages/live.html',
-        component: Live,
-        init: 1
+        component: Live
     }, {
         name: 'favorite',
         path: '../pages/favorite.html',
         component: Favorite,
-        init: 1
+        navTabs: 1
     }, {
         name: 'message',
         path: '../pages/message.html',
         component: Message,
-        init: 1
+        navTabs: 1
     }, {
         name: 'user',
         path: '../pages/user.html',
         component: User,
-        init: 1,
+        navTabs: 1,
         children: [{
             name: 'detail',
             path: '../pages/user_detail.html',
-            component: UserDetail,
-            init: 1
+            component: UserDetail
         }]
     }]
 };

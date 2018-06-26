@@ -17,7 +17,7 @@ const Lang = {
 			},
 			DataIncomplete: {
 				Title: 'Data incomplete',
-				Text: 'Confirm that you are already 18 years old , then, go to Improve',
+				Text: 'Confirm that you are already <span>18</span> years old , then, go to Improve',
 				ButtonsText: 'GO'
 			}
 		}
