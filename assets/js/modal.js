@@ -277,7 +277,7 @@ export default class Modal extends EventEmitter {
         }
         let extraClass = params.extraClass || '';
         let titleHTML = params.title ? '<div class="modal-title">' + params.title + '</div>' : '';
-        let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="ion ion-md-close"></i></a>' : '';
+        let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="icon modals-close"></i></a>' : '';
         let textHTML = params.text ? '<div class="modal-text">' + params.text + '</div>' : '';
         let afterTextHTML = params.afterText ? params.afterText : '';
         let noButtons = !params.buttons || params.buttons.length === 0 ? 'modal-no-buttons' : '';
@@ -398,6 +398,7 @@ export default class Modal extends EventEmitter {
         if (typeof title === 'function') {
             callbackCancel = arguments[2];
             callbackOk = arguments[1];
+            prompt = arguments[3];
             title = undefined;
         }
         return self.modal({
@@ -619,6 +620,7 @@ export default class Modal extends EventEmitter {
         let selected = params.selected ? params.selected : 3;
 
         params.data.forEach((_data, index) => {
+            console.log(_data);
             listHTML += '<li class="list-item" data-val="'+ _data.value +'" data-ripple><span class="list-item-text">'+ _data.text +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
         modalHTML = '<div class="popup"><header class="bar bar-flex">'+ (closeHTML + titleHTML) +'</header><div class="content block">'+ textHTML + '<ul class="list list-user list-info popup-list">'+ listHTML +'</ul></div></div>';

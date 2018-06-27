@@ -346,13 +346,51 @@
 	}
 }
 
-// live-wrapper
+// lives-wrapper/record-wrapper
 //--------------------------------
-.live-wrapper{
+.lives-wrapper{
 	overflow: hidden;
 }
-
-.live-video{
+.record-wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10400;
+    color: $color-text;
+    background-color: $color-bg;
+    box-sizing: border-box;
+    @include scrollable;
+    transition-property: transform;
+    transform: translate3d(0,100%,0);
+    &.record-in, &.record-out {
+        transition-duration: $live-duration;
+    }
+    &.record-in {
+        transform: translate3d(0, 0, 0);
+    }
+    &.record-out {
+        transform: translate3d(0, 100%, 0);
+    }
+}
+.record-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 10200;
+    visibility: hidden;
+    opacity: 0;
+    transition-duration: $live-duration;
+    &.record-overlay-visible {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+.lives-video{
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -362,10 +400,10 @@
 	>.video{
 		width: 100%;
 		height: 100%;
-		background: $color-text-secondary;
+		background: $live-mask-bg-color;
 	}
 
-	&.liver-video-us{
+	&.lives-video-us{
 		top: auto;
 		left: auto;
 		right: 0.75rem;
@@ -378,31 +416,30 @@
 		}
 	}
 }
-.live-attention{
+.lives-header{
+	@include  spindle-center(space-between);
+	position: absolute;
+	top: 0.75rem;
+	left: 0.75rem;
+	right: 0.75rem;
+
+	>.icon{
+		@include size(1.05rem);
+	}
+}
+.lives-attention{
 	background: $live-mask-bg-color;
 	padding: 0.35rem;
 	width: 7.5rem;
 	height: 2.1rem;
 	border-radius: 1rem;
 	@include  spindle-center(space-between);
-	position: absolute;
-	top: 0.75rem;
-	left: 0.75rem;
 
 	>i.icon{
 		@include size(1.45rem);
 	}
 }
-.live-close{
-	position: absolute;
-	top: 0.75rem;
-	right: 0.75rem;
-
-	>i.icon{
-		@include size(1.05rem);
-	}
-}
-.live-buttons{
+.lives-buttons{
 	@include  spindle-center(space-between);
 	position: absolute;
 	bottom: 0.75rem;
@@ -412,8 +449,56 @@
 	>.icon{
 		@include size(2.1rem);
 	}
+
+	.btn-record{
+		@include size(3.85rem);
+		border-radius: 50%;
+		background: $live-btnRecord-bg-color;
+
+		&:after {
+		    content: "";
+		    background: $live-btnRecord-color;
+		    @include size(2.45rem);
+		    display: block;
+		    border-radius: 50%;
+		    margin: 0.7rem auto;
+		}
+	}
+
+	&.record-buttons{
+		bottom: 3.15rem;
+		left: auto;
+		right: 2.1rem;
+	    width: 9.3rem;
+
+		>.record-start{
+			display: block;
+	    }
+	    >.record-end{
+			display: none;
+	    }
+	}
+
+	&.active{
+		left: 2.1rem;
+		width: auto;
+
+		>.record-start{
+			display: none;
+	    }
+	    >.record-end{
+			display: block;
+	    }
+		.btn-record:after {
+		    content: "";
+		    background: $live-btnRecordEnd-color;
+		    @include size(1.4rem);
+		    border-radius: 0.1rem;
+		    margin: 1.23rem auto;
+		}
+	}
 }
-.live-comments{
+.lives-comments{
 	position: absolute;
 	left: 0.75rem;
 	bottom: 4.5rem;
@@ -440,6 +525,7 @@
 		}
 	}
 }
+
 
 // login-wrapper
 // ------------------------------

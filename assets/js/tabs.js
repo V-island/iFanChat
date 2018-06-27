@@ -41,7 +41,7 @@ export default class Tabs extends EventEmitter {
 
         this.tabsEl = createDom(this._tabsTemplate(LANG.BAR));
 
-        document.body.append(this.tabsEl);
+        document.body.appendChild(this.tabsEl);
 
         this.itemEl = this.tabsEl.getElementsByClassName(this.options.itemClass);
         this.modallLiveEl = this.tabsEl.getElementsByClassName(this.options.startLiveClass)[0];
@@ -96,19 +96,33 @@ export default class Tabs extends EventEmitter {
         addEvent(liveEl, 'click', function() {
             modal.closeModal(modalEl);
 
-            if (!checkAuth()) {
-                let _dataIncomplete = MADAL.DataIncomplete;
-
-                modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, function() {
-                    location.href = '#/user';
-                }, _dataIncomplete.ButtonsText);
-            }
-
-            newDayRecord(function() {
-                Record.attachTo();
+            let _newDay = MADAL.NewDay;
+            modal.confirm(_newDay.Text, function() {
+                let _record = new Record();
+                _record.show();
             }, function() {
-                // body...
-            });
+                location.href = '#/user';
+            }, true);
+
+            // if (!checkAuth()) {
+            //     let _dataIncomplete = MADAL.DataIncomplete;
+
+            //     modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, function() {
+            //         location.href = '#/user';
+            //     }, _dataIncomplete.ButtonsText);
+            // }
+
+            // newDayRecord(function() {
+            //     let _newDay = MADAL.NewDay;
+            //     modal.confirm(_newDay.Text, function() {
+            //         let _record = new Record();
+            //         _record.show();
+            //     }, function() {
+            //         location.href = '#/user';
+            //     }, true);
+            // }, function() {
+            //     // body...
+            // });
 
         });
 

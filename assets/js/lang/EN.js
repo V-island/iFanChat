@@ -17,8 +17,11 @@ const Lang = {
 			},
 			DataIncomplete: {
 				Title: 'Data incomplete',
-				Text: 'Confirm that you are already <span>18</span> years old , then, go to Improve',
+				Text: 'Confirm that you are already <span class="color-danger">18</span> years old , then, go to Improve',
 				ButtonsText: 'GO'
+			},
+			NewDay: {
+				Text: 'A new day，say hello to everyone！<br/><span class="color-primary">For others  preview（5s）</span>'
 			}
 		}
 	},
@@ -158,7 +161,7 @@ const Lang = {
 				}, {
 					text: 'Dancing',
 					value: 11
-				}, , {
+				}, {
 					text: 'Food',
 					value: 12
 				}, {
@@ -208,7 +211,7 @@ const Lang = {
 				}, {
 					text: 'Polite',
 					value: 11
-				}, , {
+				}, {
 					text: 'Foxy',
 					value: 12
 				}, {
@@ -258,7 +261,7 @@ const Lang = {
 				}, {
 					text: 'Funny',
 					value: 11
-				}, , {
+				}, {
 					text: 'Knowledgeable',
 					value: 12
 				}, {

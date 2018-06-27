@@ -398,9 +398,9 @@ import {
 
             let $barTab = document.querySelector(routerConfig.barTabClass);
             // 判断是否登录
-            if (checkLogin() && this.cache[url].init !== 1) {
-                return location.hash = '#/login';
-            }
+            // if (checkLogin() && this.cache[url].init !== 1) {
+            //     return location.hash = '#/login';
+            // }
 
             if (!$visibleSection.length) {
                 $visibleSection = $allSection.eq(0);

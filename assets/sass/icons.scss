@@ -49,6 +49,13 @@ $ionicons-version: "4.1.0" !default;
     }
 }
 
+@mixin iconDisabled($name, $file) {
+    &.disabled {
+        @include iconImage(#{$name}-disabled, $file);
+        cursor: not-allowed;
+    }
+}
+
 .icon-star{
     @include iconImage(star-outline, 'icon');
     &.active {
@@ -84,7 +91,7 @@ $names: search, filter, arrow-back, home, favorite, live, message, me, female, m
 // Live Icon
 // -----------------------------
 
-$lives: attention, close, news, share, gift, thumbs-upion;
+$lives: attention, close, news, share, gift, thumbs-upion, cutover, confirm, cancel, local-upload;
 
 @each $live in $lives {
     .live-#{$live}{
@@ -92,6 +99,10 @@ $lives: attention, close, news, share, gift, thumbs-upion;
 
         @if $live == thumbs-upion {
             @include iconActive($live, 'lives/icon');
+        }
+
+        @if $live == confirm {
+            @include iconDisabled($live, 'lives/icon');
         }
     }
 

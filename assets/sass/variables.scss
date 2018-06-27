@@ -147,8 +147,11 @@ $input-border: 1px solid #666;
 // ---------------------------------------------------
 $live-mask-bg-color: rgba(51, 51, 51, 0.2);//#333
 $live-anchor-txt-color: #FF3376;
-
-
+$live-bg-color: $color-text-gray;
+$live-duration: 400ms;
+$live-btnRecord-bg-color: rgba(255, 255, 255, 0.7);
+$live-btnRecord-color: $color-primary;
+$live-btnRecordEnd-color: #FF5E5E;
 // Theme-black
 // ---------------------------------------------------
 // Modal

@@ -168,8 +168,7 @@ export function getLogin(params, callbackOk, callbackCancel) {
 		personCenter({
 			userId: response.data.userId,
 			phoneCode: response.data.phoneCode,
-			userPhone: response.data.userPhone,
-			userPassword: _params.userPassword
+			userPhone: response.data.userPhone
 		}, response.data.token, _mac);
 	});
 };

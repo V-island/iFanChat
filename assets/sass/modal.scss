@@ -61,6 +61,10 @@
         background-color: $modal-input-bg-color;
         color: $modal-input-text-color;
         padding: 0 0.35rem;
+        width: 100%;
+        border-radius: 0.1rem;
+        font-size: 0.6rem;
+        line-height: 1.8rem;
     }
 
 }
@@ -68,8 +72,11 @@
     position: absolute;
     top: 0.2rem;
     right: 0.35rem;
-    font-size: 0.7rem;
+    // font-size: 0.7rem;
     color: $modal-close-color;
+    >i.icon{
+        @include size(0.7rem);
+    }
     &:hover{
         color: $color-primary;
     }
@@ -82,7 +89,7 @@
 }
 .modal-text {
     font-size: 0.6rem;
-    line-height: 2.5;
+    line-height: 2;
 }
 .modal-buttons {
     height: 2.2rem;
