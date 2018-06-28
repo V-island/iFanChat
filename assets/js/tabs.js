@@ -96,33 +96,27 @@ export default class Tabs extends EventEmitter {
         addEvent(liveEl, 'click', function() {
             modal.closeModal(modalEl);
 
-            let _newDay = MADAL.NewDay;
-            modal.confirm(_newDay.Text, function() {
-                let _record = new Record();
-                _record.show();
+            if (!checkAuth()) {
+                let _dataIncomplete = MADAL.DataIncomplete;
+
+                modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, function() {
+                    location.href = '#/user';
+                }, _dataIncomplete.ButtonsText);
+            }
+
+            newDayRecord(function() {
+                let _newDay = MADAL.NewDay;
+                modal.confirm(_newDay.Text, function() {
+                    let _record = new Record({
+                        localUpload: false
+                    });
+                    _record.show();
+                }, function() {
+                    location.href = '#/user';
+                }, true);
             }, function() {
-                location.href = '#/user';
-            }, true);
-
-            // if (!checkAuth()) {
-            //     let _dataIncomplete = MADAL.DataIncomplete;
-
-            //     modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, function() {
-            //         location.href = '#/user';
-            //     }, _dataIncomplete.ButtonsText);
-            // }
-
-            // newDayRecord(function() {
-            //     let _newDay = MADAL.NewDay;
-            //     modal.confirm(_newDay.Text, function() {
-            //         let _record = new Record();
-            //         _record.show();
-            //     }, function() {
-            //         location.href = '#/user';
-            //     }, true);
-            // }, function() {
-            //     // body...
-            // });
+                // body...
+            });
 
         });
 

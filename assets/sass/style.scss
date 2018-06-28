@@ -470,25 +470,9 @@
 		left: auto;
 		right: 2.1rem;
 	    width: 9.3rem;
-
-		>.record-start{
-			display: block;
-	    }
-	    >.record-end{
-			display: none;
-	    }
 	}
 
-	&.active{
-		left: 2.1rem;
-		width: auto;
-
-		>.record-start{
-			display: none;
-	    }
-	    >.record-end{
-			display: block;
-	    }
+	&.record-start{
 		.btn-record:after {
 		    content: "";
 		    background: $live-btnRecordEnd-color;
@@ -496,6 +480,11 @@
 		    border-radius: 0.1rem;
 		    margin: 1.23rem auto;
 		}
+	}
+
+	&.active{
+		left: 2.1rem;
+		width: auto;
 	}
 }
 .lives-comments{

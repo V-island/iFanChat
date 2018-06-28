@@ -285,6 +285,13 @@ export function removeClass(element, value) {
     }
 }
 
+export function showHideDom(element, value) {
+    if (!value) {
+        return;
+    }
+    return element.style.display = value;
+}
+
 export function toggleClass(element, value, added) {
     if (!value) {
         return;

@@ -25,6 +25,16 @@ const Lang = {
 			}
 		}
 	},
+	LIVE_RECORD: {
+		Madal: {
+			DeleteVideo: {
+				Text: 'Are you sure delete the recorded video？'
+			},
+			ExitRecord: {
+				Text: 'Recorded video file will be lost after exiting？'
+			}
+		}
+	},
 	FAVORITE: {
 		You_May_Also_Like: 'You may also like',
 		Another_Batch: 'Another batch'

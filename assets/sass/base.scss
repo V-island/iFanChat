@@ -133,6 +133,15 @@ a {
 .clearfix {
     @include clearfix;
 }
+
+.hide{
+    display: none;
+}
+
+.show{
+    display: block;
+}
+
 .no-bg {
     background: none !important;
 }

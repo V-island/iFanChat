@@ -17,7 +17,9 @@ import {
 const LANG = getLangConfig();
 const modal = new Modal();
 
-const baseURL = 'http://10.30.11.112:8080/live-app/open/gate';
+// const baseURL = 'http://10.30.11.112:8080/live-app/open/gate';
+const baseURL = 'https://10.30.11.112:8443/live-app/open/gate';
+// const baseURL = 'https://10.30.11.112:8443/live-app/register';
 const Type = 'POST';
 const MacType = 1; // 设备类型 1.手机 2.PC
 const PhoneType = null;
@@ -38,7 +40,7 @@ function getPost(_url, param, _type, _header, async, callback) {
 
 	let token = localStorage.getItem('token');
 		_type = _type == undefined ? Type : _type;
-		// _url = _url.indexOf('http')>-1 ? _url : baseURL + _url;
+		// _baseURL = _url.indexOf('https')>-1 ? _url : baseURL;
 		async = async != undefined ? async : '';
 		_header = _header != undefined ? _header : '';
 		param = param != undefined ? param : '';
@@ -102,9 +104,9 @@ export function getUserInfo() {
 
 // 判断是否是主播
 export function checkAuth() {
-	let auth = getLocalStorage(UER_NAME);
+	let _auth = getLocalStorage(UER_NAME);
 
-	if (auth.user_authentication === 2) {
+	if (_auth.auth === 2) {
 		return false;
 	}
 	return true;
@@ -118,25 +120,24 @@ export function checkLogin() {
 /**
  * 发送验证码
  * @param  {[string]} _phone 	   手机号
- * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function sendVerificationCode(_phone, callbackOk, callbackCancel) {
+export function sendVerificationCode(_phone, callback) {
 	getPost('/sendAuthCode', {
 		phone: _phone
 	}, function(response) {
-		callbackOk();
+		callback();
 	});
 };
 
 /**
  * 注册
  * @param  {[object]} params 	   [description]
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
+ * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function getRegister(params, callbackOk, callbackCancel) {
+export function getRegister(params, callback) {
 	let _params = isObject(params) ? params : urlParse(params);
 	getPost('/insRegister', _params, function(response) {
 		getLogin({
@@ -150,11 +151,10 @@ export function getRegister(params, callbackOk, callbackCancel) {
 /**
  * 登录
  * @param  {[object]} params 	   [description]
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
+ * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function getLogin(params, callbackOk, callbackCancel) {
+export function getLogin(params, callback) {
 	let _params = isObject(params) ? params : urlParse(params);
 	let _mac = getMac();
 	_params.mac = _mac;
@@ -187,7 +187,7 @@ export function personCenter(params, token, mac) {
 	}
 	getPost('/personCenter', _params, function(response) {
 		modal.toast(response.message);
-		extend(_info, response.data);
+		_info.auth = response.data.user_authentication;
 		setLocalStorage(UER_NAME, _info);
 		location.href = '#/home';
 	});
@@ -196,46 +196,43 @@ export function personCenter(params, token, mac) {
 /**
  * 找回密码
  * @param  {[object]} params 	   [description]
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
+ * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function getFindPassword(params, callbackOk, callbackCancel) {
+export function getFindPassword(params, callback) {
 	let _params = isObject(params) ? params : urlParse(params);
 	getPost('/findPassword', _params, function(response) {
 		setLocalStorage(UER_NAME, {
 			phoneCode: _params.phoneCode,
 			userPhone: _params.userPhone
 		});
-		callbackOk();
+		callback();
 	});
 };
 
 /**
  * 更新密码
  * @param  {[object]} params 	   [description]
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
+ * @param  {[type]} callback       回调事件
  * @return {[type]} [description]
  */
-export function getUpdatePassword(params, callbackOk, callbackCancel) {
+export function getUpdatePassword(params, callback) {
 	let _params = isObject(params) ? params : urlParse(params);
 	let _info = getLocalStorage(UER_NAME);
 	_params.phoneCode = _info.phoneCode;
 	_params.userPhone = _info.userPhone;
 	getPost('/updatePassword', _params, function(response) {
 		modal.toast(response.message);
-		callbackOk();
+		callback();
 	});
 };
 
 /**
  * 登出
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
+ * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function loginOut(callbackOk, callbackCancel) {
+export function loginOut(callback) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
 		userId: _info.userId,
@@ -244,7 +241,7 @@ export function loginOut(callbackOk, callbackCancel) {
 	}
 	getPost('/updatePassword', _params, function(response) {
 		modal.toast(response.message);
-		callbackOk();
+		callback();
 	});
 };
 
@@ -257,4 +254,26 @@ export function loginOut(callbackOk, callbackCancel) {
 export function newDayRecord(callbackOk, callbackCancel) {
 	let start = true;
 	return start ? callbackOk() : callbackCancel();
+};
+
+/**
+ * 用户上传视频
+ * @param  {[object]} params 	   [description]
+ * @param  {[type]} callback     	回调事件
+ * @return {[type]} [description]
+ */
+export function uploadVideo(_file, _type, callback) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		file: _file,
+		type: _type,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LofinMode,
+		mac: getMac()
+	}
+	getPost('/uploadVideo', _params, function(response) {
+		modal.toast(response.message);
+		callback();
+	});
 };

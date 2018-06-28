@@ -1,10 +1,7 @@
-import Template from 'art-template/lib/template-web';
 import EventEmitter from './eventEmitter';
 import Modal from './modal';
-import fcConfig from './intro';
 import {
-    checkAuth,
-    newDayRecord
+    uploadVideo
 } from './api';
 import {
     getLangConfig
@@ -12,16 +9,16 @@ import {
 import {
     extend,
     addEvent,
-    importTemplate,
     createDom,
     hasClass,
     addClass,
-    removeClass
+    removeClass,
+    showHideDom
 } from './util';
 
 const LANG = getLangConfig();
-const MADAL = LANG.HOME.Madal;
 const modal = new Modal();
+const RECORD_LANG = '';
 
 export default class Record extends EventEmitter {
     constructor(options) {
@@ -32,7 +29,7 @@ export default class Record extends EventEmitter {
                 audio: true,
                 video: true
             },
-            localUpload: false;
+            localUpload: true,
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
             recordBtnClass: 'btn-record',
@@ -44,11 +41,12 @@ export default class Record extends EventEmitter {
             confirmClass: 'live-confirm',
             localUploadClass: 'live-local-upload',
             startClass: 'record-start',
-            endClass: 'record-end',
             showClass: 'active'
         };
 
         extend(this.options, options);
+        console.log(options);
+        console.log(this.options);
 
         this.boxEl = createDom(this._tabsTemplate(this.options));
 
@@ -70,31 +68,17 @@ export default class Record extends EventEmitter {
         self.buffers = [];
 
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
-            // 获取媒体设备的媒体流
-            self._getUserMedia(self.options.config, function(stream) {
-                self.mediaRecoder = new MediaRecorder(stream);
-                console.log(self.mediaRecoder);
-                self.mediaRecoder.ondataavailable = function (event) {
-                    self.buffers.push(event.data);
-                    console.log(event.data);
-                };
-
-                self.mediaRecoder.onstart = function () {
-                    self.video = document.createElement("video");
-                    self.video.src = window.URL && window.URL.createObjectURL(stream) || stream;
-                    self.videoEl.appendChild(self.video);
-                    self.video.autoplay = true;
-                    console.log(self.video.src);
-                };
-
-                // self.addEventListener();
-            }, function(error) {
-                console.log(error);
-            });
+            self._mediaRecorder();
         } else {
             console.log("你的浏览器不支持访问用户媒体设备");
         }
 
+        showHideDom(self.cancelEl, 'none');
+        showHideDom(self.confirmEl, 'none');
+        console.log(self.options.localUpload);
+        if (!self.options.localUpload) {
+            showHideDom(self.localUploadEl, 'none');
+        }
         self._bindEvent();
     }
 
@@ -103,12 +87,15 @@ export default class Record extends EventEmitter {
 
         // 开始录制/取消录制
         addEvent(self.recordEl, 'click', function() {
-            if(hasClass(self.buttonsEl, self.options.showClass)){
-                removeClass(self.buttonsEl, self.options.showClass);
+            if(hasClass(self.buttonsEl, self.options.startClass)){
+                removeClass(self.buttonsEl, self.options.startClass);
+                addClass(self.buttonsEl, self.options.showClass);
                 self._stopRecord();
+                showHideDom(self.cancelEl, 'block');
+                showHideDom(self.confirmEl, 'block');
                 console.log('取消录制');
             }else {
-                addClass(self.buttonsEl, self.options.showClass);
+                addClass(self.buttonsEl, self.options.startClass);
                 self._startRecord();
                 console.log('开始录制');
             }
@@ -116,11 +103,24 @@ export default class Record extends EventEmitter {
 
         // 关闭录制器
         addEvent(self.closeEl, 'click', function() {
-            self.hide();
+            modal.confirm(RECORD_LANG.DeleteVideo.Text, function() {
+                self.hide();
+            }, function() {}, true);
         });
 
         // 删除录制视频
         addEvent(self.cancelEl, 'click', function() {
+
+            modal.confirm(RECORD_LANG.DeleteVideo.Text, function() {
+                self.buffers = [];
+                self._mediaRecorder();
+            }, function() {}, true);
+            console.log(self.options.cancelClass);
+        });
+
+        // 切换摄像头
+        addEvent(self.cutoverEl, 'click', function() {
+            self.buffers = [];
             console.log(self.options.cancelClass);
         });
     }
@@ -129,9 +129,9 @@ export default class Record extends EventEmitter {
         let html = '';
 
         html = '<div class="content record-wrapper">';
-        html += '<div class="lives-video"><div id="video" class="'+ this.options.videoClass +'"></div></div>';
+        html += '<div class="lives-video"><video id="video" class="'+ this.options.videoClass +'"></video></div>';
         html += '<div class="lives-header"><div class="icon '+ this.options.closeClass +'"></div><div class="icon '+ this.options.cutoverClass +'"></div></div>';
-        html += '<div class="lives-buttons record-buttons"><div class="icon '+ (this.options.endClass+ " " +this.options.cancelClass) +'"></div><div class="'+ this.options.recordBtnClass +'"></div><div class="icon '+ (this.options.endClass+ " " +this.options.confirmClass) +'"></div><div class="icon '+ (this.options.startClass+ " " +this.options.localUploadClass) +'"></div></div>';
+        html += '<div class="lives-buttons record-buttons"><div class="icon '+ this.options.cancelClass +'"></div><div class="'+ this.options.recordBtnClass +'"></div><div class="icon '+ this.options.confirmClass +'"></div><div class="icon '+ this.options.localUploadClass +'"></div></div>';
         html += '</div>';
 
         return html;
@@ -139,6 +139,38 @@ export default class Record extends EventEmitter {
 
     static attachTo(options) {
         return new Record(options);
+    }
+
+    // 获取媒体设备的媒体流
+    _mediaRecorder(){
+        let self = this;
+
+        self._getUserMedia(self.options.config, function(stream) {
+            self.mediaRecoder = new MediaRecorder(stream);
+            console.log(self.mediaRecoder);
+
+            self.mediaRecoder.ondataavailable = function (event) {
+                self.buffers.push(event.data);
+                console.log(event.data);
+            };
+
+            self.mediaRecoder.onstart = function () {
+                self.videoEl.src = window.URL && window.URL.createObjectURL(stream) || stream;
+                self.videoEl.onloadedmetadata = function(e) {
+                    self.videoEl.play();
+                };
+                console.log(self.videoEl.src);
+            };
+
+            // 添加录制结束的事件监听，保存录制数据
+            this.mediaRecoder.onstop = function () {
+                self.blob = new Blob(self.buffers,{type:"video/mp4"});
+                self.url = URL.createObjectURL(self.blob);
+                self.video.src = self.url;
+            };
+        }, function(error) {
+            console.log(error);
+        });
     }
 
     // 访问用户媒体设备的兼容方法
@@ -166,10 +198,16 @@ export default class Record extends EventEmitter {
         }else if(this.mediaRecoder.state == "paused"){
             this.mediaRecoder.resume();
         }else if(this.mediaRecoder.state == "inactive"){
-            let tracks = this.mediaRecoder.stream.getTracks();
-            tracks[0].start();
-            tracks[1].start();
             this.mediaRecoder.start();
+        }
+        console.log(this.mediaRecoder.state);
+    }
+
+    // 暂停录制
+    _pauseRecord() {
+        if(this.mediaRecoder.state == "recording"){
+            console.log('暂停');
+            this.mediaRecoder.pause();
         }
         console.log(this.mediaRecoder.state);
     }
@@ -179,11 +217,8 @@ export default class Record extends EventEmitter {
         if(this.mediaRecoder.state == "recording"){
             console.log('关闭');
             let tracks = this.mediaRecoder.stream.getTracks();
-            // let tracksAudio = this.mediaRecoder.stream.getAudioTracks();
-            // let tracksVideo = this.mediaRecoder.stream.getVideoTracks();
-            console.log(tracks);
-            // console.log(tracksAudio);
-            // console.log(tracksVideo);
+            // // let tracksAudio = this.mediaRecoder.stream.getAudioTracks();
+            // // let tracksVideo = this.mediaRecoder.stream.getVideoTracks();
             tracks[0].stop();
             tracks[1].stop();
             this.mediaRecoder.stop();
@@ -191,21 +226,14 @@ export default class Record extends EventEmitter {
         console.log(this.mediaRecoder.state);
     }
 
-    // 添加录制结束的事件监听，保存录制数据并提示下载
-    _addEventListener() {
-        var self = this;
-
-        this.mediaRecoder.onstop = function () {
-            self.blob = new Blob(self.buffers,{type:"video/mp4"});
-            self.url = URL.createObjectURL(self.blob);
-            var downloadButton = document.createElement("a");
-            downloadButton.textContent = "保存到本地";
-            downloadButton.href = self.url;
-            downloadButton.download = self.url;
-            document.body.appendChild(downloadButton);
-            document.body.removeChild(self.video);
-        };
-
+    // 下载视频
+    _downLoadVideo() {
+        var downloadButton = document.createElement("a");
+        downloadButton.textContent = "保存到本地";
+        downloadButton.href = self.url;
+        downloadButton.download = self.url;
+        document.body.appendChild(downloadButton);
+        document.body.removeChild(self.video);
     }
 
     /**
