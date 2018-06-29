@@ -1,5 +1,6 @@
 import EventEmitter from './eventEmitter';
 import Modal from './modal';
+import Progress from './progress';
 import {
     uploadVideo
 } from './api';
@@ -9,6 +10,7 @@ import {
 import {
     extend,
     addEvent,
+    dispatchEvent,
     createDom,
     hasClass,
     addClass,
@@ -18,8 +20,18 @@ import {
 
 const LANG = getLangConfig();
 const modal = new Modal();
-const RECORD_LANG = '';
-
+const RECORD_LANG = LANG.LIVE_RECORD.Madal;
+/**
+config: {
+    audio: true,
+    video: {
+        width: { min: 1024, ideal: 1280, max: 1920 },
+        height: { min: 776, ideal: 720, max: 1080 },
+        facingMode: "user",
+        frameRate: { min: 15, ideal: 30, max: 60 },
+      }
+},
+**/
 export default class Record extends EventEmitter {
     constructor(options) {
         super();
@@ -29,6 +41,8 @@ export default class Record extends EventEmitter {
                 audio: true,
                 video: true
             },
+            minTimes: 5000,
+            maxTimes: 15000,
             localUpload: true,
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
@@ -45,8 +59,6 @@ export default class Record extends EventEmitter {
         };
 
         extend(this.options, options);
-        console.log(options);
-        console.log(this.options);
 
         this.boxEl = createDom(this._tabsTemplate(this.options));
 
@@ -66,6 +78,12 @@ export default class Record extends EventEmitter {
     _init() {
         const self = this;
         self.buffers = [];
+        self.consentEnd = false;
+
+        self.progress = new Progress(self.recordEl,{
+            width: self.recordEl.clientHeight,
+            height: self.recordEl.clientHeight
+        });
 
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
             self._mediaRecorder();
@@ -75,7 +93,6 @@ export default class Record extends EventEmitter {
 
         showHideDom(self.cancelEl, 'none');
         showHideDom(self.confirmEl, 'none');
-        console.log(self.options.localUpload);
         if (!self.options.localUpload) {
             showHideDom(self.localUploadEl, 'none');
         }
@@ -85,43 +102,61 @@ export default class Record extends EventEmitter {
     _bindEvent() {
         let self = this;
 
-        // 开始录制/取消录制
+        // 开始录制/结束录制
         addEvent(self.recordEl, 'click', function() {
-            if(hasClass(self.buttonsEl, self.options.startClass)){
+            if(hasClass(self.buttonsEl, self.options.startClass) && self.consentEnd){
                 removeClass(self.buttonsEl, self.options.startClass);
                 addClass(self.buttonsEl, self.options.showClass);
                 self._stopRecord();
                 showHideDom(self.cancelEl, 'block');
                 showHideDom(self.confirmEl, 'block');
-                console.log('取消录制');
+                showHideDom(self.cutoverEl, 'block');
+                progress.show(-2);
             }else {
                 addClass(self.buttonsEl, self.options.startClass);
+                self.consentEnd = false;
+                showHideDom(self.cancelEl, 'none');
+                showHideDom(self.confirmEl, 'none');
+                showHideDom(self.cutoverEl, 'none');
                 self._startRecord();
-                console.log('开始录制');
             }
         });
 
         // 关闭录制器
         addEvent(self.closeEl, 'click', function() {
-            modal.confirm(RECORD_LANG.DeleteVideo.Text, function() {
+            modal.confirm(RECORD_LANG.ExitRecord.Text, function() {
                 self.hide();
             }, function() {}, true);
         });
 
         // 删除录制视频
         addEvent(self.cancelEl, 'click', function() {
-
             modal.confirm(RECORD_LANG.DeleteVideo.Text, function() {
                 self.buffers = [];
+                self.consentEnd = false;
+                showHideDom(self.cancelEl, 'none');
+                showHideDom(self.confirmEl, 'none');
+                removeClass(self.buttonsEl, self.options.showClass);
                 self._mediaRecorder();
             }, function() {}, true);
-            console.log(self.options.cancelClass);
+        });
+
+        // 上传视频
+        addEvent(self.confirmEl, 'click', function() {
+            self.hide();
+            let file = new File(self.buffers, Date.now() + '.mp4', {
+                type: "video/mp4",
+            });
+            uploadVideo(file, 2, function(argument) {
+                // body...
+            });
         });
 
         // 切换摄像头
         addEvent(self.cutoverEl, 'click', function() {
             self.buffers = [];
-            console.log(self.options.cancelClass);
+            // self.options.config.video.facingMode = { exact: "environment" };
+            self._mediaRecorder();
         });
     }
 
@@ -146,27 +181,37 @@ export default class Record extends EventEmitter {
         let self = this;
 
         self._getUserMedia(self.options.config, function(stream) {
+            console.log(stream);
             self.mediaRecoder = new MediaRecorder(stream);
-            console.log(self.mediaRecoder);
-
+            // self.videoEl.src = window.URL && window.URL.createObjectURL(stream) || stream;
+            self.videoEl.srcObject  = stream;
+            self.videoEl.autoplay = true;
             self.mediaRecoder.ondataavailable = function (event) {
                 self.buffers.push(event.data);
-                console.log(event.data);
             };
 
             self.mediaRecoder.onstart = function () {
-                self.videoEl.src = window.URL && window.URL.createObjectURL(stream) || stream;
-                self.videoEl.onloadedmetadata = function(e) {
-                    self.videoEl.play();
-                };
-                console.log(self.videoEl.src);
+                self.trigger('record.start');
+
+                // 计时器-最小
+                window.setTimeout(() => {
+                    self.consentEnd = true;
+                }, self.options.minTimes);
+
+                // 计时器-结束
+                window.setTimeout(() => {
+                    dispatchEvent(self.recordEl, 'click');
+                }, self.options.maxTimes);
             };
 
             // 添加录制结束的事件监听，保存录制数据
-            this.mediaRecoder.onstop = function () {
+            self.mediaRecoder.onstop = function () {
                 self.blob = new Blob(self.buffers,{type:"video/mp4"});
-                self.url = URL.createObjectURL(self.blob);
-                self.video.src = self.url;
+                self.videoEl.src = URL.createObjectURL(self.blob);
+                self.videoEl.onloadedmetadata = function(e) {
+                    self.videoEl.play();
+                };
+                self.trigger('record.stop');
             };
         }, function(error) {
             console.log(error);

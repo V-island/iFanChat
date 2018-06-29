@@ -454,6 +454,7 @@
 		@include size(3.85rem);
 		border-radius: 50%;
 		background: $live-btnRecord-bg-color;
+		position: relative;
 
 		&:after {
 		    content: "";
@@ -462,6 +463,10 @@
 		    display: block;
 		    border-radius: 50%;
 		    margin: 0.7rem auto;
+		    position: absolute;
+		    top: 0;
+		    left: 50%;
+		    margin-left: -1.225rem;
 		}
 	}
 
@@ -469,7 +474,7 @@
 		bottom: 3.15rem;
 		left: auto;
 		right: 2.1rem;
-	    width: 9.3rem;
+	    width: 9.1rem;
 	}
 
 	&.record-start{
@@ -479,6 +484,7 @@
 		    @include size(1.4rem);
 		    border-radius: 0.1rem;
 		    margin: 1.23rem auto;
+		    margin-left: -0.7rem;
 		}
 	}
 

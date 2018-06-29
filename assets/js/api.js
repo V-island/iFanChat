@@ -5,7 +5,9 @@ import {
 } from './lang';
 import {
 	extend,
+	typeOf,
 	isObject,
+	isFunction,
 	getUuid,
 	urlParse,
 	getLocalStorage,
@@ -31,11 +33,18 @@ const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
 
 function getPost(_url, param, _type, _header, async, callback) {
-	if (typeof _type === 'function') {
+	if (isObject(_type)) {
 	    callback = arguments[2];
 	    _type = undefined;
 	    _header = undefined;
 	    async = undefined;
+	}
+	if (isObject(_url)) {
+	    callback = arguments[1];
+	    param = _url;
+	    _type = undefined;
+	    _header = undefined;
+	    async = true;
 	}
 
 	let token = localStorage.getItem('token');
@@ -45,7 +54,9 @@ function getPost(_url, param, _type, _header, async, callback) {
 		_header = _header != undefined ? _header : '';
 		param = param != undefined ? param : '';
 
-	param.keyword = _url.indexOf('/') > -1 ? _url.slice(1) : _url;
+	if (!isObject(_url)) {
+		param.keyword = _url.indexOf('/') > -1 ? _url.slice(1) : _url;
+	}
 
 	let ajaxOpt ={
 		type: _type,
@@ -61,7 +72,11 @@ function getPost(_url, param, _type, _header, async, callback) {
 	    }
 	};
 
-
+	if (isObject(_url)) {
+		ajaxOpt.processData = false;
+		ajaxOpt.contentType = false;
+		ajaxOpt.mimeType = "multipart/form-data";
+	}
 	if(_header !== ''){
 		ajaxOpt.headers = _header;
 	}
@@ -76,7 +91,7 @@ function getPost(_url, param, _type, _header, async, callback) {
 		if (response.code === 1000) {
 			return callback(response);
 		}
-
+		console.log(123);
 		modal.alert(response.message, function(_modal) {
 			modal.closeModal(_modal);
 		});
@@ -263,17 +278,23 @@ export function newDayRecord(callbackOk, callbackCancel) {
  * @return {[type]} [description]
  */
 export function uploadVideo(_file, _type, callback) {
-	let _info = getLocalStorage(UER_NAME);
-	let _params = {
-		userId: _info.userId,
-		file: _file,
-		type: _type,
-		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LofinMode,
-		mac: getMac()
+	if (isFunction(_type)) {
+	    callbackOk = arguments[1];
+	    _type = 1;
 	}
-	getPost('/uploadVideo', _params, function(response) {
-		modal.toast(response.message);
-		callback();
+
+	let _info = getLocalStorage(UER_NAME);
+	let formData = new FormData();
+
+	formData.append("userId", _info.userId);
+	formData.append("type", _type);
+	formData.append("token", getLocalStorage(TOKEN_NAME));
+	formData.append("loginMode", LofinMode);
+	formData.append("mac", getMac());
+	formData.append("keyword", 'uploadVideo');
+	formData.append("file", _file);
+
+	getPost(formData, function(response) {
+		callback(response);
 	});
 };
