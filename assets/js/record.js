@@ -20,7 +20,7 @@ import {
 
 const LANG = getLangConfig();
 const modal = new Modal();
-const RECORD_LANG = LANG.LIVE_RECORD.Madal;
+const RECORD_LANG = LANG.LIVE_RECORD;
 /**
 config: {
     audio: true,
@@ -41,9 +41,9 @@ export default class Record extends EventEmitter {
                 audio: true,
                 video: true
             },
-            minTimes: 5000,
-            maxTimes: 15000,
-            localUpload: true,
+            minTimes: 5,
+            maxTimes: 15,
+            newDayVideo: false,
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
             recordBtnClass: 'btn-record',
@@ -55,6 +55,9 @@ export default class Record extends EventEmitter {
             confirmClass: 'live-confirm',
             localUploadClass: 'live-local-upload',
             startClass: 'record-start',
+            inUploadClass: 'upload-in',
+            outUploadClass: 'upload-out',
+            uploadClass: 'upload-progress',
             showClass: 'active'
         };
 
@@ -82,7 +85,8 @@ export default class Record extends EventEmitter {
 
         self.progress = new Progress(self.recordEl,{
             width: self.recordEl.clientHeight,
-            height: self.recordEl.clientHeight
+            height: self.recordEl.clientHeight,
+            maxspeed: self.options.maxTimes
         });
 
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
@@ -93,9 +97,10 @@ export default class Record extends EventEmitter {
 
         showHideDom(self.cancelEl, 'none');
         showHideDom(self.confirmEl, 'none');
-        if (!self.options.localUpload) {
+        if (self.options.newDayVideo) {
             showHideDom(self.localUploadEl, 'none');
         }
+
         self._bindEvent();
     }
 
@@ -104,17 +109,20 @@ export default class Record extends EventEmitter {
 
         // 开始录制/结束录制
         addEvent(self.recordEl, 'click', function() {
-            if(hasClass(self.buttonsEl, self.options.startClass) && self.consentEnd){
+            if (self.consentEnd || self.consentDEL) {
+                return;
+            }
+            self.consentEnd = true;
+            if(hasClass(self.buttonsEl, self.options.startClass)){
                 removeClass(self.buttonsEl, self.options.startClass);
                 addClass(self.buttonsEl, self.options.showClass);
                 self._stopRecord();
                 showHideDom(self.cancelEl, 'block');
                 showHideDom(self.confirmEl, 'block');
                 showHideDom(self.cutoverEl, 'block');
-                progress.show(-2);
+                self.progress.show();
             }else {
                 addClass(self.buttonsEl, self.options.startClass);
-                self.consentEnd = false;
                 showHideDom(self.cancelEl, 'none');
                 showHideDom(self.confirmEl, 'none');
                 showHideDom(self.cutoverEl, 'none');
@@ -124,14 +132,15 @@ export default class Record extends EventEmitter {
 
         // 关闭录制器
         addEvent(self.closeEl, 'click', function() {
-            modal.confirm(RECORD_LANG.ExitRecord.Text, function() {
+            modal.confirm(RECORD_LANG.Madal.ExitRecord.Text, function() {
+                dispatchEvent(self.recordEl, 'click');
                 self.hide();
             }, function() {}, true);
         });
 
         // 删除录制视频
         addEvent(self.cancelEl, 'click', function() {
-            modal.confirm(RECORD_LANG.DeleteVideo.Text, function() {
+            modal.confirm(RECORD_LANG.Madal.DeleteVideo.Text, function() {
                 self.buffers = [];
                 self.consentEnd = false;
                 showHideDom(self.cancelEl, 'none');
@@ -144,11 +153,23 @@ export default class Record extends EventEmitter {
         // 上传视频
         addEvent(self.confirmEl, 'click', function() {
             self.hide();
+            let _uploadEl = self._uploadVideo();
+            let _progress = new Progress(_uploadEl,{
+                width: _uploadEl.clientHeight,
+                height: _uploadEl.clientHeight,
+                background: '#fff',
+                itemBackground: '#1FC969',
+                lineWidth: 2,
+                showFont: true
+            });
             let file = new File(self.buffers, Date.now() + '.mp4', {
                 type: "video/mp4",
             });
-            uploadVideo(file, 2, function(argument) {
-                // body...
+            let _type = self.newDayVideo ? 2 : 1;
+            uploadVideo(file, _type, function(data) {
+                self._uploadHide();
+            }, function(progress) {
+                _progress.show(progress);
             });
         });
 
@@ -172,6 +193,18 @@ export default class Record extends EventEmitter {
         return html;
     }
 
+    _uploadTemplate() {
+        let html = '';
+
+        html = '<div class="upload-wrapper">';
+        html += '<img class="upload-img" src="'+ this.imgURL +'">';
+        html += '<p class="upload-title">'+ RECORD_LANG.UploadTitle +'</p>';
+        html += '<div class="upload-progress"></div>';
+        html += '</div>';
+
+        return html;
+    }
+
     static attachTo(options) {
         return new Record(options);
     }
@@ -186,32 +219,46 @@ export default class Record extends EventEmitter {
             // self.videoEl.src = window.URL && window.URL.createObjectURL(stream) || stream;
             self.videoEl.srcObject  = stream;
             self.videoEl.autoplay = true;
+
             self.mediaRecoder.ondataavailable = function (event) {
+
+                if(self.mediaRecoder.state == "inactive"){
+                    return;
+                }
+
+                // 计时器-最小
+                if (self.buffers.length == self.options.minTimes) {
+                    self.consentEnd = false;
+                }
+
+                // 计时器-结束
+                if (self.buffers.length == self.options.maxTimes) {
+                    if (self.options.newDayVideo) {
+                        self.consentEnd = false;
+                        dispatchEvent(self.recordEl, 'click');
+                        return;
+                    }
+                    dispatchEvent(self.recordEl, 'click');
+                    return;
+                }
+
                 self.buffers.push(event.data);
+                self.progress.show(self.buffers.length);
+                setTimeout(function() {
+                    self._createIMG();
+                }, self.options.minTimes / 2);
             };
 
             self.mediaRecoder.onstart = function () {
                 self.trigger('record.start');
-
-                // 计时器-最小
-                window.setTimeout(() => {
-                    self.consentEnd = true;
-                }, self.options.minTimes);
-
-                // 计时器-结束
-                window.setTimeout(() => {
-                    dispatchEvent(self.recordEl, 'click');
-                }, self.options.maxTimes);
             };
 
             // 添加录制结束的事件监听，保存录制数据
             self.mediaRecoder.onstop = function () {
+                self.trigger('record.stop');
                 self.blob = new Blob(self.buffers,{type:"video/mp4"});
                 self.videoEl.src = URL.createObjectURL(self.blob);
-                self.videoEl.onloadedmetadata = function(e) {
-                    self.videoEl.play();
-                };
-                self.trigger('record.stop');
+                self.videoEl.play();
             };
         }, function(error) {
             console.log(error);
@@ -237,15 +284,13 @@ export default class Record extends EventEmitter {
 
     // 开始录制
     _startRecord() {
-        console.log(this.mediaRecoder);
         if (this.mediaRecoder.state == "recording"){
             return;
         }else if(this.mediaRecoder.state == "paused"){
             this.mediaRecoder.resume();
         }else if(this.mediaRecoder.state == "inactive"){
-            this.mediaRecoder.start();
+            this.mediaRecoder.start(1000);
         }
-        console.log(this.mediaRecoder.state);
     }
 
     // 暂停录制
@@ -254,21 +299,51 @@ export default class Record extends EventEmitter {
             console.log('暂停');
             this.mediaRecoder.pause();
         }
-        console.log(this.mediaRecoder.state);
     }
 
     // 结束录制
     _stopRecord() {
         if(this.mediaRecoder.state == "recording"){
-            console.log('关闭');
             let tracks = this.mediaRecoder.stream.getTracks();
-            // // let tracksAudio = this.mediaRecoder.stream.getAudioTracks();
-            // // let tracksVideo = this.mediaRecoder.stream.getVideoTracks();
             tracks[0].stop();
             tracks[1].stop();
             this.mediaRecoder.stop();
         }
-        console.log(this.mediaRecoder.state);
+    }
+
+    // 上传视频
+    _uploadVideo() {
+        this.progressEl = createDom(this._uploadTemplate());
+
+        document.body.appendChild(this.progressEl);
+
+        this._uploadShow();
+        return this.progressEl.getElementsByClassName(this.options.uploadClass)[0];
+    }
+
+    // 图片创建
+    _createIMG() {
+        let canvas = document.createElement("canvas");
+        let canvasFill = canvas.getContext('2d');
+        canvas.width = this.videoEl.videoWidth;
+        canvas.height = this.videoEl.videoHeight;
+        canvasFill.drawImage(this.videoEl, 0, 0, canvas.width, canvas.height);
+        this.imgURL = canvas.toDataURL("image/jpeg");
+    }
+
+    // 显示上传进度
+    _uploadShow() {
+        window.setTimeout(() => {
+            addClass(this.progressEl, this.options.inUploadClass);
+        }, 0);
+    }
+
+    // 隐藏上传进度
+    _uploadHide() {
+        addClass(this.progressEl, this.options.outUploadClass);
+        window.setTimeout(() => {
+            document.body.removeChild(this.progressEl);
+        }, 500);
     }
 
     // 下载视频

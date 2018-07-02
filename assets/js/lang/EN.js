@@ -26,6 +26,7 @@ const Lang = {
 		}
 	},
 	LIVE_RECORD: {
+		UploadTitle: 'Video is uploading...',
 		Madal: {
 			DeleteVideo: {
 				Text: 'Are you sure delete the recorded video？'

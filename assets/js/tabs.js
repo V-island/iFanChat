@@ -108,8 +108,8 @@ export default class Tabs extends EventEmitter {
                 let _newDay = MADAL.NewDay;
                 modal.confirm(_newDay.Text, function() {
                     let _record = new Record({
-                        localUpload: false,
-                        maxTimes: 5000
+                        maxTimes: 5,
+                        newDayVideo: true
                     });
                     _record.show();
                 }, function() {

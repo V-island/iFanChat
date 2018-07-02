@@ -32,18 +32,11 @@ const TOKEN_NAME = 'TOKEN';
 const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
 
-function getPost(_url, param, _type, _header, async, callback) {
-	if (isObject(_type)) {
-	    callback = arguments[2];
-	    _type = undefined;
-	    _header = undefined;
-	    async = undefined;
-	}
+function getPost(_url, param, callback, onProgress, _type, _header, async) {
 	if (isObject(_url)) {
+		onProgress = arguments[2];
 	    callback = arguments[1];
 	    param = _url;
-	    _type = undefined;
-	    _header = undefined;
 	    async = true;
 	}
 
@@ -76,6 +69,17 @@ function getPost(_url, param, _type, _header, async, callback) {
 		ajaxOpt.processData = false;
 		ajaxOpt.contentType = false;
 		ajaxOpt.mimeType = "multipart/form-data";
+		ajaxOpt.xhr = function() {
+			var xhr = $.ajaxSettings.xhr();
+			if (xhr.upload) {
+				xhr.upload.onprogress = function(progress) {
+					if (progress.lengthComputable) {
+						onProgress(progress.loaded / progress.total * 100);
+					}
+				};
+		　　　 }
+			return xhr;
+		};
 	}
 	if(_header !== ''){
 		ajaxOpt.headers = _header;
@@ -88,16 +92,17 @@ function getPost(_url, param, _type, _header, async, callback) {
 	}
 	console.log(ajaxOpt);
 	let post = Promise.resolve($.ajax(ajaxOpt)).then(function(response) {
+		console.log(response);
+		if (!isObject(response)) {
+			response = JSON.parse(response);
+			console.log(response);
+		}
 		if (response.code === 1000) {
 			return callback(response);
 		}
-		console.log(123);
 		modal.alert(response.message, function(_modal) {
 			modal.closeModal(_modal);
 		});
-
-	}, function(error) {
-		console.log(error);
 	});
 	return post;
 }
@@ -275,14 +280,10 @@ export function newDayRecord(callbackOk, callbackCancel) {
  * 用户上传视频
  * @param  {[object]} params 	   [description]
  * @param  {[type]} callback     	回调事件
+ * @param  {[type]} onProgress     	进度事件
  * @return {[type]} [description]
  */
-export function uploadVideo(_file, _type, callback) {
-	if (isFunction(_type)) {
-	    callbackOk = arguments[1];
-	    _type = 1;
-	}
-
+export function uploadVideo(_file, _type, callback, onProgress) {
 	let _info = getLocalStorage(UER_NAME);
 	let formData = new FormData();
 
@@ -296,5 +297,7 @@ export function uploadVideo(_file, _type, callback) {
 
 	getPost(formData, function(response) {
 		callback(response);
+	}, function(progress) {
+		onProgress(progress);
 	});
 };
