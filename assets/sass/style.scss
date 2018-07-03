@@ -3,6 +3,12 @@
 
 // User name and avatar
 //--------------------------------
+@mixin avatar-image($image) {
+	background-position: 0 0;
+	background-size: 100%;
+    background-image: url('#{$imgBaseUrl}/users/avatar-#{$image}.png');
+    background: image-set(url('#{$imgBaseUrl}/users/avatar-#{$image}.png') 1x, url('#{$imgBaseUrl}/users/avatar-#{$image}@2x.png') 2x) center;
+}
 .user-info {
 	@include flex-spindle(center);
 	// @include flex-vertical(column);
@@ -18,7 +24,6 @@
 			color: $color-text;
 			line-height: 1.5;
 		}
-
 	}
 
 	&.across {
@@ -48,6 +53,14 @@
 
 }
 
+.avatar-female{
+    @include avatar-image(female);
+}
+
+.avatar-male{
+	@include avatar-image(male);
+}
+
 // popup-box
 //--------------------------------
 .popup-box {
@@ -69,6 +82,36 @@
 		}
 	}
 
+	.calling-box {
+		text-align: center;
+		border: 0.2rem solid $color-text;
+		@include size(8.4rem);
+		border-radius: 50%;
+		line-height:  7rem;
+		font-size: 0.6rem;
+		color: $color-text;
+		position: relative;
+	    margin: 0 auto;
+
+		&:after {
+		    content: "";
+		    border: 0.2rem solid rgba(255, 255, 255, 0.15);
+		    @include size(8.4rem);
+		    display: flex;
+		    position: absolute;
+		    top: -0.4rem;
+		    left: -0.4rem;
+		    border-radius: 50%;
+		}
+
+		.calling-sprite {
+			@include size(8.6rem);
+			position: absolute;
+		    top: 0;
+		    left: -0.6rem;
+		}
+	}
+
 	.user-img {
 		width: 4.9rem !important;
 		height: 4.9rem !important;
@@ -83,29 +126,6 @@
 				vertical-align: text-top;
 			}
 
-		}
-
-	}
-
-	.calling-svg {
-		text-align: center;
-		border: 0.2rem solid $color-text;
-		@include size(8.4rem);
-		border-radius: 50%;
-		line-height: 12rem;
-		font-size: 0.6rem;
-		color: $color-text;
-		position: relative;
-
-		&:after {
-			content: "";
-			border: 0.2rem solid rgba(255, 255, 255, 0.15);
-			@include size(8.4rem);
-			display: flex;
-			position: absolute;
-			top: -0.4rem;
-			left: -0.4rem;
-			border-radius: 50%;
 		}
 
 	}

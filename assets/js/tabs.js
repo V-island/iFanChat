@@ -112,11 +112,14 @@ export default class Tabs extends EventEmitter {
                         newDayVideo: true
                     });
                     _record.show();
+                    _record.on('record.upload.success', function() {
+                        self.liveWaiting();
+                    });
                 }, function() {
-                    location.href = '#/user';
+                    self.liveWaiting();
                 }, true);
             }, function() {
-                // body...
+                self.liveWaiting();
             });
 
         });
@@ -149,6 +152,11 @@ export default class Tabs extends EventEmitter {
 
     static remove(tabsEl) {
         return document.body.removeChild(tabsEl);
+    }
+
+    // 直播等待
+    liveWaiting(){
+        let html = '<div class="tab-live-box"><div class="user-img avatar-female"></div></div>';
     }
 
 }

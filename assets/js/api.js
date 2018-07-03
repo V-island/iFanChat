@@ -32,7 +32,7 @@ const TOKEN_NAME = 'TOKEN';
 const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
 
-function getPost(_url, param, callback, onProgress, _type, _header, async) {
+function getPost(_url, param, callback, callbackCancel, onProgress, _type, _header, async) {
 	if (isObject(_url)) {
 		onProgress = arguments[2];
 	    callback = arguments[1];
@@ -100,6 +100,9 @@ function getPost(_url, param, callback, onProgress, _type, _header, async) {
 		if (response.code === 1000) {
 			return callback(response);
 		}
+		if (isFunction(callbackCancel)) {
+			return callbackCancel(response);
+		}
 		modal.alert(response.message, function(_modal) {
 			modal.closeModal(_modal);
 		});
@@ -126,16 +129,17 @@ export function getUserInfo() {
 export function checkAuth() {
 	let _auth = getLocalStorage(UER_NAME);
 
-	if (_auth.auth === 2) {
-		return false;
-	}
-	return true;
+	return _auth.auth === 2 ? true : false;
 }
 
 // 验证登录状态
 export function checkLogin() {
 	return getLocalStorage(UER_NAME) === null ? true : false;
 }
+
+//------------------------------------------------------------------------------------------------------
+//-----注册、登入模块
+//------------------------------------------------------------------------------------------------------
 
 /**
  * 发送验证码
@@ -194,26 +198,6 @@ export function getLogin(params, callback) {
 };
 
 /**
- * 个人中心/个人信息
- * @return {[type]} [description]
- */
-export function personCenter(params, token, mac) {
-	let _info = isObject(params) ? params : getLocalStorage(UER_NAME);
-	let _params = {
-		userId: _info.userId,
-		token: token,
-		loginMode: LofinMode,
-		mac: mac
-	}
-	getPost('/personCenter', _params, function(response) {
-		modal.toast(response.message);
-		_info.auth = response.data.user_authentication;
-		setLocalStorage(UER_NAME, _info);
-		location.href = '#/home';
-	});
-};
-
-/**
  * 找回密码
  * @param  {[object]} params 	   [description]
  * @param  {[type]} callback     回调事件
@@ -265,16 +249,166 @@ export function loginOut(callback) {
 	});
 };
 
+
+
+//------------------------------------------------------------------------------------------------------
+//-----个人中心模块
+//------------------------------------------------------------------------------------------------------
+
 /**
- * 每日一录
+ * 个人中心/个人信息
+ * @return {[type]} [description]
+ */
+export function personCenter(params, token, mac) {
+	let _info = isObject(params) ? params : getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: token,
+		loginMode: LofinMode,
+		mac: mac
+	}
+	getPost('/personCenter', _params, function(response) {
+		modal.toast(response.message);
+		_info.auth = response.data.user_authentication;
+		setLocalStorage(UER_NAME, _info);
+		location.href = '#/home';
+	});
+};
+
+
+
+//------------------------------------------------------------------------------------------------------
+//-----直播模块
+//------------------------------------------------------------------------------------------------------
+
+/**
+ * 主播创建直播间并加入
+ * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callbackCancel 取消事件
+ * @return {[type]} [description]
+ */
+export function createChannel(callbackOk, callbackCancel) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LofinMode,
+		mac: getMac()
+	}
+	getPost('/createChannel', _params, function(response) {
+		callbackOk(response.data);
+	},function(response) {
+		callbackCancel();
+	});
+};
+
+/**
+ * 直播状态--开播或下播
+ * @param  {[int]}  _status 	   状态 1.上播（直播等待中） 2.下播 3.直播中 4.禁播
+ * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callbackCancel 取消事件
+ * @return {[type]} [description]
+ */
+export function liveStatus(_status, callbackOk, callbackCancel) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		status: _status
+	}
+	getPost('/liveStatus', _params, function(response) {
+		callbackOk(true);
+	},function(response) {
+		callbackCancel(false);
+	});
+};
+
+/**
+ * 每日一录--开播前查询是否需要重新录制小视频
  * @param  {[type]} callbackOk     通过事件
  * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
 export function newDayRecord(callbackOk, callbackCancel) {
-	let start = true;
-	return start ? callbackOk() : callbackCancel();
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LofinMode,
+		mac: getMac()
+	}
+	getPost('/selEverdayVideo', _params, function(response) {
+		callbackOk(true);
+	},function(response) {
+		callbackCancel(false);
+	});
 };
+
+/**
+ * 新人列表
+ * @param  {[String]} _page 	   当前页
+ * @param  {[String]} _number 	   条数
+ * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callbackCancel 取消事件
+ * @return {[type]} [description]
+ */
+export function newVideo(_page, _number, callbackOk, callbackCancel) {
+
+	getPost('/newVideo', {
+		page: _page,
+		number: _number
+	}, function(response) {
+		callbackOk();
+	},function(response) {
+		callbackCancel();
+	});
+};
+
+/**
+ * 热门列表
+ * @param  {[String]} _page 	   当前页
+ * @param  {[String]} _number 	   条数
+ * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callbackCancel 取消事件
+ * @return {[type]} [description]
+ */
+export function hotVideo(_page, _number, callbackOk, callbackCancel) {
+
+	getPost('/hotVideo', {
+		page: _page,
+		number: _number
+	}, function(response) {
+		callbackOk();
+	},function(response) {
+		callbackCancel();
+	});
+};
+
+/**
+ * 显示视频
+ * @param  {[String]} _page 	   当前页
+ * @param  {[String]} _number 	   条数
+ * @param  {[String]} _type 	   类别 1.免费 2.收费
+ * @param  {[type]} callbackOk     通过事件
+ * @param  {[type]} callbackCancel 取消事件
+ * @return {[type]} [description]
+ */
+export function videoClips(_page, _number, _type, callbackOk, callbackCancel) {
+
+	getPost('/videoClips', {
+		page: _page,
+		number: _number,
+		type: _type
+	}, function(response) {
+		callbackOk();
+	},function(response) {
+		callbackCancel();
+	});
+};
+
+
+//------------------------------------------------------------------------------------------------------
+//-----视频模块
+//------------------------------------------------------------------------------------------------------
 
 /**
  * 用户上传视频
@@ -292,7 +426,7 @@ export function uploadVideo(_file, _type, callback, onProgress) {
 	formData.append("token", getLocalStorage(TOKEN_NAME));
 	formData.append("loginMode", LofinMode);
 	formData.append("mac", getMac());
-	formData.append("keyword", 'uploadVideo');
+	formData.append("keyword", 'upload');
 	formData.append("file", _file);
 
 	getPost(formData, function(response) {

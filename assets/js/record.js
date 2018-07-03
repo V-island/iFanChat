@@ -168,6 +168,7 @@ export default class Record extends EventEmitter {
             let _type = self.newDayVideo ? 2 : 1;
             uploadVideo(file, _type, function(data) {
                 self._uploadHide();
+                self.trigger('record.upload.success');
             }, function(progress) {
                 _progress.show(progress);
             });
@@ -384,3 +385,29 @@ export default class Record extends EventEmitter {
         }, 500);
     }
 }
+
+
+/**
+ * record.open
+ * 当显示录制器的时候，会派发 record.open 事件。
+ */
+
+/**
+ * record.close
+ * 当隐藏录制器的时候，会派发 record.close 事件。
+ */
+
+/**
+ * record.start
+ * 当录制视频开始的时候，会派发 record.start 事件。
+ */
+
+/**
+ * record.stop
+ * 当录制视频结束的时候，会派发 record.stop 事件。
+ */
+
+/**
+ * record.upload.success
+ * 当视频上传成功的时候，会派发 record.stop 事件。
+ */
