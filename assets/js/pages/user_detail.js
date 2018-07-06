@@ -1,15 +1,44 @@
+import Template from 'art-template/lib/template-web';
+import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
+
 import {
     getLangConfig
 } from '../lang';
+
+import {
+    extend,
+    createDom
+} from '../util';
 
 const LANG = getLangConfig();
 const DETAIL = LANG.PERSONAL_DETAIL;
 const modal = new Modal();
 
-let userDetail = {
-	_bindEvent: function() {
-		let Info = $('.list-info');
+export default class UserDetail extends EventEmitter {
+	constructor(element, options) {
+	    super();
+
+	    this.options = {
+    		data: []
+        };
+
+	    extend(this.options, options);
+
+	    this._init(element);
+	}
+
+	_init(element) {
+		console.log('这里是userDetailjs');
+		this.UserDetailEl = createDom(Template.render(element, LANG));
+	    setTimeout(() => {
+			this.trigger('pageLoadStart', this.UserDetailEl);
+		}, 0);
+		this._bindEvent();
+	}
+
+	_bindEvent() {
+		let Info = $('.list-info', this.UserDetailEl);
 		let metaClass = '.list-item-meta-txt';
 
 		// 用户名
@@ -171,10 +200,9 @@ let userDetail = {
 				},
 			);
 		});
-	},
-	init: function() {
-		console.log('这里是userDetailjs');
-		this._bindEvent();
+	}
+
+	static attachTo(element, options) {
+	    return new UserDetail(element, options);
 	}
 }
-export default userDetail;

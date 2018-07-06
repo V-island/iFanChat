@@ -1,12 +1,19 @@
+import Template from 'art-template/lib/template-web';
+import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
+
 import {
     getLangConfig
 } from '../lang';
+
 import {
     sendVerificationCode,
     getRegister
 } from '../api';
+
 import {
+    extend,
+    createDom,
     isPoneAvailable,
     addCountdown
 } from '../util';
@@ -14,13 +21,31 @@ import {
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let Register = {
-	init: function() {
+export default class Register extends EventEmitter {
+	constructor(element, options) {
+	    super();
+
+	    this.options = {
+    		data: []
+        };
+
+	    extend(this.options, options);;
+
+	    this._init(element);
+
+	}
+
+	_init(element) {
+		this.RegisterEl = createDom(Template.render(element, LANG));
+		setTimeout(() => {
+			this.trigger('pageLoadStart', this.RegisterEl);
+		}, 0);
 		this._bindEvent();
-	},
-	_bindEvent: function() {
-		let Form = $('form.form-register');
-		let Group = $('.form-group');
+	}
+
+	_bindEvent() {
+		let Form = $('form.form-register', this.RegisterEl);
+		let Group = $('.form-group', this.RegisterEl);
 
 		// 选择国家
 		Group.on('click', '.form-control.country', function() {
@@ -83,10 +108,12 @@ let Register = {
 			let $self = $(this);
 			// let $input = $(this).find('input.form-control');
 			let _params = $self.serialize();
-			console.log(_params);
 			getRegister(_params);
 			e.preventDefault();
 		});
 	}
+
+	static attachTo(element, options) {
+	    return new Register(element, options);
+	}
 }
-export default Register;

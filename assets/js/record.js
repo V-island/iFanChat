@@ -42,7 +42,7 @@ export default class Record extends EventEmitter {
                 video: true
             },
             minTimes: 5,
-            maxTimes: 15,
+            maxTimes: 60,
             newDayVideo: false,
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',

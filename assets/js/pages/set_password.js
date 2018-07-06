@@ -1,21 +1,48 @@
+import Template from 'art-template/lib/template-web';
+import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
+
 import {
     getLangConfig
 } from '../lang';
+
 import {
     getUpdatePassword
 } from '../api';
 
+import {
+    extend,
+    createDom
+} from '../util';
+
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let SetPassWord = {
-	init: function() {
+export default class SetPassWord extends EventEmitter {
+	constructor(element, options) {
+	    super();
+
+	    this.options = {
+    		data: []
+        };
+
+	    extend(this.options, options);
+
+	    this._init(element);
+
+	}
+
+	_init(element) {
+		this.SetPassWordEl = createDom(Template.render(element, LANG));
+	    setTimeout(() => {
+	    	this.trigger('pageLoadStart', this.SetPassWordEl);
+	    }, 0);
 		this._bindEvent();
-	},
-	_bindEvent: function() {
-		let FormSetPassword = $('form.form-set-password');
-		let Group = $('.form-group');
+	}
+
+	_bindEvent() {
+		let FormSetPassword = $('form.form-set-password', this.SetPassWordEl);
+		let Group = $('.form-group', this.SetPassWordEl);
 
 		// 输入状态
 		Group.on('blur', '.form-control', function() {
@@ -54,5 +81,8 @@ let SetPassWord = {
 			e.preventDefault();
 		});
 	}
+
+	static attachTo(element, options) {
+	    return new SetPassWord(element, options);
+	}
 }
-export default SetPassWord;

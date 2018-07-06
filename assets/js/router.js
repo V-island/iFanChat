@@ -1,12 +1,19 @@
 import Template from 'art-template/lib/template-web';
 import fcConfig from './intro';
 import Tabs from './tabs';
+
 import {
     getLangConfig
 } from './lang';
+
 import {
     checkLogin
 } from './api';
+
+import {
+    replaceNote
+} from './util';
+
 +function($) {
     'use strict';
 
@@ -362,9 +369,9 @@ import {
                 this._doSwitchDocument(url, direction);
             } else {
                 this._loadDocument(url, {
-                    success: function($doc, param) {
+                    success: function(doc, param) {
                         try {
-                            context._parseDocument(url, $doc, param);
+                            context._parseDocument(url, doc, param);
                             context._doSwitchDocument(url, direction);
                         } catch (e) {
                             // location.hash = url;
@@ -390,50 +397,60 @@ import {
          * @private
          */
         _doSwitchDocument(url, direction) {
-            let $currentDoc = this.$view.find('.' + routerConfig.sectionGroupClass);
-            let $newDoc = $($('<div></div>').append(this.cache[url].$content).html());
-
-            let $allSection = $newDoc.find('.' + routerConfig.pageClass);
-            let $visibleSection = $newDoc.find('.' + routerConfig.curPageClass);
-
-            let $barTab = document.querySelector(routerConfig.barTabClass);
             // 判断是否登录
             if (checkLogin() && this.cache[url].init !== 1) {
                 return location.hash = '#/login';
             }
 
-            if (!$visibleSection.length) {
-                $visibleSection = $allSection.eq(0);
-            }
+            //读取成功后
+            // window.addEventListener('HTMLImportsLoaded', function(e) {
+            //     console.info(MSG.importready);
+            //     obj[fn]();
+            // });
 
-            if (!$visibleSection.attr('id')) {
-                $visibleSection.attr('id', this._generateRandomId());
-            }
+            // window.addEventListener('WebComponentsReady', function(e) {
+            //     console.info(MSG.allready);
+            //     obj[fn]();
+            // });
 
-            let $currentSection = this._getCurrentSection();
+            let classDoc = this.cache[url].component.attachTo(this.cache[url].content);
+            classDoc.on('pageLoadStart', (newDoc)  => {
+                let $currentDoc = this.$view.find('.' + routerConfig.sectionGroupClass);
+                let $newDoc = $(newDoc);
+                let $allSection = $newDoc.find('.' + routerConfig.pageClass);
+                let $visibleSection = $newDoc.find('.' + routerConfig.curPageClass);
 
-            if (!$currentSection.length) {
-                $currentSection.trigger(EVENTS.beforePageSwitch, [$currentSection.attr('id'), $currentSection]);
-            }
+                if (!$visibleSection.length) {
+                    $visibleSection = $allSection.eq(0);
+                }
 
-            if (!$allSection.length) {
-                $allSection.removeClass(routerConfig.curPageClass);
-            }
+                if (!$visibleSection.attr('id')) {
+                    $visibleSection.attr('id', this._generateRandomId());
+                }
 
-            $visibleSection.addClass(routerConfig.curPageClass);
-            // prepend 而不 append 的目的是避免 append 进去新的 document 在后面，
-            // 其里面的默认展示的(.page-current) 的页面直接就覆盖了原显示的页面（因为都是 absolute）
-            this.$view.prepend($newDoc);
-            console.log(this.cache);
-            this._readyImport(this.cache[url].$component,'init');
-            if ($currentSection.length) this._animateDocument($currentDoc, $newDoc, $visibleSection, direction);
+                let $currentSection = this._getCurrentSection();
 
-            // 判断Nav Tabs
-            if (!$barTab && this.cache[url].navTabs === 1) {
-                Tabs.attachTo();
-            }else if($barTab && this.cache[url].navTabs !== 1) {
-                Tabs.remove($barTab);
-            }
+                if (!$currentSection.length) {
+                    $currentSection.trigger(EVENTS.beforePageSwitch, [$currentSection.attr('id'), $currentSection]);
+                }
+
+                if (!$allSection.length) {
+                    $allSection.removeClass(routerConfig.curPageClass);
+                }
+
+                // 判断Nav Tabs
+                if (this.cache[url].navTabs === 1) {
+                    let tabs = new Tabs($visibleSection[0]);
+                    // console.log(tabs);
+                }
+
+                $visibleSection.addClass(routerConfig.curPageClass);
+                // prepend 而不 append 的目的是避免 append 进去新的 document 在后面，
+                // 其里面的默认展示的(.page-current) 的页面直接就覆盖了原显示的页面（因为都是 absolute）
+                this.$view.prepend($newDoc);
+                $('[data-ripple]').ripple();
+                if ($currentSection.length) this._animateDocument($currentDoc, $newDoc, $visibleSection, direction);
+            });
         }
 
         /**
@@ -467,9 +484,9 @@ import {
                 console.log('Loaded import: ' + e.target.href);
                 let _target = e.target.import;
                 let bodyHTML = typeof(_target.body) == 'undefined' ? _target.innerHTML : _target.body.innerHTML;
-                let $doc = Util.replaceNote(bodyHTML);
+                let doc = replaceNote(bodyHTML);
 
-                callback.success && callback.success.call(null, $doc, param);
+                callback.success && callback.success.call(null, doc, param);
 
                 //加载完成后清除头部引用
                 if (!link.readyState || 'link' === link.readyState || 'complete' === link.readyState) {
@@ -487,39 +504,6 @@ import {
             document.head.appendChild(link);
         }
 
-        _readyImport(obj, fn) {
-            var _self = this;
-            if(typeof(obj) == 'undefined'){
-                console.warn(MSG.cantfindobj);
-                return;
-            }
-            //读取成功后
-            // window.addEventListener('HTMLImportsLoaded', function(e) {
-            //     console.info(MSG.importready);
-            //     obj[fn]();
-            // });
-
-            // window.addEventListener('WebComponentsReady', function(e) {
-            //     console.info(MSG.allready);
-            //     obj[fn]();
-            // });
-            obj[fn]();
-            $('[data-ripple]').ripple();
-        }
-
-        /**
-         * 对于 import 加载进来的页面装载模板语言包
-         * ，把其缓存起来
-         *
-         * @param {String} url url
-         * @param $doc import html
-         * @private
-         */
-        _parseDocument(url, $doc, param) {
-            $doc = Template.render($doc, LANG);
-            this._saveDocumentIntoCache($doc, url, param);
-        }
-
         /**
          * 把一个页面的相关信息保存到 this.cache 中
          *
@@ -530,16 +514,16 @@ import {
          * @param {*} component component
          * @private
          */
-        _saveDocumentIntoCache(doc, url, param) {
-            let $doc = $(doc);
+        _parseDocument(url, doc, param) {
+            // let $doc = $(doc);
 
-            if (!$doc.hasClass(routerConfig.sectionGroupClass)) {
-                throw new Error('missing router view mark: ' + routerConfig.sectionGroupClass);
-            }
+            // if (!$doc.hasClass(routerConfig.sectionGroupClass)) {
+            //     throw new Error('missing router view mark: ' + routerConfig.sectionGroupClass);
+            // }
 
             this.cache[url] = {
-                $content: $doc,
-                $component: param.component,
+                content: doc,
+                component: param.component,
                 navTabs: param.navTabs,
                 init: param.init
             };

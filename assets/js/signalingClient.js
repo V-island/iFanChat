@@ -1,9 +1,6 @@
 import EventEmitter from './eventEmitter';
 import Signal from './components/AgoraSig-1.3.0';
 
-const AGORA_APP_ID = '7ced8477174241339790be7653704ec2'
-const AGORA_CERTIFICATE_ID = ''
-
 // event
 const Session_Event = [
 	'onLoginSuccess',			// 登录成功回调

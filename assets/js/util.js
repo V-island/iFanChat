@@ -140,7 +140,13 @@ export function replaceNote(str) {
         .replace(/<style[^>]*>[\s\S]*?<\/[^>]*style>/gi, '')
         //.replace(/<script[^>]*>[\s\S]*?<\/[^>]*script>/gi,'')
         .replace(/>\s*/g, '>')
-        .replace(/\s*</g, '<');
+        .replace(/\s*</g, '<')
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&#39;/g, "\'")
+        .replace(/&quot;/g, "\"");
 };
 
 export function compareVersion(a, b) {

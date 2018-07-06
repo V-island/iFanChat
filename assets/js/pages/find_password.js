@@ -1,12 +1,19 @@
+import Template from 'art-template/lib/template-web';
+import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
+
 import {
-	getLangConfig
+    getLangConfig
 } from '../lang';
+
 import {
     sendVerificationCode,
     getFindPassword
 } from '../api';
+
 import {
+    extend,
+    createDom,
     isPoneAvailable,
     addCountdown
 } from '../util';
@@ -14,13 +21,34 @@ import {
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let FindPassWord = {
-	init: function() {
+export default class FindPassWord extends EventEmitter {
+	constructor(element, options) {
+	    super();
+
+	    this.options = {
+    		data: []
+        };
+
+	    extend(this.options, options);
+
+	    this.FindPassWordEl = createDom(this._Template(element));
+
+	    this._init(element);
+	}
+
+	_init(element) {
+		this.FindPassWordEl = createDom(Template.render(element, LANG));
+
+		setTimeout(() => {
+			this.trigger('pageLoadStart', this.FindPassWordEl);
+		}, 0);
+
 		this._bindEvent();
-	},
-	_bindEvent: function() {
-		let FormFindPassword = $('form.form-find-password');
-		let Group = $('.form-group');
+	}
+
+	_bindEvent() {
+		let FormFindPassword = $('form.form-find-password', this.FindPassWordEl);
+		let Group = $('.form-group', this.FindPassWordEl);
 
 		// 选择国家
 		Group.on('click', '.form-control.country', function() {
@@ -90,5 +118,8 @@ let FindPassWord = {
 			e.preventDefault();
 		});
 	}
+
+	static attachTo(element, options) {
+	    return new FindPassWord(element, options);
+	}
 }
-export default FindPassWord;

@@ -1,6 +1,7 @@
 /* === Cards === */
 .box-cards {
     margin: 0.7rem 0;
+    @include row;
 }
 
 .cards-header{
@@ -10,6 +11,17 @@
 
     .refresh{
         color: $color-primary;
+    }
+
+    &.video-header {
+        font-size: 0.75rem;
+        font-weight: 600;
+
+        .refresh{
+            color: $color-text-gray-light;
+            font-size: 0.6rem;
+            font-weight: 400;
+        }
     }
 }
 
@@ -38,11 +50,10 @@
         top: 0;
         bottom: 0;
         z-index: 1;
-
-        >img {
-            width: auto;
-            height: 100%;
-        }
+        @include ImageBox(place-chart);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
 
     }
 
@@ -196,12 +207,13 @@ span.tag-label {
         justify-content: space-between;
         align-items: center;
         font-size: 0.4rem;
+        padding-right: 0.35rem;
     }
 
     .user-info {
         display: flex;
         width: 3.5rem;
-        margin-right: 0.35rem;
+        margin-right: 0.2rem;
 
         .user-img {
             width: 1rem;
@@ -238,8 +250,8 @@ span.tag-label {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            width: 1.8rem;
-            margin: 0 0.1rem;
+            margin: 0;
+            padding: 0 0.1rem;
 
             &:before {
                 width: 0.5rem;

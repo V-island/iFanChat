@@ -250,3 +250,9 @@
     width: $num;
     height: $num;
 }
+
+
+@mixin ImageBox($name) {
+    background-image: url("#{$imgBaseUrl}/#{$name}.png");
+    background: image-set(url("#{$imgBaseUrl}/#{$name}.png") 1x, url("#{$imgBaseUrl}/#{$name}@2x.png") 2x) center;
+}

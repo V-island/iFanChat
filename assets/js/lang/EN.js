@@ -1,14 +1,34 @@
 const Lang = {
 	HOME: {
-		New: 'New',
-		Hot: 'Hot',
-		Video: 'Video',
-		Select: {
-			Dance: 'Dance',
-			Singing: 'Singing',
-			Emotion: 'Emotion',
-			Art: 'Art'
+		New: {
+			Title: 'New'
 		},
+		Hot: {
+			Title: 'Hot'
+		},
+		Video: {
+			Title: 'Video',
+			Free: {
+				Title: 'Free',
+				More: 'More'
+			},
+			Exciting: {
+				Title: 'Exciting',
+			}
+		},
+		VideoType: [{
+			Id: 1,
+			Title: 'Dance'
+		}, {
+			Id: 2,
+			Title: 'Singing'
+		}, {
+			Id: 3,
+			Title: 'Emotion'
+		}, {
+			Id: 4,
+			Title: 'Art'
+		}],
 		Madal: {
 			NotCoins: {
 				Title: 'Not enough coins',
@@ -310,6 +330,7 @@ const Lang = {
 	},
 	PUBLIC: {
 		Billing: 'Gold/Min',
+		Heat: 'heat',
 		Status: {
 			Busy: 'Busy',
 			Waiting: 'waiting'

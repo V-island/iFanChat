@@ -1,8 +1,21 @@
+import Template from 'art-template/lib/template-web';
+import EventEmitter from '../eventEmitter';
 import AgoraRTC from '../components/AgoraRTCSDK-2.3.0';
-import Modal from '../modal';
 import fcConfig from '../intro';
+import Modal from '../modal';
 
+import {
+    getLangConfig
+} from '../lang';
+
+import {
+    extend,
+    createDom
+} from '../util';
+
+const LANG = getLangConfig();
 const modal = new Modal();
+
 const MSG = {
 	// browser is no support webRTC
 	errorWebRTC: '浏览器不支持webRTC',
@@ -34,18 +47,35 @@ const MSG = {
 	errorSubscribe: '订阅流失败'
 }
 
-const agoraConfig = {
-	appId: '1b5fc67b84e64a2c834b2f9f4907946e',
-	liveWindow: 'video',
-	userLiveWindow: 'video-us',
-	channelKey: null,
-	channel: '1024',
-	uId: null
-}
+export default class Live extends EventEmitter {
+	constructor(element, options) {
+	    super();
 
-let live = {
-	templateDOM: {},
-	_bindEvent: function() {
+	    this.options = {
+    		data: []
+        };
+
+        this.templateDOM = {};
+
+	    extend(this.options, options);
+
+	    this._init(element);
+
+	}
+
+	_init(element) {
+		console.log('这里是livejs');
+		// let publicTpl = HTMLImport.attachTo(PUBLICFILE.actions_lives);
+		// this.templateDOM = publicTpl.tpl;
+		this.LiveEl = createDom(Template.render(element, LANG));
+		setTimeout(() => {
+			this.trigger('pageLoadStart', this.LiveEl);
+		}, 0);
+		this._bindEvent();
+		this.agora();
+	}
+
+	_bindEvent() {
 		let _self = this;
 		let btn = $('.live-buttons');
 
@@ -72,8 +102,9 @@ let live = {
 				closeBtn: true
 			});
 		});
-	},
-	agora: function() {
+	}
+
+	agora() {
 		// 用户可选关闭Agora DSK功能
 		if (!fcConfig.agora) {
 			return;
@@ -315,13 +346,9 @@ let live = {
 			});
 		});
 
-	},
-	init: function() {
-		console.log('这里是livejs');
-		// let publicTpl = HTMLImport.attachTo(PUBLICFILE.actions_lives);
-		// this.templateDOM = publicTpl.tpl;
-		this._bindEvent();
-		this.agora();
+	}
+
+	static attachTo(element, options) {
+	    return new Live(element, options);
 	}
 }
-export default live;

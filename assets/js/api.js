@@ -32,6 +32,109 @@ const TOKEN_NAME = 'TOKEN';
 const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
 
+const NEW_List_DATA = [{
+	user_id: 1,
+	live_url: "https://media.html5media.info/video.mp4",
+	everyday_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	heat: 9999,
+	live_price: 10,
+	status: 1,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "LIVE"
+}, {
+	user_id: 2,
+	live_url: "https://media.html5media.info/video.mp4",
+	everyday_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	heat: 889,
+	live_price: 10,
+	status: 3,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "COME"
+}];
+
+const HOT_List_DATA = [{
+	user_id: 1,
+	live_url: "https://media.html5media.info/video.mp4",
+	everyday_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	heat: 9999,
+	live_price: 10,
+	status: 1,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "LIVE"
+}, {
+	user_id: 2,
+	live_url: "https://media.html5media.info/video.mp4",
+	everyday_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	heat: 889,
+	live_price: 10,
+	status: 3,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "COME"
+}];
+
+const VIDEO_List_DATA = [{
+	user_id: 1,
+	id: 199,
+	video_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	video_new_name: "Do you like me",
+	support: 9999,
+	watch_number: 999,
+	price: 10,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "LIVE"
+}, {
+	user_id: 2,
+	id: 456,
+	video_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	video_new_name: "Do you not come to see such",
+	support: 685,
+	watch_number: 9999,
+	price: 10,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "COME"
+}];
+
+const ADVERTISEMENT_DATA = [{
+	id: 199,
+	show_url: "http://www.opixer.com/var/thumb/50f1591d615e5ad388ec310aac4207d9-1280-900.jpg",
+	save_url: "http://www.opixer.com/var/thumb/50f1591d615e5ad388ec310aac4207d9-1280-900.jpg",
+	img_title: "Do you like me",
+	description: "LIVE",
+	status: 1
+}, {
+	id: 456,
+	show_url: "http://www.opixer.com/var/thumb/4183a3a24cf2d2650c294a337d9c4288-1280-900.jpg",
+	save_url: "http://www.opixer.com/var/thumb/4183a3a24cf2d2650c294a337d9c4288-1280-900.jpg",
+	img_title: "Do you like me",
+	description: "LIVE",
+	status: 1
+}, {
+	id: 456,
+	show_url: "http://www.opixer.com/var/thumb/10b0e941baa19b6049cf9c677eff2f09-1280-900.jpg",
+	save_url: "http://www.opixer.com/var/thumb/10b0e941baa19b6049cf9c677eff2f09-1280-900.jpg",
+	img_title: "Do you like me",
+	description: "LIVE",
+	status: 1
+}];
+
+const VIDEO_TYPE_DATA = [{
+	id: 1,
+	video_type: 'Dance',
+	status: 1
+}, {
+	id: 2,
+	video_type: 'Singing',
+	status: 1
+}, {
+	id: 3,
+	video_type: 'Emotion',
+	status: 1
+}, {
+	id: 4,
+	video_type: 'Art',
+	status: 1
+}];
+
 function getPost(_url, param, callback, callbackCancel, onProgress, _type, _header, async) {
 	if (isObject(_url)) {
 		onProgress = arguments[2];
@@ -344,22 +447,38 @@ export function newDayRecord(callbackOk, callbackCancel) {
 };
 
 /**
+ * 获取广告
+ * @return {[type]} [description]
+ */
+export function getAdvertisement() {
+
+	return new Promise((resolve) => {
+		getPost('/getAdvertisement', {}, function(response) {
+			resolve(response.data);
+		}, function(response) {
+			resolve(ADVERTISEMENT_DATA);
+		});
+	});
+};
+
+
+/**
  * 新人列表
  * @param  {[String]} _page 	   当前页
  * @param  {[String]} _number 	   条数
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
-export function newVideo(_page, _number, callbackOk, callbackCancel) {
+export function newVideo(_page = 1, _number = 10) {
 
-	getPost('/newVideo', {
-		page: _page,
-		number: _number
-	}, function(response) {
-		callbackOk();
-	},function(response) {
-		callbackCancel();
+	return new Promise((resolve) => {
+		getPost('/newVideo', {
+			page: _page,
+			number: _number
+		}, function(response) {
+			resolve(response.data);
+		}, function(response) {
+			resolve(NEW_List_DATA);
+		});
 	});
 };
 
@@ -367,19 +486,19 @@ export function newVideo(_page, _number, callbackOk, callbackCancel) {
  * 热门列表
  * @param  {[String]} _page 	   当前页
  * @param  {[String]} _number 	   条数
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
-export function hotVideo(_page, _number, callbackOk, callbackCancel) {
+export function hotVideo(_page = 1, _number = 10) {
 
-	getPost('/hotVideo', {
-		page: _page,
-		number: _number
-	}, function(response) {
-		callbackOk();
-	},function(response) {
-		callbackCancel();
+	return new Promise((resolve) => {
+		getPost('/hotVideo', {
+			page: _page,
+			number: _number
+		}, function(response) {
+			resolve(response.data);
+		}, function(response) {
+			resolve(HOT_List_DATA);
+		});
 	});
 };
 
@@ -388,20 +507,35 @@ export function hotVideo(_page, _number, callbackOk, callbackCancel) {
  * @param  {[String]} _page 	   当前页
  * @param  {[String]} _number 	   条数
  * @param  {[String]} _type 	   类别 1.免费 2.收费
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
-export function videoClips(_page, _number, _type, callbackOk, callbackCancel) {
+export function videoClips(_page, _number, _type) {
 
-	getPost('/videoClips', {
-		page: _page,
-		number: _number,
-		type: _type
-	}, function(response) {
-		callbackOk();
-	},function(response) {
-		callbackCancel();
+	return new Promise((resolve) => {
+		getPost('/videoClips', {
+			page: _page,
+			number: _number,
+			type: _type
+		}, function(response) {
+			resolve(response.data);
+		}, function(response) {
+			resolve(VIDEO_List_DATA);
+		});
+	});
+};
+
+/**
+ * 获取视频标签
+ * @return {[type]} [description]
+ */
+export function videoType() {
+
+	return new Promise((resolve) => {
+		getPost('/getVideoType', {}, function(response) {
+			resolve(response.data);
+		}, function(response) {
+			resolve(VIDEO_TYPE_DATA);
+		});
 	});
 };
 

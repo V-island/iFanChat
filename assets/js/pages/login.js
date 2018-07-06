@@ -1,22 +1,48 @@
+import Template from 'art-template/lib/template-web';
+import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
+
 import {
     getLangConfig
 } from '../lang';
+
 import {
     getLogin
 } from '../api';
 
+import {
+    extend,
+    createDom
+} from '../util';
+
 const LANG = getLangConfig();
 const modal = new Modal();
 
-let login = {
-	init: function() {
+export default class Login extends EventEmitter {
+	constructor(element, options) {
+	    super();
+
+	    this.options = {
+    		data: []
+        };
+
+	    extend(this.options, options);
+
+	    this._init(element);
+	}
+
+	_init(element) {
 		console.log('这里是登录js');
+		this.LoginEl = createDom(Template.render(element, LANG));
+		setTimeout(() => {
+			this.trigger('pageLoadStart', this.LoginEl);
+		}, 0);
 		this._bindEvent();
-	},
-	_bindEvent: function() {
-		let Form = $('form.form-login');
-		let Group = $('.form-group');
+	}
+
+	_bindEvent() {
+		let FormLogin = $('form.form-login', this.LoginEl);
+		let Group = $('.form-group', this.LoginEl);
 
 		// 选择国家
 		Group.on('click', '.form-control.country', function() {
@@ -51,7 +77,7 @@ let login = {
 		});
 
 		// 表单提交
-		Form.submit(function(e) {
+		FormLogin.submit(function(e) {
 			let $self = $(this);
 			// let $input = $(this).find('input.form-control');
 			let _params = $self.serialize();
@@ -60,5 +86,8 @@ let login = {
 			e.preventDefault();
 		});
 	}
+
+	static attachTo(element, options) {
+	    return new Login(element, options);
+	}
 }
-export default login;

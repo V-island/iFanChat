@@ -17,10 +17,16 @@ const fcConfig = {
     showPageLoadingIndicator: true, //push.js加载页面的时候显示一个加载提示
     router: true, //默认使用router
     agora: true, //默认使用Agora DSK
+    agoraAppId: '7ced8477174241339790be7653704ec2',
+    agoraCertificateId: '',
     swipePanel: "left", //滑动打开侧栏
     swipePanelOnlyClose: true, //只允许滑动关闭，不允许滑动打开侧栏
     importJs: '@webcomponents/webcomponentsjs/webcomponents-lite',
     publicFile: {
+        home_items: {
+            name: 'home_items',
+            path: '../public/home_items.html'
+        },
         bar_tabs: {
             name: 'bar_tabs',
             path: '../public/bar_tabs.html'

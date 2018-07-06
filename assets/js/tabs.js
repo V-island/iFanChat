@@ -25,7 +25,7 @@ const MADAL = LANG.HOME.Madal;
 const modal = new Modal();
 
 export default class Tabs extends EventEmitter {
-    constructor(options) {
+    constructor(element, options) {
         super();
 
         this.options = {
@@ -36,12 +36,12 @@ export default class Tabs extends EventEmitter {
             showClass: 'active'
         };
         this.tabFile = fcConfig.publicFile.bar_tabs;
+        this.element = element;
 
         extend(this.options, options);
 
         this.tabsEl = createDom(this._tabsTemplate(LANG.BAR));
-
-        document.body.appendChild(this.tabsEl);
+        this.element.insertBefore(this.tabsEl, this.element.firstChild);
 
         this.itemEl = this.tabsEl.getElementsByClassName(this.options.itemClass);
         this.modallLiveEl = this.tabsEl.getElementsByClassName(this.options.startLiveClass)[0];
@@ -146,12 +146,12 @@ export default class Tabs extends EventEmitter {
         return html;
     }
 
-    static attachTo(options) {
-        return new Tabs(options);
+    static attachTo(element, options) {
+        return new Tabs(element, options);
     }
 
     static remove(tabsEl) {
-        return document.body.removeChild(tabsEl);
+        return this.element.removeChild(tabsEl);
     }
 
     // 直播等待
