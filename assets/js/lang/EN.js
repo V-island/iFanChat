@@ -318,6 +318,21 @@ const Lang = {
 			}
 		}
 	},
+	LIVE_INFORMATION: {
+		Title: 'Live information',
+		Progress: {
+			First: 'Upload information',
+			Second: 'Review'
+		},
+		Upload_Video: 'Upload video',
+		Upload_Photos: 'Upload photos',
+		Remarks: [
+			'The video will be shown to others to get more invitation.',
+			'The photo willshow your beauty. Even you can change it every da',
+			'You can change your information at any time, but it may take a '
+		],
+		Btn_Submit: 'SUBMIT'
+	},
 	BAR: {
 		Home: 'Home',
 		Favorite: 'Favorite',

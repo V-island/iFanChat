@@ -222,6 +222,14 @@
 }
 
 /**
+ * 垂直居中
+ */
+@mixin spindle-vertical($col) {
+    @include flex-vertical($col);
+    align-items: center;
+}
+
+/**
  * 主轴布局/垂直布局
  */
 @mixin flex-spindle-center($col, $flex) {

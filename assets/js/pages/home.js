@@ -57,8 +57,8 @@ export default class Home extends EventEmitter {
             pagesHotClass: '.pages-hot',
             pagesVideoClass: '.pages-video',
             boxCardsClass: 'box-cards',
-            pulldownClass: 'pulldown-wrapper',
-            pullupClass: 'pullup-wrapper',
+            pulldownClass: '.pulldown-wrapper',
+            pullupClass: '.pullup-wrapper',
             cardsPageIndex: 'page',
             showClass: 'active'
         };
@@ -84,7 +84,7 @@ export default class Home extends EventEmitter {
 		Promise.all([getNewVideo, getHotVideo, getFreeVideoClips, getVideoClips, getNewAdvertisement, getHotAdvertisement, getvideoType]).then((data) => {
 			this.data.NewList = data[0] ? data[0] : false;
 			this.data.HotList = data[1] ? data[1] : false;
-			this.data.FreeVideoList = data[2] ? data[2] : false;
+			this.data.FreeVideoList = data[2] ? (data[2].length > 2 ? data[2].slice(0, 2) : data[2]) : false;
 			this.data.VideoList = data[3] ? data[3] : false;
 			this.data.NewAdList = data[4] ? data[4] : false;
 			this.data.HotAdList = data[5] ? data[5] : false;
@@ -96,7 +96,7 @@ export default class Home extends EventEmitter {
 
 		this.tpl = {};
 
-		importTemplate(self.tabFile, (id, _template) => {
+		importTemplate(this.tabFile, (id, _template) => {
 		    this.tpl[id] = _template;
 		});
 	}
@@ -123,11 +123,16 @@ export default class Home extends EventEmitter {
 		this.pagesVideoEl = this.HomeEl.querySelector(this.options.pagesVideoClass);
 		this.cardsVideoEl = this.pagesVideoEl.getElementsByClassName(this.options.boxCardsClass)[0];
 
+		this.pullDownEl = this.HomeEl.querySelector(this.options.pulldownClass);
+		this.pullUpEl = this.HomeEl.querySelector(this.options.pullupClass);
+
 		this._setSlideWidth();
 		this._slideSwiper();
 		this._navSwiper();
 		this._bannerSwiper();
 		this._pagesNew();
+		this._pagesHot();
+		this._pagesVideo();
 		this._bindEvent();
 	}
 
@@ -255,6 +260,9 @@ export default class Home extends EventEmitter {
 
 	// New 模块
 	_pagesNew() {
+		let pullDownRefresh = false,
+			pullDownInitTop = -50;
+
 		this.pagesNewSwiper = new BScroll(this.options.pagesNewClass, {
 			startY: 0,
 			scrollY: true,
@@ -278,8 +286,18 @@ export default class Home extends EventEmitter {
 
 		// 下拉刷新
 		this.pagesNewSwiper.on('pullingDown', () => {
-			console.log('下拉刷新');
+			pullDownRefresh = true;
 			newVideo().then((data) => {
+				if (!data) return;
+
+				this.cardsNewEl.innerHTML = '';
+				data.forEach((itemData, index) => {
+					this.data.CardsList = itemData;
+					this.cardsNewEl.append(createDom(Template.render(this.tpl.list_cards, this.data)));
+				});
+				setData(this.cardsNewEl, this.options.cardsPageIndex, 1);
+				pullDownRefresh = false;
+				this.pullDownEl.style.top = '-1rem';
 				this.pagesNewSwiper.finishPullDown();
 				this.pagesNewSwiper.refresh();
 			});
@@ -287,16 +305,179 @@ export default class Home extends EventEmitter {
 
 		// 上拉加载
 		this.pagesNewSwiper.on('pullingUp', () => {
-			console.log('上拉加载');
-			let _page = getData(this.cardsNewEl, this.options.cardsPageIndex) + 1;
-			newVideo(_page, _number).then((data) => {
-				this._cardsItemElement(this.cardsNewEl, data, _page);
+			let _page = getData(this.cardsNewEl, this.options.cardsPageIndex);
+			_page = parseInt(_page) + 1;
+			newVideo(_page).then((data) => {
+				if (!data) return;
+
+				data.forEach((itemData, index) => {
+					this.data.CardsList = itemData;
+					this.cardsNewEl.append(createDom(Template.render(this.tpl.list_cards, this.data)));
+				});
+				setData(this.cardsNewEl, this.options.cardsPageIndex, _page);
 				this.pagesNewSwiper.finishPullUp();
 				this.pagesNewSwiper.refresh();
 			});
 		});
+
+		this.pagesNewSwiper.on('scroll', (pos) => {
+			if (pullDownRefresh) {
+				return;
+			}
+			this.pullDownEl.style.top = Math.min(pos.y + pullDownInitTop, 10)+ 'px';
+		})
 	}
 
-	_cardsItemElement(element, data, page) {
+	// Hot 模块
+	_pagesHot() {
+		let pullDownRefresh = false,
+			pullDownInitTop = -50;
+
+		this.pagesHotSwiper = new BScroll(this.options.pagesHotClass, {
+			startY: 0,
+			scrollY: true,
+			scrollX: false,
+			probeType: 3,
+			click: true,
+			scrollbar: {
+				fade: true,
+				interactive: false
+			},
+			pullDownRefresh: {
+				threshold: 50,
+				stop: 20
+			},
+			pullUpLoad: {
+				threshold: -20
+			},
+			mouseWheel: true,
+			bounce: true
+		});
+
+		// 下拉刷新
+		this.pagesHotSwiper.on('pullingDown', () => {
+			pullDownRefresh = true;
+			hotVideo().then((data) => {
+				if (!data) return;
+
+				this.cardsHotEl.innerHTML = '';
+				data.forEach((itemData, index) => {
+					this.data.CardsList = itemData;
+					this.cardsHotEl.append(createDom(Template.render(this.tpl.list_cards, this.data)));
+				});
+				setData(this.cardsHotEl, this.options.cardsPageIndex, 1);
+				pullDownRefresh = false;
+				this.pullDownEl.style.top = '-1rem';
+				this.pagesHotSwiper.finishPullDown();
+				this.pagesHotSwiper.refresh();
+			});
+		});
+
+		// 上拉加载
+		this.pagesHotSwiper.on('pullingUp', () => {
+			let _page = getData(this.cardsHotEl, this.options.cardsPageIndex);
+			_page = parseInt(_page) + 1;
+			hotVideo(_page).then((data) => {
+				if (!data) return;
+
+				data.forEach((itemData, index) => {
+					this.data.CardsList = itemData;
+					this.cardsHotEl.append(createDom(Template.render(this.tpl.list_cards, this.data)));
+				});
+				setData(this.cardsHotEl, this.options.cardsPageIndex, _page);
+				this.pagesHotSwiper.finishPullUp();
+				this.pagesHotSwiper.refresh();
+			});
+		});
+
+		this.pagesHotSwiper.on('scroll', (pos) => {
+			if (pullDownRefresh) {
+				return;
+			}
+			this.pullDownEl.style.top = Math.min(pos.y + pullDownInitTop, 10)+ 'px';
+		})
+	}
+
+	// Video 模块
+	_pagesVideo() {
+		let pullDownRefresh = false,
+			pullDownInitTop = -50;
+
+		this.pagesVideoSwiper = new BScroll(this.options.pagesVideoClass, {
+			startY: 0,
+			scrollY: true,
+			scrollX: false,
+			probeType: 3,
+			click: true,
+			pullDownRefresh: {
+				threshold: 50,
+				stop: 20
+			},
+			pullUpLoad: {
+				threshold: -20
+			},
+			mouseWheel: true,
+			bounce: true
+		});
+
+		// 下拉刷新
+		this.pagesVideoSwiper.on('pullingDown', () => {
+			pullDownRefresh = true;
+			videoClips(1, 10, 1).then((data) => {
+				videoClips(1, 10, 2).then((_data) => {
+					if (!data && !_data) return;
+
+					this.cardsVideoEl.innerHTML = '';
+
+					// free
+					if (data) {
+						this.cardsVideoEl.append(createDom(Template.render(this.tpl.free_videos_header, this.data)));
+
+						data.forEach((itemData, index) => {
+							this.data.VideosList = itemData;
+							this.cardsVideoEl.append(createDom(Template.render(this.tpl.list_videos, this.data)));
+						});
+					}
+
+					if (_data) {
+						this.cardsVideoEl.append(createDom(Template.render(this.tpl.videos_header, this.data)));
+
+						_data.forEach((itemData, index) => {
+							this.data.VideosList = itemData;
+							this.cardsVideoEl.append(createDom(Template.render(this.tpl.list_videos, this.data)));
+						});
+					}
+					setData(this.cardsVideoEl, this.options.cardsPageIndex, 1);
+					pullDownRefresh = false;
+					this.pullDownEl.style.top = '-1rem';
+					this.pagesVideoSwiper.finishPullDown();
+					this.pagesVideoSwiper.refresh();
+				});
+			});
+		});
+
+		// 上拉加载
+		this.pagesVideoSwiper.on('pullingUp', () => {
+			let _page = getData(this.cardsVideoEl, this.options.cardsPageIndex);
+			_page = parseInt(_page) + 1;
+			videoClips(_page, 10, 2).then((data) => {
+				if (!data) return;
+
+				data.forEach((itemData, index) => {
+					this.data.VideosList = itemData;
+					this.cardsVideoEl.append(createDom(Template.render(this.tpl.list_videos, this.data)));
+				});
+				setData(this.cardsVideoEl, this.options.cardsPageIndex, _page);
+				this.pagesVideoSwiper.finishPullUp();
+				this.pagesVideoSwiper.refresh();
+			});
+		});
+
+		this.pagesVideoSwiper.on('scroll', (pos) => {
+			if (pullDownRefresh) {
+				return;
+			}
+			this.pullDownEl.style.top = Math.min(pos.y + pullDownInitTop, 10)+ 'px';
+		})
 	}
 }

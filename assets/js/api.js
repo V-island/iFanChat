@@ -50,6 +50,24 @@ const NEW_List_DATA = [{
 	status: 3,
 	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
 	user_name: "COME"
+}, {
+	user_id: 2,
+	live_url: "https://media.html5media.info/video.mp4",
+	everyday_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	heat: 889,
+	live_price: 10,
+	status: 3,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "COME"
+}, {
+	user_id: 2,
+	live_url: "https://media.html5media.info/video.mp4",
+	everyday_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	heat: 889,
+	live_price: 10,
+	status: 3,
+	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	user_name: "COME"
 }];
 
 const HOT_List_DATA = [{
@@ -135,6 +153,22 @@ const VIDEO_TYPE_DATA = [{
 	status: 1
 }];
 
+const USER_INFO = {
+	user_id: 0,
+	user_name: 'live',
+	user_head: null,
+	user_sex: 1,
+	user_age: 0,
+	user_package: 0,
+	user_score: 0,
+	user_authentication: 1,
+	live_level: 0,
+	live_price: 0,
+	vmount: 0,
+	wmount: 0
+}
+
+
 function getPost(_url, param, callback, callbackCancel, onProgress, _type, _header, async) {
 	if (isObject(_url)) {
 		onProgress = arguments[2];
@@ -200,8 +234,13 @@ function getPost(_url, param, callback, callbackCancel, onProgress, _type, _head
 			response = JSON.parse(response);
 			console.log(response);
 		}
-		if (response.code === 1000) {
+		if (response.code === 1000 || response.code === 1001) {
 			return callback(response);
+		}
+		if (response.code === 2012) {
+			modal.toast(response.message);
+			clearLocalStorage();
+			return location.href = '#/login';
 		}
 		if (isFunction(callbackCancel)) {
 			return callbackCancel(response);
@@ -296,7 +335,7 @@ export function getLogin(params, callback) {
 			userId: response.data.userId,
 			phoneCode: response.data.phoneCode,
 			userPhone: response.data.userPhone
-		}, response.data.token, _mac);
+		}, response.data.token, _mac, true);
 	});
 };
 
@@ -362,19 +401,27 @@ export function loginOut(callback) {
  * 个人中心/个人信息
  * @return {[type]} [description]
  */
-export function personCenter(params, token, mac) {
+export function personCenter(params, token, mac, _checkLogin = false) {
 	let _info = isObject(params) ? params : getLocalStorage(UER_NAME);
+		token = typeof token !== 'undefined' ? token : getLocalStorage(TOKEN_NAME);
+		mac = typeof mac !== 'undefined' ? mac : getMac();;
 	let _params = {
 		userId: _info.userId,
 		token: token,
 		loginMode: LofinMode,
 		mac: mac
 	}
-	getPost('/personCenter', _params, function(response) {
-		modal.toast(response.message);
-		_info.auth = response.data.user_authentication;
-		setLocalStorage(UER_NAME, _info);
-		location.href = '#/home';
+
+	return new Promise((resolve) => {
+		getPost('/personCenter', _params, function(response) {
+			_info.auth = response.data.user_authentication;
+			setLocalStorage(UER_NAME, _info);
+
+			if (_checkLogin) {
+				return location.href = '#/home';
+			}
+			resolve(response.data ? response.data : USER_INFO);
+		});
 	});
 };
 
@@ -428,10 +475,9 @@ export function liveStatus(_status, callbackOk, callbackCancel) {
 /**
  * 每日一录--开播前查询是否需要重新录制小视频
  * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
-export function newDayRecord(callbackOk, callbackCancel) {
+export function newDayRecord(callbackOk) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
 		userId: _info.userId,
@@ -440,9 +486,7 @@ export function newDayRecord(callbackOk, callbackCancel) {
 		mac: getMac()
 	}
 	getPost('/selEverdayVideo', _params, function(response) {
-		callbackOk(true);
-	},function(response) {
-		callbackCancel(false);
+		callbackOk(response.data ? true : false);
 	});
 };
 
@@ -454,9 +498,9 @@ export function getAdvertisement() {
 
 	return new Promise((resolve) => {
 		getPost('/getAdvertisement', {}, function(response) {
-			resolve(response.data);
+			resolve(response.data ? response.data : ADVERTISEMENT_DATA);
 		}, function(response) {
-			resolve(ADVERTISEMENT_DATA);
+			resolve(false);
 		});
 	});
 };
@@ -475,9 +519,9 @@ export function newVideo(_page = 1, _number = 10) {
 			page: _page,
 			number: _number
 		}, function(response) {
-			resolve(response.data);
+			resolve(response.data ? response.data : NEW_List_DATA);
 		}, function(response) {
-			resolve(NEW_List_DATA);
+			resolve(false);
 		});
 	});
 };
@@ -495,9 +539,9 @@ export function hotVideo(_page = 1, _number = 10) {
 			page: _page,
 			number: _number
 		}, function(response) {
-			resolve(response.data);
+			resolve(response.data ? response.data : HOT_List_DATA);
 		}, function(response) {
-			resolve(HOT_List_DATA);
+			resolve(false);
 		});
 	});
 };
@@ -517,9 +561,9 @@ export function videoClips(_page, _number, _type) {
 			number: _number,
 			type: _type
 		}, function(response) {
-			resolve(response.data);
+			resolve(response.data ? response.data : VIDEO_List_DATA);
 		}, function(response) {
-			resolve(VIDEO_List_DATA);
+			resolve(false);
 		});
 	});
 };
@@ -532,9 +576,9 @@ export function videoType() {
 
 	return new Promise((resolve) => {
 		getPost('/getVideoType', {}, function(response) {
-			resolve(response.data);
+			resolve(response.data ? response.data : VIDEO_TYPE_DATA);
 		}, function(response) {
-			resolve(VIDEO_TYPE_DATA);
+			resolve(false);
 		});
 	});
 };

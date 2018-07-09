@@ -1,0 +1,54 @@
+<div class="page-group">
+    <div class="page">
+        <!-- 标题栏 -->
+        <header class="bar bar-flex">
+            <a class="icon-btn back" data-ripple>
+                <i class="icon icon-arrow-back"></i>
+            </a>
+            <h1 class="title">{{LIVE_INFORMATION.Title}}</h1>
+        </header>
+        <!-- 这里是页面内容区 -->
+        <div class="content block live-upload-wrapper">
+            <div class="live-upload-progress">
+                <div class="progress-items active">
+                    <div class="items-icons-box">
+                        <span class="items-icons">1</span>
+                    </div>
+                    <span class="items-txt">{{LIVE_INFORMATION.Progress.First}}</span>
+                </div>
+                <!-- /.progress-items -->
+                <div class="progress-items">
+                    <div class="items-icons-box">
+                        <span class="items-icons">2</span>
+                    </div>
+                    <span class="items-txt">{{LIVE_INFORMATION.Progress.Second}}</span>
+                </div>
+                <!-- /.progress-items -->
+            </div>
+            <!-- /.live-upload-progress -->
+            <div class="upload-content">
+                <div class="upload-items">
+                    <i class="icon user-upload-photos"></i>
+                    <p class="title">{{LIVE_INFORMATION.Upload_Video}}</p>
+                </div>
+                <!-- /.upload-items -->
+                <div class="upload-items">
+                    <i class="icon user-upload-video"></i>
+                    <p class="title">{{LIVE_INFORMATION.Upload_Photos}}</p>
+                </div>
+                <!-- /.upload-items -->
+            </div>
+            <!-- /.upload-content -->
+            <div class="remarks-box">
+                {{each LIVE_INFORMATION.Remarks}}
+                    <p class="remarks-txt">{{$value}}</p>
+                {{/each}}
+            </div>
+            <!-- /.remarks-box -->
+            <div class="buttons buttons-vertical">
+                <div class="button button-primary button-block disabled" data-ripple>{{LIVE_INFORMATION.Btn_Submit}}</div>
+            </div>
+            <!-- /.buttons -->
+        </div>
+    </div>
+</div>

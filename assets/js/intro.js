@@ -10,6 +10,7 @@ import Favorite from './pages/favorite';
 import Message from './pages/message';
 import User from './pages/user';
 import UserDetail from './pages/user_detail';
+import LiveInformation from './pages/live_information';
 
 // 全局变量
 const fcConfig = {
@@ -91,6 +92,10 @@ const fcConfig = {
             name: 'detail',
             path: '../pages/user_detail.html',
             component: UserDetail
+        }, {
+            name: 'proof',
+            path: '../pages/live_information.html',
+            component: LiveInformation
         }]
     }]
 };

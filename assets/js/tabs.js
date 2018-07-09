@@ -104,7 +104,9 @@ export default class Tabs extends EventEmitter {
                 }, _dataIncomplete.ButtonsText);
             }
 
-            newDayRecord(function() {
+            newDayRecord(function(checkRecord) {
+                if (checkRecord) return self.liveWaiting();
+
                 let _newDay = MADAL.NewDay;
                 modal.confirm(_newDay.Text, function() {
                     let _record = new Record({
@@ -118,8 +120,6 @@ export default class Tabs extends EventEmitter {
                 }, function() {
                     self.liveWaiting();
                 }, true);
-            }, function() {
-                self.liveWaiting();
             });
 
         });
@@ -157,6 +157,8 @@ export default class Tabs extends EventEmitter {
     // 直播等待
     liveWaiting(){
         let html = '<div class="tab-live-box"><div class="user-img avatar-female"></div></div>';
+        this.tabsEl = createDom(html);
+        this.element.insertBefore(this.tabsEl, this.element.firstChild);
     }
 
 }

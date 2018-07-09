@@ -72,11 +72,67 @@
     position: absolute;
     width: 100%;
     left: 0;
+    top: -1rem;
     @include flex-center;
-    @include transition(all);
 }
 .pullup-wrapper {
     width: 100%;
     padding: 0.8rem 0;
     @include flex-center;
+}
+
+/*
+<div class="loading-down">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+*/
+
+$nths: 1, 2, 3, 4, 5;
+.loading-down {
+    width: 5rem;
+    height: 1rem;
+    text-align: center;
+
+    >span {
+        display: inline-block;
+        @include size(0.6rem);
+        margin-right: 0.25rem;
+        border-radius: 50%;
+        background: $color-primary;
+        -webkit-animation: load_down 1.04s ease infinite;
+        animation: load_down 1.04s ease infinite;
+        &:last-child {
+            margin-right: 0px;
+        }
+    }
+
+    @each $nth in $nths {
+        >span:nth-child(#{$nth}) {
+            -webkit-animation-delay: $nth*0.13s;
+            animation-delay: $nth*0.13s;
+        }
+
+    }
+}
+
+@-webkit-keyframes load_down {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+
+}
+@keyframes load_down {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }

@@ -146,7 +146,8 @@ export function replaceNote(str) {
         .replace(/&gt;/g, '>')
         .replace(/&nbsp;/g, ' ')
         .replace(/&#39;/g, "\'")
-        .replace(/&quot;/g, "\"");
+        .replace(/&quot;/g, "\"")
+        .replace(/(^\s*)|(\s*$)/g, "");
 };
 
 export function compareVersion(a, b) {
