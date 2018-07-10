@@ -41,9 +41,11 @@ export default class Record extends EventEmitter {
                 audio: true,
                 video: true
             },
-            minTimes: 5,
-            maxTimes: 60,
+            minTimes: 60,
+            maxTimes: 600,
             newDayVideo: false,
+            notUpload: false,
+            takePhotos: false,
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
             recordBtnClass: 'btn-record',
@@ -81,13 +83,16 @@ export default class Record extends EventEmitter {
     _init() {
         const self = this;
         self.buffers = [];
+        self.photosBuffers = [];
         self.consentEnd = false;
 
-        self.progress = new Progress(self.recordEl,{
-            width: self.recordEl.clientHeight,
-            height: self.recordEl.clientHeight,
-            maxspeed: self.options.maxTimes
-        });
+        if (!self.options.takePhotos) {
+            self.progress = new Progress(self.recordEl,{
+                width: self.recordEl.clientHeight,
+                height: self.recordEl.clientHeight,
+                maxspeed: self.options.maxTimes
+            });
+        }
 
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
             self._mediaRecorder();
@@ -109,10 +114,12 @@ export default class Record extends EventEmitter {
 
         // 开始录制/结束录制
         addEvent(self.recordEl, 'click', function() {
-            if (self.consentEnd || self.consentDEL) {
+            if (self.consentEnd) {
                 return;
             }
-            self.consentEnd = true;
+            if (!self.options.takePhotos) {
+                self.consentEnd = true;
+            }
             if(hasClass(self.buttonsEl, self.options.startClass)){
                 removeClass(self.buttonsEl, self.options.startClass);
                 addClass(self.buttonsEl, self.options.showClass);
@@ -120,7 +127,14 @@ export default class Record extends EventEmitter {
                 showHideDom(self.cancelEl, 'block');
                 showHideDom(self.confirmEl, 'block');
                 showHideDom(self.cutoverEl, 'block');
-                self.progress.show();
+
+                if (!self.options.takePhotos) {
+                    self.progress.show();
+                }
+
+                if (self.options.takePhotos) {
+                    self.consentEnd = true;
+                }
             }else {
                 addClass(self.buttonsEl, self.options.startClass);
                 showHideDom(self.cancelEl, 'none');
@@ -153,6 +167,18 @@ export default class Record extends EventEmitter {
         // 上传视频
         addEvent(self.confirmEl, 'click', function() {
             self.hide();
+
+            let videoFile = new File(self.buffers, Date.now() + '.mp4', {
+                type: "video/mp4",
+            });
+            let photosFile = new File([self.photosBuffers], Date.now() + '.jpg', {
+                type: "image/jpeg",
+            });
+
+            if (self.options.notUpload) {
+                return self.trigger('record.success', self.options.takePhotos ? photosFile : videoFile, self.imgURL);
+            }
+
             let _uploadEl = self._uploadVideo();
             let _progress = new Progress(_uploadEl,{
                 width: _uploadEl.clientHeight,
@@ -162,11 +188,8 @@ export default class Record extends EventEmitter {
                 lineWidth: 2,
                 showFont: true
             });
-            let file = new File(self.buffers, Date.now() + '.mp4', {
-                type: "video/mp4",
-            });
             let _type = self.newDayVideo ? 2 : 1;
-            uploadVideo(file, _type, function(data) {
+            uploadVideo([videoFile, photosFile], _type, function(data) {
                 self._uploadHide();
                 self.trigger('record.upload.success');
             }, function(progress) {
@@ -227,6 +250,10 @@ export default class Record extends EventEmitter {
                     return;
                 }
 
+                if (self.options.takePhotos) {
+                    return;
+                }
+
                 // 计时器-最小
                 if (self.buffers.length == self.options.minTimes) {
                     self.consentEnd = false;
@@ -257,6 +284,9 @@ export default class Record extends EventEmitter {
             // 添加录制结束的事件监听，保存录制数据
             self.mediaRecoder.onstop = function () {
                 self.trigger('record.stop');
+                if (self.options.takePhotos) {
+                    return;
+                }
                 self.blob = new Blob(self.buffers,{type:"video/mp4"});
                 self.videoEl.src = URL.createObjectURL(self.blob);
                 self.videoEl.play();
@@ -305,9 +335,14 @@ export default class Record extends EventEmitter {
     // 结束录制
     _stopRecord() {
         if(this.mediaRecoder.state == "recording"){
+            if (this.options.takePhotos) {
+                this._createIMG();
+            }
+
             let tracks = this.mediaRecoder.stream.getTracks();
-            tracks[0].stop();
-            tracks[1].stop();
+            for (let i = 0; i < tracks.length; i++) {
+                tracks[i].stop();
+            }
             this.mediaRecoder.stop();
         }
     }
@@ -329,7 +364,16 @@ export default class Record extends EventEmitter {
         canvas.width = this.videoEl.videoWidth;
         canvas.height = this.videoEl.videoHeight;
         canvasFill.drawImage(this.videoEl, 0, 0, canvas.width, canvas.height);
+
         this.imgURL = canvas.toDataURL("image/jpeg");
+
+        let imgData = this.imgURL.split(",")[1];
+        let blobBin = window.atob(imgData);
+        let array = [];
+        for(let i = 0; i < blobBin.length; i++) {
+            array.push(blobBin.charCodeAt(i));
+        }
+        this.photosBuffers = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
     }
 
     // 显示上传进度

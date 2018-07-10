@@ -328,10 +328,27 @@ const Lang = {
 		Upload_Photos: 'Upload photos',
 		Remarks: [
 			'The video will be shown to others to get more invitation.',
-			'The photo willshow your beauty. Even you can change it every da',
-			'You can change your information at any time, but it may take a '
+			'The photo willshow your beauty. Even you can change it every day',
+			'You can change your information at any time, but it may take a little while'
 		],
-		Btn_Submit: 'SUBMIT'
+		Under_Review: {
+			Title: 'Under review',
+			Text: 'We will giving the results in a working day'
+		},
+		Audit_Failure: {
+			Title: 'Very sorry',
+			Text: 'You did not pass verification',
+			Remarks: {
+				Title: 'Reason for failure',
+				Text: 'Pictures or videos involve politics, religion, etc.'
+			}
+		},
+		Upload_Pass: {
+			Title: 'Show  your  best side to  the other  people',
+		},
+		Btn_Submit: 'SUBMIT',
+		Btn_Modify: 'Modify',
+		Btn_Auth: 'Re-authenticate'
 	},
 	BAR: {
 		Home: 'Home',

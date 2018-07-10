@@ -1,17 +1,24 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
+import Record from '../record';
 
 import {
     getLangConfig
 } from '../lang';
 
 import {
+	hasAudit,
     uploadVideo
 } from '../api';
 
 import {
     extend,
-    createDom
+    addEvent,
+    createDom,
+    hasClass,
+    getData,
+    addClass,
+    removeClass
 } from '../util';
 
 const LANG = getLangConfig();
@@ -19,23 +26,116 @@ const LANG = getLangConfig();
 export default class LiveInformation extends EventEmitter {
 	constructor(element, options) {
 	    super();
-
+	    this.data = {};
 	    this.options = {
-    		navsWrapper: '.navs-wrapper',
+    		videoItemsClass: 'upload-video',
+    		photosItemsClass: 'upload-photos',
+    		btnSubmit: 'btn-live-submit',
+    		btnAuth: 'btn-live-auth',
+    		btnModify: 'btn-live-modify',
+    		showClass: 'choose',
+    		disabledClass: 'disabled'
         };
 
 	    extend(this.options, options);
 	    extend(this.data, LANG);
 
-	    this._init(element);
+	    this.init(element);
 
 	}
 
-	_init(element) {
-		this.LiveInformationEl = createDom(Template.render(element, LANG));
-		setTimeout(() => {
+	init(element) {
+		let gethasAudit = hasAudit();
+
+		Promise.all([gethasAudit]).then((data) => {
+			this.data.HasAudit = !data[0] ? true : false; // 是否有审核中视频
+			this.data.CheckLiveInformation = data[0].data == null ? false : data[0].data; // 是否有上传成功的视频
+			this.data.AuditFailure = false; // 是否有审核失败视频
+			this.LiveInformationEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.LiveInformationEl);
-		}, 0);
+			this._init();
+		});
+	}
+
+	_init() {
+		this.file = [];
+		this.videoItemsEl = this.LiveInformationEl.getElementsByClassName(this.options.videoItemsClass)[0];
+		this.photosItemsEl = this.LiveInformationEl.getElementsByClassName(this.options.photosItemsClass)[0];
+		this.btnSubmitEl = this.LiveInformationEl.getElementsByClassName(this.options.btnSubmit)[0];
+		this.btnAuthEl = this.LiveInformationEl.getElementsByClassName(this.options.btnAuth)[0];
+		this.btnModifyEl = this.LiveInformationEl.getElementsByClassName(this.options.btnModify)[0];
+		this._bindEvent();
+	}
+
+	_bindEvent() {
+		let self = this;
+		console.log(this.videoItemsEl);
+		// 小视频
+		if (!this.videoItemsEl) {
+			addEvent(this.videoItemsEl, 'click', () => {
+	    		if (hasClass(this.videoItemsEl, this.options.showClass)) {
+	    			return;
+	    		}
+
+	    		this._makeRecord(this.videoItemsEl, {
+	    			maxTimes: 5,
+	    		    newDayVideo: true,
+	    		    notUpload: true
+	    		});
+	        });
+		}
+
+    	// 相片
+    	if (!this.photosItemsEl) {
+    		addEvent(this.photosItemsEl, 'click', () => {
+	        	if (hasClass(this.photosItemsEl, this.options.showClass)) {
+	    			return;
+	    		}
+
+	    		this._makeRecord(this.photosItemsEl, {
+	    			config: {
+	    			    audio: false,
+	    			    video: true
+	    			},
+	    		    newDayVideo: true,
+	    		    notUpload: true,
+	    		    takePhotos: true
+	    		});
+	        });
+    	}
+
+        // 上传
+        if (!this.btnSubmitEl) {
+        	addEvent(this.btnSubmitEl, 'click', () => {
+	        	if (hasClass(this.btnSubmitEl, this.options.disabledClass)) {
+	    			return;
+	    		}
+	    		addClass(this.btnSubmitEl, this.options.disabledClass);
+
+	    		uploadVideo(this.file, 2, function(data) {
+	    			window.location.reload();
+	    			console.log(data);
+	    		}, function(progress) {
+	    		    console.log(progress);
+	    		});
+	        });
+        }
+
+	}
+
+	_makeRecord(element, options) {
+		let record = new Record(options);
+
+		record.show();
+		record.on('record.success', (file, imgURL) => {
+			this.file.push(file);
+			element.style.backgroundImage = 'url(' + imgURL + ')';
+			addClass(element, this.options.showClass);
+
+	    	if (hasClass(this.videoItemsEl, this.options.showClass) && hasClass(this.photosItemsEl, this.options.showClass)) {
+				removeClass(this.btnSubmitEl, this.options.disabledClass);
+			}
+		});
 	}
 
 	static attachTo(element, options) {

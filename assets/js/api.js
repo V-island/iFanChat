@@ -605,11 +605,40 @@ export function uploadVideo(_file, _type, callback, onProgress) {
 	formData.append("loginMode", LofinMode);
 	formData.append("mac", getMac());
 	formData.append("keyword", 'upload');
-	formData.append("file", _file);
+
+	if (Array.isArray(_file)) {
+		for (let i = 0; i < _file.length; i++) {
+			formData.append("file", _file[i]);
+		}
+	}else {
+		formData.append("file", _file);
+	}
 
 	getPost(formData, function(response) {
 		callback(response);
 	}, function(progress) {
 		onProgress(progress);
+	});
+};
+
+/**
+ * 查询是否有在审核中的打招呼视频
+ * @return {[type]} [description]
+ */
+export function hasAudit() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LofinMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/hasAudit', _params, function(response) {
+			resolve(response);
+		}, function(response) {
+			resolve(false);
+		});
 	});
 };
