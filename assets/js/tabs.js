@@ -1,11 +1,15 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from './eventEmitter';
+import SignalingClient from './signalingClient';
+import Client from './client';
 import Modal from './modal';
 import Record from './record';
 import fcConfig from './intro';
 import {
     checkAuth,
-    newDayRecord
+    newDayRecord,
+    liveStatus,
+    getUserInfo
 } from './api';
 import {
     getLangConfig
@@ -17,12 +21,15 @@ import {
     createDom,
     hasClass,
     addClass,
-    removeClass
+    removeClass,
+    setLocalStorage,
+    getLocalStorage
 } from './util';
 
 const LANG = getLangConfig();
 const MADAL = LANG.HOME.Madal;
 const modal = new Modal();
+const LIVE_STATUS = 'LIVE_STATUS';
 
 export default class Tabs extends EventEmitter {
     constructor(element, options) {
@@ -55,6 +62,11 @@ export default class Tabs extends EventEmitter {
         importTemplate(self.tabFile, function(id, _template) {
             self.tpl[id] = Template.render(_template, LANG);
         });
+
+        console.log(getLocalStorage(LIVE_STATUS));
+        if (getLocalStorage(LIVE_STATUS)) {
+            self.startLiveWaiting();
+        }
 
         this._bindEvent();
     }
@@ -105,7 +117,7 @@ export default class Tabs extends EventEmitter {
             }
 
             newDayRecord(function(checkRecord) {
-                if (checkRecord) return self.liveWaiting();
+                if (checkRecord) return self.startLiveWaiting();
 
                 let _newDay = MADAL.NewDay;
                 modal.confirm(_newDay.Text, function() {
@@ -115,10 +127,10 @@ export default class Tabs extends EventEmitter {
                     });
                     _record.show();
                     _record.on('record.upload.success', function() {
-                        self.liveWaiting();
+                        self.startLiveWaiting();
                     });
                 }, function() {
-                    self.liveWaiting();
+                    self.startLiveWaiting();
                 }, true);
             });
 
@@ -146,6 +158,13 @@ export default class Tabs extends EventEmitter {
         return html;
     }
 
+    _liveWaitingTemplate(options) {
+        let img = options.head ? 'background-image: url('+ options.head +');' : '';
+        let html = '<div class="tab-live-box"><div class="user-img '+ (options.sex == 1 ? 'avatar-male' : 'avatar-female') +'" style="'+ img +'"></div></div>';
+
+        return html;
+    }
+
     static attachTo(element, options) {
         return new Tabs(element, options);
     }
@@ -154,11 +173,32 @@ export default class Tabs extends EventEmitter {
         return this.element.removeChild(tabsEl);
     }
 
-    // 直播等待
-    liveWaiting(){
-        let html = '<div class="tab-live-box"><div class="user-img avatar-female"></div></div>';
-        this.tabsEl = createDom(html);
-        this.element.insertBefore(this.tabsEl, this.element.firstChild);
+    // 开始直播等待
+    startLiveWaiting() {
+        let setLiveStatus = liveStatus(1);
+
+        setLiveStatus.then((_status) => {
+            if (!_status) return;
+
+            let info = getUserInfo();
+            this.signal = new SignalingClient(fcConfig.agoraAppId, fcConfig.agoraCertificateId);
+
+            this.signal.login(info.userId).then(() => {
+                let client = new Client(this.signal, info.userId);
+
+                setLocalStorage(LIVE_STATUS, true);
+
+                this.liveBoxEl = createDom(this._liveWaitingTemplate(info));
+                this.tabsEl.insertBefore(this.liveBoxEl, this.tabsEl.firstChild);
+
+                addEvent(this.liveBoxEl, 'click', () => {
+                    this.signal.logout().then(() => {
+                        setLocalStorage(LIVE_STATUS, false);
+                        this.tabsEl.removeChild(this.liveBoxEl);
+                    });
+                });
+            });
+        });
     }
 
 }

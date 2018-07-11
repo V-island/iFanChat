@@ -9,16 +9,16 @@
         </header>
         <!-- 这里是页面内容区 -->
         <div class="content block live-upload-wrapper">
-            {{if !CheckLiveInformation}}
+            {{if HasAudit != 2}}
                 <div class="live-upload-progress">
-                    <div class="progress-items {{if !HasAudit}} active {{/if}}">
+                    <div class="progress-items {{if HasAudit == 0}} active {{/if}}">
                         <div class="items-icons-box">
                             <span class="items-icons">1</span>
                         </div>
                         <span class="items-txt">{{LIVE_INFORMATION.Progress.First}}</span>
                     </div>
                     <!-- /.progress-items -->
-                    <div class="progress-items {{if HasAudit}} active {{/if}}">
+                    <div class="progress-items {{if HasAudit == 1 || HasAudit == 3}} active {{/if}}">
                         <div class="items-icons-box">
                             <span class="items-icons">2</span>
                         </div>
@@ -32,7 +32,7 @@
             {{/if}}
 
             <!-- 审核成功或未上传 -->
-            {{if !HasAudit || CheckLiveInformation}}
+            {{if HasAudit == 0 || HasAudit == 2}}
                 <div class="upload-content">
                     <div class="upload-items upload-video">
                         <i class="icon user-upload-video"></i>
@@ -56,7 +56,7 @@
             {{/if}}
 
             <!-- 审核中 -->
-            {{if HasAudit}}
+            {{if HasAudit == 1}}
                 <div class="upload-content upload-status">
                     <i class="icon user-under-review"></i>
                     <p class="title">{{LIVE_INFORMATION.Under_Review.Title}}</p>
@@ -65,7 +65,7 @@
             {{/if}}
 
             <!-- 审核失败 -->
-            {{if AuditFailure}}
+            {{if HasAudit == 3}}
                 <div class="upload-content upload-status">
                     <i class="icon user-audit-failure"></i>
                     <p class="title">{{LIVE_INFORMATION.Audit_Failure.Title}}</p>
@@ -80,17 +80,17 @@
             {{/if}}
 
             <div class="buttons buttons-vertical">
-                {{if !HasAudit}}
+                {{if HasAudit == 0}}
                     <div class="button button-primary button-block btn-live-submit disabled" data-ripple>{{LIVE_INFORMATION.Btn_Submit}}</div>
                 {{/if}}
 
                 <!-- 审核失败 -->
-                {{if AuditFailure}}
+                {{if HasAudit == 3}}
                     <div class="button button-primary button-block btn-live-auth" data-ripple>{{LIVE_INFORMATION.Btn_Auth}}</div>
                 {{/if}}
 
                 <!-- 审核成功 -->
-                {{if CheckLiveInformation}}
+                {{if HasAudit == 2}}
                     <div class="button button-primary button-block btn-live-modify" data-ripple>{{LIVE_INFORMATION.Btn_Modify}}</div>
                 {{/if}}
             </div>

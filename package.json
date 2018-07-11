@@ -53,6 +53,7 @@
     "jquery-ripple": "^0.2.4",
     "lodash": "^4.17.10",
     "pickerjs": "^0.2.0",
-    "swiper": "^4.2.6"
+    "swiper": "^4.2.6",
+    "wolfy87-eventemitter": "^5.2.5"
   }
 }

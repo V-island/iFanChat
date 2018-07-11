@@ -134,25 +134,36 @@ export default class Home extends EventEmitter {
 		this._pagesHot();
 		this._pagesVideo();
 		this._bindEvent();
+		this._listEvent();
 	}
 
 	_bindEvent() {
 
-		$('.card-content','.card-list').on('click', function() {
-			let _notCoins = MADAL.NotCoins;
-
-			modal.alert(_notCoins.Text, _notCoins.Title, function() {
-				location.href = '#/live';
-			}, _notCoins.ButtonsText);
-		});
 	}
 
 	static attachTo(element, options) {
 	    return new Home(element, options);
 	}
 
-	api() {
-		// body...
+	_listEvent() {
+		let self = this;
+		this.cardListEl = this.HomeEl.querySelectorAll('.card-list');
+		this.cardVideoEl = this.HomeEl.querySelectorAll('.card-video');
+
+		// live list
+		for (let i = 0; i < this.cardListEl.length; i++) {
+		    addEvent(this.cardListEl[i], 'click', function() {
+		    	let info = JSON.parse(getData(this, 'userInfo'));
+		    	self._livePreview(info);
+		    });
+		}
+
+		// video list
+		for (let i = 0; i < this.cardVideoEl.length; i++) {
+		    addEvent(this.cardVideoEl[i], 'click', function() {
+		    	console.log('查看视频');
+		    });
+		}
 	}
 
 	// 滑块初始化
@@ -300,6 +311,7 @@ export default class Home extends EventEmitter {
 				this.pullDownEl.style.top = '-1rem';
 				this.pagesNewSwiper.finishPullDown();
 				this.pagesNewSwiper.refresh();
+				this._listEvent();
 			});
 		});
 
@@ -317,6 +329,7 @@ export default class Home extends EventEmitter {
 				setData(this.cardsNewEl, this.options.cardsPageIndex, _page);
 				this.pagesNewSwiper.finishPullUp();
 				this.pagesNewSwiper.refresh();
+				this._listEvent();
 			});
 		});
 
@@ -325,7 +338,7 @@ export default class Home extends EventEmitter {
 				return;
 			}
 			this.pullDownEl.style.top = Math.min(pos.y + pullDownInitTop, 10)+ 'px';
-		})
+		});
 	}
 
 	// Hot 模块
@@ -370,6 +383,7 @@ export default class Home extends EventEmitter {
 				this.pullDownEl.style.top = '-1rem';
 				this.pagesHotSwiper.finishPullDown();
 				this.pagesHotSwiper.refresh();
+				this._listEvent();
 			});
 		});
 
@@ -387,6 +401,7 @@ export default class Home extends EventEmitter {
 				setData(this.cardsHotEl, this.options.cardsPageIndex, _page);
 				this.pagesHotSwiper.finishPullUp();
 				this.pagesHotSwiper.refresh();
+				this._listEvent();
 			});
 		});
 
@@ -452,6 +467,7 @@ export default class Home extends EventEmitter {
 					this.pullDownEl.style.top = '-1rem';
 					this.pagesVideoSwiper.finishPullDown();
 					this.pagesVideoSwiper.refresh();
+					this._listEvent();
 				});
 			});
 		});
@@ -470,6 +486,7 @@ export default class Home extends EventEmitter {
 				setData(this.cardsVideoEl, this.options.cardsPageIndex, _page);
 				this.pagesVideoSwiper.finishPullUp();
 				this.pagesVideoSwiper.refresh();
+				this._listEvent();
 			});
 		});
 
@@ -479,5 +496,14 @@ export default class Home extends EventEmitter {
 			}
 			this.pullDownEl.style.top = Math.min(pos.y + pullDownInitTop, 10)+ 'px';
 		})
+	}
+
+	// 直播
+	_livePreview(info) {
+		console.log(info);
+
+		this.data.LiveUserInfo = info;
+		let livePreview = Template.render(this.tpl.live_preview, this.data);
+		let _modal = modal.popup(livePreview);
 	}
 }

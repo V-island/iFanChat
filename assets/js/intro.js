@@ -18,7 +18,7 @@ const fcConfig = {
     showPageLoadingIndicator: true, //push.js加载页面的时候显示一个加载提示
     router: true, //默认使用router
     agora: true, //默认使用Agora DSK
-    agoraAppId: '7ced8477174241339790be7653704ec2',
+    agoraAppId: '672fac5cd7194d26908a15900c6d6484',
     agoraCertificateId: '',
     swipePanel: "left", //滑动打开侧栏
     swipePanelOnlyClose: true, //只允许滑动关闭，不允许滑动打开侧栏
@@ -35,6 +35,10 @@ const fcConfig = {
         actions_lives: {
             name: 'actions_lives',
             path: '../public/actions_lives.html'
+        },
+        client_call: {
+            name: 'client_call',
+            path: '../public/client_call.html'
         }
     },
     pagesFile: [{

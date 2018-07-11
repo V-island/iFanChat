@@ -1,3 +1,4 @@
+<!-- live list -->
 <script id="list_cards" type="text/html">
     <div class="col-50 card card-list" data-user-id="{{CardsList.user_id}}">
         <div class="card-content">
@@ -25,6 +26,7 @@
     </div>
 </script>
 
+<!-- small video list -->
 <script id="list_videos" type="text/html">
     <div class="col-50 card card-video">
         <div class="card-content" data-id="{{VideosList.id}}">
@@ -60,6 +62,7 @@
     </div>
 </script>
 
+<!-- free small video of header-->
 <script id="free_videos_header" type="text/html">
     <div class="col-100 cards-header video-header">
         <p>{{HOME.Video.Free.Title}}</p>
@@ -67,8 +70,42 @@
     </div>
 </script>
 
+<!-- small video of header-->
 <script id="videos_header" type="text/html">
     <div class="col-100 cards-header video-header">
         <p>{{HOME.Video.Exciting.Title}}</p>
+    </div>
+</script>
+
+<!-- live preview -->
+<script id="live_preview" type="text/html">
+    <div class="popup lives-wrapper">
+        <div class="lives-video">
+            <video id="video" class="video" autoplay="autoplay" loop preload="auto" poster="{{LiveUserInfo.everyday_img}}">
+                <source src="{{LiveUserInfo.live_url}}" type='video/mp4'>
+            </video>
+        </div>
+        <div class="lives-header">
+            <div class="lives-attention">
+                <div class="user-info across">
+                    <div class="user-img avatar-female">
+                        <img src="{{LiveUserInfo.user_head}}">
+                    </div>
+                    <div class="across-body">
+                        <p class="user-name">{{LiveUserInfo.user_name}}</p>
+                        <p class="user-txt">{{LiveUserInfo.heat}} {{PUBLIC.Heat}}</p>
+                    </div>
+                </div>
+                <i class="icon live-attention"></i>
+            </div>
+            <div class="icon live-close"></div>
+        </div>
+        <div class="lives-preview-footer">
+            <p class="preview-title">If you like her, get in touch with her bravely</p>
+            <div class="buttons">
+                <div class="button fill-success" data-ripple>Myabe Later</div>
+                <div class="button button-success" data-ripple>SUBMIT</div>
+            </div>
+        </div>
     </div>
 </script>

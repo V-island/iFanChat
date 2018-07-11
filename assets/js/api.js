@@ -415,6 +415,10 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 	return new Promise((resolve) => {
 		getPost('/personCenter', _params, function(response) {
 			_info.auth = response.data.user_authentication;
+			_info.name = response.data.user_name;
+			_info.head = response.data.user_head;
+			_info.sex = response.data.user_sex;
+
 			setLocalStorage(UER_NAME, _info);
 
 			if (_checkLogin) {
@@ -455,20 +459,21 @@ export function createChannel(callbackOk, callbackCancel) {
 /**
  * 直播状态--开播或下播
  * @param  {[int]}  _status 	   状态 1.上播（直播等待中） 2.下播 3.直播中 4.禁播
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
-export function liveStatus(_status, callbackOk, callbackCancel) {
+export function liveStatus(_status) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
 		userId: _info.userId,
 		status: _status
 	}
-	getPost('/liveStatus', _params, function(response) {
-		callbackOk(true);
-	},function(response) {
-		callbackCancel(false);
+	return new Promise((resolve) => {
+
+		getPost('/liveStatus', _params, function(response) {
+			resolve(true);
+		},function(response) {
+			resolve(false);
+		});
 	});
 };
 
@@ -636,7 +641,7 @@ export function hasAudit() {
 
 	return new Promise((resolve) => {
 		getPost('/hasAudit', _params, function(response) {
-			resolve(response);
+			resolve(response.data);
 		}, function(response) {
 			resolve(false);
 		});

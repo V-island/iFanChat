@@ -1,39 +1,8 @@
-import EventEmitter from './eventEmitter';
-import Signal from './components/AgoraSig-1.3.0';
-
-// event
-const Session_Event = [
-	'onLoginSuccess',			// 登录成功回调
-	'onError',					// 出错回调
-	'onLoginFailed',			// 登录失败回调
-	'onLogout',					// 退出登录回调
-	'onMessageInstantReceive',	// 接收方收到消息时接收方收到的回调
-	'onInviteReceived'			// 收到呼叫邀请回调
-];
-const Channel_Event = [
-	'onChannelJoined',			// 加入频道回调
-	'onChannelJoinFailed',		// 加入频道失败回调
-	'onChannelLeaved',			// 离开频道回调
-	'onChannelUserJoined',		// 其他用户加入频道回调
-	'onChannelUserLeaved',		// 其他用户离开频道回调
-	'onChannelUserList',		// 获取频道内用户列表回调
-	'onChannelAttrUpdated',		// 频道属性发生变化回调
-	'onMessageChannelReceive'	// 收到频道消息回调
-];
-const Call_Event = [
-	'onInviteReceivedByPeer',	// 远端已收到呼叫回调
-	'onInviteAcceptedByPeer',	// 远端已接受呼叫回调
-	'onInviteRefusedByPeer',	// 对方已拒绝呼叫回调
-	'onInviteFailed',			// 呼叫失败回调
-	'onInviteEndByPeer',		// 对方已结束呼叫回调
-	'onInviteEndByMyself',		// 本地已结束呼叫回调
-	'onInviteMsg'				// 本地已收到消息回调
-];
+import AgoraSig from './components/AgoraSig-1.3.0';
+import EventEmitter from './components/EventEmitter';
 
 export default class SignalingClient {
 	constructor(appId, appcertificate) {
-		super();
-
 		this._appId = appId;
 		this._appcert = appcertificate;
 		this.signal = Signal(appId);
@@ -49,24 +18,33 @@ export default class SignalingClient {
 	 * @return {[type]}         [description]
 	 */
 	login(account, token = '_no_need_token') {
-		this._account = account
+		this._account = account + '';
 		return new Promise((resolve, reject) => {
-			this.session = this.signal.login(account, token);
-			Session_Event.map(event => {
-				return this.session[event] = (...args) => {
-					this.sessionEmitter.trigger(event, ...args)
-				}
+			this.session = this.signal.login(account + '', token);
+
+			[
+				'onLoginSuccess',			// 登录成功回调
+				'onError',					// 出错回调
+				'onLoginFailed',			// 登录失败回调
+				'onLogout',					// 退出登录回调
+				'onMessageInstantReceive',	// 接收方收到消息时接收方收到的回调
+				'onInviteReceived'			// 收到呼叫邀请回调
+			].map(event => {
+			    return this.session[event] = (...args) => {
+			        this.sessionEmitter.emit(event, ...args);
+			    }
 			});
+
 			// Promise.then
 			this.sessionEmitter.on('onLoginSuccess', (uid) => {
-				this._uid = uid
-				resolve(uid)
-			})
+				this._uid = uid;
+				resolve(uid);
+			});
 			// Promise.catch
 			this.sessionEmitter.on('onLoginFailed', (...args) => {
-				reject(...args)
-			})
-		})
+				reject(...args);
+			});
+		});
 	}
 
 	/**
@@ -75,9 +53,9 @@ export default class SignalingClient {
 	 */
 	logout() {
 		return new Promise((resolve, reject) => {
-			this.session.logout()
+			this.session.logout();
 			this.sessionEmitter.on('onLogout', (...args) => {
-				resolve(...args)
+				resolve(...args);
 			})
 		})
 	}
@@ -88,7 +66,7 @@ export default class SignalingClient {
 	 * @return {[type]}         [description]
 	 */
 	join(channel) {
-		this._channel = channel
+		this._channel = channel;
 		return new Promise((resolve, reject) => {
 			if (!this.session) {
 				throw {
@@ -96,18 +74,28 @@ export default class SignalingClient {
 				}
 			}
 			this.channel = this.session.channelJoin(channel);
-			Channel_Event.map(event => {
-				return this.channel[event] = (...args) => {
-					this.channelEmitter.trigger(event, ...args)
-				}
+
+			[
+				'onChannelJoined',			// 加入频道回调
+				'onChannelJoinFailed',		// 加入频道失败回调
+				'onChannelLeaved',			// 离开频道回调
+				'onChannelUserJoined',		// 其他用户加入频道回调
+				'onChannelUserLeaved',		// 其他用户离开频道回调
+				'onChannelUserList',		// 获取频道内用户列表回调
+				'onChannelAttrUpdated',		// 频道属性发生变化回调
+				'onMessageChannelReceive'	// 收到频道消息回调
+			].map(event => {
+			    return this.channel[event] = (...args) => {
+			        this.channelEmitter.emit(event, ...args);
+			    }
 			});
 			// Promise.then
 			this.channelEmitter.on('onChannelJoined', (...args) => {
-				resolve(...args)
+				resolve(...args);
 			})
 			// Promise.catch
 			this.channelEmitter.on('onChannelJoinFailed', (...args) => {
-				reject(...args)
+				reject(...args);
 			})
 		})
 	}
@@ -119,12 +107,12 @@ export default class SignalingClient {
 	leave() {
 	    return new Promise((resolve, reject) => {
 	        if (this.channel) {
-	            this.channel.channelLeave()
+	            this.channel.channelLeave();
 	            this.channelEmitter.on('onChannelLeaved', (...args) => {
-	                resolve(...args)
+	                resolve(...args);
 	            })
 	        } else {
-	            resolve()
+	            resolve();
 	        }
 	    })
 	}
@@ -144,18 +132,27 @@ export default class SignalingClient {
 				}
 			}
 			this.call = this.session.channelInviteUser2(peerAccount, channel, extra);
-			Call_Event.map(event => {
+
+			[
+				'onInviteReceivedByPeer',	// 远端已收到呼叫回调
+				'onInviteAcceptedByPeer',	// 远端已接受呼叫回调
+				'onInviteRefusedByPeer',	// 对方已拒绝呼叫回调
+				'onInviteFailed',			// 呼叫失败回调
+				'onInviteEndByPeer',		// 对方已结束呼叫回调
+				'onInviteEndByMyself',		// 本地已结束呼叫回调
+				'onInviteMsg'				// 本地已收到消息回调
+			].map(event => {
 				return this.call[event] = (...args) => {
-					this.callEmitter.trigger(event, ...args)
+					this.callEmitter.trigger(event, ...args);
 				}
 			});
 			// Promise.then
 			this.callEmitter.on('onInviteAcceptedByPeer', (...args) => {
-				resolve(...args)
+				resolve(...args);
 			})
 			// Promise.catch
 			this.callEmitter.on('onInviteFailed', (...args) => {
-				reject(...args)
+				reject(...args);
 			})
 		})
 	}

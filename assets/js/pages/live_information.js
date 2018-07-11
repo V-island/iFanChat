@@ -48,9 +48,7 @@ export default class LiveInformation extends EventEmitter {
 		let gethasAudit = hasAudit();
 
 		Promise.all([gethasAudit]).then((data) => {
-			this.data.HasAudit = !data[0] ? true : false; // 是否有审核中视频
-			this.data.CheckLiveInformation = data[0].data == null ? false : data[0].data; // 是否有上传成功的视频
-			this.data.AuditFailure = false; // 是否有审核失败视频
+			this.data.HasAudit = data[0] ? data[0] : 0; // 0.未上传 1.未审核 2.审核通过 3.审核不通过
 			this.LiveInformationEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.LiveInformationEl);
 			this._init();
@@ -69,9 +67,9 @@ export default class LiveInformation extends EventEmitter {
 
 	_bindEvent() {
 		let self = this;
-		console.log(this.videoItemsEl);
+
 		// 小视频
-		if (!this.videoItemsEl) {
+		if (typeof this.videoItemsEl !== 'undefined') {
 			addEvent(this.videoItemsEl, 'click', () => {
 	    		if (hasClass(this.videoItemsEl, this.options.showClass)) {
 	    			return;
@@ -86,7 +84,7 @@ export default class LiveInformation extends EventEmitter {
 		}
 
     	// 相片
-    	if (!this.photosItemsEl) {
+    	if (typeof this.photosItemsEl !== 'undefined') {
     		addEvent(this.photosItemsEl, 'click', () => {
 	        	if (hasClass(this.photosItemsEl, this.options.showClass)) {
 	    			return;
@@ -105,7 +103,7 @@ export default class LiveInformation extends EventEmitter {
     	}
 
         // 上传
-        if (!this.btnSubmitEl) {
+        if (typeof this.btnSubmitEl !== 'undefined') {
         	addEvent(this.btnSubmitEl, 'click', () => {
 	        	if (hasClass(this.btnSubmitEl, this.options.disabledClass)) {
 	    			return;

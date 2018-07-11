@@ -493,7 +493,7 @@ export default class Modal extends EventEmitter {
      * @param  {[function]} removeOnClose [description]
      * @return {[type]}               [description]
      */
-    popup(modal, callbackOnClose) {
+    popup(modal, removeOnClose) {
         const self = this;
 
         if (typeof modal === 'string' && modal.indexOf('<') >= 0) {
@@ -508,11 +508,7 @@ export default class Modal extends EventEmitter {
         modal = $(modal);
         if (modal.length === 0) return false;
         modal.show();
-        // modal.find(".content").scroller("refresh");
-        // if (modal.find('.' + self.defaults.viewClass).length > 0) {
-        //     $.sizeNavbars(modal.find('.' + self.defaults.viewClass)[0]);
-        // }
-        if (typeof callbackOnClose === 'function') callbackOnClose(modal);
+        if (typeof removeOnClose === 'function') removeOnClose(modal);
 
         self.openModal(modal);
         return modal[0];
