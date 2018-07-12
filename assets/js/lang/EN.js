@@ -42,6 +42,16 @@ const Lang = {
 			},
 			NewDay: {
 				Text: 'A new day，say hello to everyone！<br/><span class="color-primary">For others  preview（5s）</span>'
+			},
+			Online: {
+				Title: 'If you like her, get in touch with her bravely',
+				Buttons_Maybe: 'Maybe later',
+				Buttons_Call: 'Call',
+			},
+			NotOnline: {
+				Title: 'Maybe shi is busy， you can leave her a message',
+				Buttons_Maybe: 'Maybe later',
+				Buttons_Details: 'Details',
 			}
 		}
 	},
@@ -349,6 +359,31 @@ const Lang = {
 		Btn_Submit: 'SUBMIT',
 		Btn_Modify: 'Modify',
 		Btn_Auth: 'Re-authenticate'
+	},
+	LIVE_PREVIEW: {
+		Called_Caller: {
+			Title: 'calling...',
+			Buttons_Cancel: 'CANCEL',
+			Buttons_Refuse: 'REFUSE',
+			Buttons_Accept: 'ACCEPT'
+		},
+		Refuse_Call: {
+			Title: 'She is busy, you can see other anchors',
+			Buttons_Call_Again: 'CALL AGAIN',
+			Buttons_Maybe: 'Myabe Later'
+		},
+		Madal: {
+			Online: {
+				Title: 'If you like her, get in touch with her bravely',
+				Buttons_Maybe: 'Maybe later',
+				Buttons_Call: 'Call',
+			},
+			NotOnline: {
+				Title: 'Maybe shi is busy， you can leave her a message',
+				Buttons_Maybe: 'Maybe later',
+				Buttons_Details: 'Details',
+			}
+		}
 	},
 	BAR: {
 		Home: 'Home',

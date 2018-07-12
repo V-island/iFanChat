@@ -2,15 +2,14 @@ import Template from 'art-template/lib/template-web';
 import EventEmitter from './eventEmitter';
 // import RTCClient from './rtcClient'
 import Modal from './modal';
+import fcConfig from './intro';
 import {
     getLangConfig
 } from './lang';
 import {
     extend,
-    importTemplate,
-    createDom,
-    addClass,
-    removeClass
+    addEvent,
+    importTemplate
 } from './util';
 
 const LANG = getLangConfig();
@@ -23,21 +22,15 @@ export default class Client extends EventEmitter {
         this.data = {};
         this.signal = sclient;
         this.localAccount = localAccount;
-        this.current_conversation = null;
-        this.current_msgs = null;
-
-        extend(this.data, LANG);
-
-        this.callFile = fcConfig.publicFile.client_call;
-
-        this.init();
+        this.clientCallFile = fcConfig.publicFile.client_call;
+        this._init();
     }
 
-    init() {
-    	self.tpl = {};
+    _init() {
+        this.tpl = {};
 
-        importTemplate(self.callFile, function(id, _template) {
-            self.tpl[id] = _template;
+        importTemplate(this.clientCallFile, (id, _template) => {
+            this.tpl[id] = _template;
         });
 
         this._subscribeEvents();
@@ -48,7 +41,15 @@ export default class Client extends EventEmitter {
 
         // 接收到点对点消息
         Signal.sessionEmitter.on('onMessageInstantReceive', (account, uid, msg) => {
-            this._onReceiveCall(account, msg);
+        	console.log('接收到点对点消息');
+        	let info = JSON.parse(msg);
+
+        	if (info.callStatus == 'invite') {
+        		this._onReceiveCall(account, info);
+        	}
+            if (info.callStatus == 'refuse') {
+        		this._onRefuseCall(account);
+        	}
         });
     }
 
@@ -59,10 +60,62 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _onReceiveCall(account, msg) {
-    	this.data.AccountInfo = msg;
+    	this.calledModalEl = modal.popup(this._calledCallerTemplate(msg, false));
+    	let btnRefuseEl = this.calledModalEl.getElementsByClassName('btn-refuse')[0];
+    	let btnAcceptEl = this.calledModalEl.getElementsByClassName('btn-accept')[0];
 
-    	let calledHTML = Template.render(this.tpl.client_called, this.data);
-    	modal.popup(calledHTML);
+    	// 接受邀请
+    	addEvent(btnAcceptEl, 'click', () => {
+    	    console.log('接受邀请');
+    	    modal.closeModal(this.calledModalEl);
+    	});
+
+    	// 拒绝邀请
+    	addEvent(btnRefuseEl, 'click', () => {
+    	    console.log('拒绝邀请');
+    	    modal.closeModal(this.calledModalEl);
+    	    console.log(account);
+    	    this.signal.sendMessage(account, JSON.stringify({
+    	    	callStatus: 'refuse'
+    	    }));
+    	});
     }
 
+    _onRefuseCall(account) {
+    	console.log('被拒绝了');
+    }
+
+    /**
+     * 呼叫主播
+     * @param  {[type]} info      主播用户信息
+     * @param  {[type]} localInfo 本地用户信息
+     * @return {[type]}           [description]
+     */
+    invite(info, localInfo) {
+	    this.callerModalEl = modal.popup(this._calledCallerTemplate(info, true));
+	    let btnCancelEl = this.callerModalEl.getElementsByClassName('btn-cancel')[0];
+
+	    localInfo.callStatus = 'invite';
+	    this.signal.sendMessage(info.user_id, JSON.stringify(localInfo));
+
+	    addEvent(btnCancelEl, 'click', () => {
+	        console.log('取消呼叫');
+	    });
+    }
+
+    _calledCallerTemplate(info, type) {
+    	let html = '';
+    	let caller = '<div class="buttons buttons-block"><div class="button button-danger btn-cancel" data-ripple>'+ LANG.LIVE_PREVIEW.Called_Caller.Buttons_Cancel +'</div></div>';
+    	let called = '<div class="buttons"><div class="button button-danger btn-refuse" data-ripple>'+ LANG.LIVE_PREVIEW.Called_Caller.Buttons_Refuse +'</div><div class="button button-success btn-accept" data-ripple>'+ LANG.LIVE_PREVIEW.Called_Caller.Buttons_Accept +'</div></div>';
+
+    	html = '<div class="popup popup-call"><div class="content-block"><div class="popup-box"><div class="popup-header"><div class="user-info">';
+    	html += info.sex == 1 ? '<div class="user-img avatar-male">' : '<div class="user-img avatar-female">';
+    	html += info.user_head ? '<img src="'+ info.user_head +'">' : '';
+    	html += '</div><p class="user-name">'+ info.user_name +' <i class="icon icon-female"></i></p></div></div>';
+    	html += '<div class="popup-content calling-box"><i class="calling-sprite"></i>'+ LANG.LIVE_PREVIEW.Called_Caller.Title +'</div>';
+    	html += type ? caller : called;
+    	html += '</div></div></div>';
+
+    	return html;
+    }
 }

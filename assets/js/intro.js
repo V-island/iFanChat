@@ -36,6 +36,10 @@ const fcConfig = {
             name: 'actions_lives',
             path: '../public/actions_lives.html'
         },
+        live_preview: {
+            name: 'live_preview',
+            path: '../public/live_preview.html'
+        },
         client_call: {
             name: 'client_call',
             path: '../public/client_call.html'

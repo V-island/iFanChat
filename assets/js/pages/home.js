@@ -3,6 +3,7 @@ import BScroll from 'better-scroll';
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
+import LivePreview from '../livePreview';
 import fcConfig from '../intro';
 
 import {
@@ -154,7 +155,7 @@ export default class Home extends EventEmitter {
 		for (let i = 0; i < this.cardListEl.length; i++) {
 		    addEvent(this.cardListEl[i], 'click', function() {
 		    	let info = JSON.parse(getData(this, 'userInfo'));
-		    	self._livePreview(info);
+		    	let _livePreview = new LivePreview(info);
 		    });
 		}
 
@@ -496,14 +497,5 @@ export default class Home extends EventEmitter {
 			}
 			this.pullDownEl.style.top = Math.min(pos.y + pullDownInitTop, 10)+ 'px';
 		})
-	}
-
-	// 直播
-	_livePreview(info) {
-		console.log(info);
-
-		this.data.LiveUserInfo = info;
-		let livePreview = Template.render(this.tpl.live_preview, this.data);
-		let _modal = modal.popup(livePreview);
 	}
 }

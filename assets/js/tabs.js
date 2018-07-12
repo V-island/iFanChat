@@ -63,7 +63,6 @@ export default class Tabs extends EventEmitter {
             self.tpl[id] = Template.render(_template, LANG);
         });
 
-        console.log(getLocalStorage(LIVE_STATUS));
         if (getLocalStorage(LIVE_STATUS)) {
             self.startLiveWaiting();
         }
@@ -183,18 +182,22 @@ export default class Tabs extends EventEmitter {
             let info = getUserInfo();
             this.signal = new SignalingClient(fcConfig.agoraAppId, fcConfig.agoraCertificateId);
 
-            this.signal.login(info.userId).then(() => {
+            this.signal.login(info.userId).then((uid) => {
+                console.log('直播登录'+uid);
                 let client = new Client(this.signal, info.userId);
 
                 setLocalStorage(LIVE_STATUS, true);
-
                 this.liveBoxEl = createDom(this._liveWaitingTemplate(info));
                 this.tabsEl.insertBefore(this.liveBoxEl, this.tabsEl.firstChild);
 
                 addEvent(this.liveBoxEl, 'click', () => {
-                    this.signal.logout().then(() => {
-                        setLocalStorage(LIVE_STATUS, false);
-                        this.tabsEl.removeChild(this.liveBoxEl);
+                    let _setLiveStatus = liveStatus(2);
+                    console.log(_setLiveStatus);
+                    _setLiveStatus.then((_status) => {
+                        this.signal.logout().then(() => {
+                            setLocalStorage(LIVE_STATUS, false);
+                            this.tabsEl.removeChild(this.liveBoxEl);
+                        });
                     });
                 });
             });

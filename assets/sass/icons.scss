@@ -91,7 +91,7 @@ $names: search, filter, arrow-back, home, favorite, live, message, me, female, m
 // Live Icon
 // -----------------------------
 
-$lives: attention, close, news, share, gift, thumbs-upion, cutover, confirm, cancel, local-upload;
+$lives: attention, add-attention, close, news, share, gift, thumbs-upion, cutover, confirm, cancel, local-upload;
 
 @each $live in $lives {
     .live-#{$live}{

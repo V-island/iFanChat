@@ -25,7 +25,7 @@ const baseURL = 'https://10.30.11.112:8443/live-app/open/gate';
 const Type = 'POST';
 const MacType = 1; // 设备类型 1.手机 2.PC
 const PhoneType = null;
-const LofinMode = 2; // 登入方式 1.APP 2.web 3.PC
+const LoginMode = 2; // 登入方式 1.APP 2.web 3.PC
 
 // localStorage KEY
 const TOKEN_NAME = 'TOKEN';
@@ -326,7 +326,7 @@ export function getLogin(params, callback) {
 	_params.mac = _mac;
 	_params.macType = MacType;
 	_params.phoneType = PhoneType;
-	_params.loginMode = LofinMode;
+	_params.loginMode = LoginMode;
 	_params.status = 1;
 	getPost('/appLogin', _params, function(response) {
 		modal.toast(response.message);
@@ -408,7 +408,7 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 	let _params = {
 		userId: _info.userId,
 		token: token,
-		loginMode: LofinMode,
+		loginMode: LoginMode,
 		mac: mac
 	}
 
@@ -446,7 +446,7 @@ export function createChannel(callbackOk, callbackCancel) {
 	let _params = {
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LofinMode,
+		loginMode: LoginMode,
 		mac: getMac()
 	}
 	getPost('/createChannel', _params, function(response) {
@@ -487,7 +487,7 @@ export function newDayRecord(callbackOk) {
 	let _params = {
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LofinMode,
+		loginMode: LoginMode,
 		mac: getMac()
 	}
 	getPost('/selEverdayVideo', _params, function(response) {
@@ -607,7 +607,7 @@ export function uploadVideo(_file, _type, callback, onProgress) {
 	formData.append("userId", _info.userId);
 	formData.append("type", _type);
 	formData.append("token", getLocalStorage(TOKEN_NAME));
-	formData.append("loginMode", LofinMode);
+	formData.append("loginMode", LoginMode);
 	formData.append("mac", getMac());
 	formData.append("keyword", 'upload');
 
@@ -635,7 +635,7 @@ export function hasAudit() {
 	let _params = {
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LofinMode,
+		loginMode: LoginMode,
 		mac: getMac()
 	}
 

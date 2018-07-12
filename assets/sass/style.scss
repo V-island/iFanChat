@@ -63,6 +63,11 @@
 
 // popup-box
 //--------------------------------
+.popup-call {
+    .user-info {
+        @include flex-vertical(column);
+    }
+}
 .popup-box {
 	text-align: center;
 	@include flex-spindle(center);
@@ -91,7 +96,7 @@
 		font-size: 0.6rem;
 		color: $color-text;
 		position: relative;
-	    margin: 0 auto;
+	    margin: 2.5rem auto;
 
 		&:after {
 		    content: "";

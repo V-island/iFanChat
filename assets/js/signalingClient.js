@@ -1,6 +1,12 @@
 import AgoraSig from './components/AgoraSig-1.3.0';
 import EventEmitter from './components/EventEmitter';
 
+import {
+    isNumber
+} from './util';
+
+const LoginMode = 'web';
+
 export default class SignalingClient {
 	constructor(appId, appcertificate) {
 		this._appId = appId;
@@ -18,9 +24,9 @@ export default class SignalingClient {
 	 * @return {[type]}         [description]
 	 */
 	login(account, token = '_no_need_token') {
-		this._account = account + '';
+		this._account = isNumber(account) ? account + LoginMode : account;
 		return new Promise((resolve, reject) => {
-			this.session = this.signal.login(account + '', token);
+			this.session = this.signal.login(this._account, token);
 
 			[
 				'onLoginSuccess',			// 登录成功回调
@@ -131,6 +137,7 @@ export default class SignalingClient {
 					Message: '"session" must be initialized before joining channel'
 				}
 			}
+			peerAccount = isNumber(peerAccount) ? peerAccount + LoginMode : peerAccount;
 			this.call = this.session.channelInviteUser2(peerAccount, channel, extra);
 
 			[
@@ -178,7 +185,7 @@ export default class SignalingClient {
 	 * @return {[type]} [description]
 	 */
 	inviteEnd() {
-		this.session && this.session.channelInviteEnd();
+		this.session && this.session.channelinviteEnd();
 	}
 
 	/**
@@ -189,6 +196,7 @@ export default class SignalingClient {
 	 * @return {[type]}             [description]
 	 */
 	sendMessage(peerAccount, text) {
+		peerAccount = isNumber(peerAccount) ? peerAccount + LoginMode : peerAccount;
 	    this.session && this.session.messageInstantSend(peerAccount, text);
 	}
 

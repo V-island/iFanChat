@@ -148,7 +148,6 @@ export default class Modal extends EventEmitter {
             return;
         }
         let isPopup = modal.hasClass('popup');
-        let isLoginScreen = modal.hasClass('login-screen');
         let isPickerModal = modal.hasClass('picker-modal');
         let isToast = modal.hasClass('toast');
         if (isModal) {
@@ -164,7 +163,7 @@ export default class Modal extends EventEmitter {
         }
 
         let overlay;
-        if (!isLoginScreen && !isPickerModal && !isToast) {
+        if (!isPickerModal && !isToast) {
             if ($('.modal-overlay').length === 0 && !isPopup) {
                 $(self.defaults.modalContainer).append('<div class="modal-overlay"></div>');
             }
@@ -186,7 +185,7 @@ export default class Modal extends EventEmitter {
         }
 
         // Classes for transition in
-        if (!isLoginScreen && !isPickerModal && !isToast) overlay.addClass('modal-overlay-visible');
+        if (!isPickerModal && !isToast) overlay.addClass('modal-overlay-visible');
         modal.removeClass('modal-out').addClass('modal-in').transitionEnd(function (e) {
             if (modal.hasClass('modal-out')) modal.trigger('closed');
             else modal.trigger('opened');
@@ -214,7 +213,7 @@ export default class Modal extends EventEmitter {
         let isModal = modal.hasClass('modal'),
             isPopup = modal.hasClass('popup'),
             isToast = modal.hasClass('toast'),
-            isLoginScreen = modal.hasClass('login-screen'),
+            isActions = modal.hasClass('actions-modal'),
             isPickerModal = modal.hasClass('picker-modal'),
             removeOnClose = modal.hasClass('remove-on-close'),
             overlay = isPopup ? $('.popup-overlay') : $('.modal-overlay');
@@ -242,7 +241,7 @@ export default class Modal extends EventEmitter {
             if (isPickerModal) {
                 $(self.defaults.modalContainer).removeClass('picker-modal-closing');
             }
-            if (isPopup || isLoginScreen || isPickerModal) {
+            if (isPopup || isPickerModal) {
                 modal.removeClass('modal-out').hide();
                 if (removeOnClose && modal.length > 0) {
                     modal.remove();
@@ -463,6 +462,8 @@ export default class Modal extends EventEmitter {
      */
     actions(modal, params, callback) {
         const self = this;
+
+        params = params || {};
         let titleHTML = '<div class="modal-title">' + (params.title ? params.title : '') + '</div>';
         let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="ion ion-md-close"></i></a>' : '';
         let headerHTML = titleHTML || closeHTML ? '<div class="modal-header">' + (titleHTML + closeHTML) + '</div>' : '';
@@ -477,6 +478,9 @@ export default class Modal extends EventEmitter {
 
         // Add events on buttons
         _modal.find('.modal-close').on('click', function (e) {
+            self.closeModal(_modal);
+        });
+        _modal.find('.button-close').on('click', function (e) {
             self.closeModal(_modal);
         });
         _modal.find('.actions-button-cancel').on('click', function (e) {
@@ -495,7 +499,6 @@ export default class Modal extends EventEmitter {
      */
     popup(modal, removeOnClose) {
         const self = this;
-
         if (typeof modal === 'string' && modal.indexOf('<') >= 0) {
             let _modal = document.createElement('div');
             _modal.innerHTML = modal.trim();
