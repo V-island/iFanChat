@@ -376,7 +376,6 @@
 .lives-wrapper{
 	overflow: hidden;
 	background: $color-gray;
-	z-index: 10800;
 }
 .record-wrapper {
     position: absolute;
@@ -519,6 +518,18 @@
 		    top: 0;
 		    left: 50%;
 		    margin-left: -1.225rem;
+		}
+	}
+
+	&.rtc-buttons {
+		@include  spindle-center(start);
+
+		>.icon{
+		    margin-right: 1.8rem;
+
+		    &:last-of-type{
+		    	margin-right: 0;
+		    }
 		}
 	}
 

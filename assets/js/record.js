@@ -168,7 +168,7 @@ export default class Record extends EventEmitter {
         addEvent(self.confirmEl, 'click', function() {
             self.hide();
 
-            let videoFile = new File(self.buffers, Date.now() + '.mp4', {
+            let videoFile = new File([self.blob], Date.now() + '.mp4', {
                 type: "video/mp4",
             });
             let photosFile = new File([self.photosBuffers], Date.now() + '.jpg', {
@@ -260,7 +260,7 @@ export default class Record extends EventEmitter {
                 }
 
                 // 计时器-结束
-                if (self.buffers.length == self.options.maxTimes) {
+                if (self.buffers.length > self.options.maxTimes) {
                     if (self.options.newDayVideo) {
                         self.consentEnd = false;
                         dispatchEvent(self.recordEl, 'click');

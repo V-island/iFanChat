@@ -31,7 +31,7 @@ const modal = new Modal();
     if (fcConfig.showPageLoadingIndicator) {
         //这里的 以 push 开头的是私有事件，不要用
         $(window).on('pageLoadStart', function() {
-            modal.showIndicator();
+            // modal.showIndicator();
 
         });
         $(window).on('pageAnimationStart', function() {

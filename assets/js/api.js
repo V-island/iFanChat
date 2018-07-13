@@ -271,7 +271,7 @@ export function getUserInfo() {
 export function checkAuth() {
 	let _auth = getLocalStorage(UER_NAME);
 
-	return _auth.auth === 2 ? true : false;
+	return _auth.userAuth === 2 ? true : false;
 }
 
 // 验证登录状态
@@ -414,10 +414,11 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 
 	return new Promise((resolve) => {
 		getPost('/personCenter', _params, function(response) {
-			_info.auth = response.data.user_authentication;
-			_info.name = response.data.user_name;
-			_info.head = response.data.user_head;
-			_info.sex = response.data.user_sex;
+			_info.userAuth = response.data.user_authentication;
+			_info.userName = response.data.user_name;
+			_info.userHead = response.data.user_head;
+			_info.userSex = response.data.user_sex;
+			_info.userPackage = response.data.user_package;
 
 			setLocalStorage(UER_NAME, _info);
 
@@ -437,11 +438,9 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 
 /**
  * 主播创建直播间并加入
- * @param  {[type]} callbackOk     通过事件
- * @param  {[type]} callbackCancel 取消事件
  * @return {[type]} [description]
  */
-export function createChannel(callbackOk, callbackCancel) {
+export function createChannel() {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
 		userId: _info.userId,
@@ -449,10 +448,14 @@ export function createChannel(callbackOk, callbackCancel) {
 		loginMode: LoginMode,
 		mac: getMac()
 	}
-	getPost('/createChannel', _params, function(response) {
-		callbackOk(response.data);
-	},function(response) {
-		callbackCancel();
+
+	return new Promise((resolve) => {
+
+		getPost('/createChannel', _params, function(response) {
+			resolve(response.data);
+		},function(response) {
+			resolve(false);
+		});
 	});
 };
 
@@ -470,6 +473,80 @@ export function liveStatus(_status) {
 	return new Promise((resolve) => {
 
 		getPost('/liveStatus', _params, function(response) {
+			resolve(true);
+		},function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 用户接受邀请加入直播间
+ * @param  {[type]} channel   频道ID
+ * @param  {[type]} startTime 用户加入频道时间
+ * @return {[type]}           [description]
+ */
+export function loginChannel(channel, startTime) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		channel: channel,
+		startTime: startTime
+	}
+	return new Promise((resolve) => {
+
+		getPost('/loginChannel', _params, function(response) {
+			resolve(true);
+		},function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 关闭频道
+ * @param  {[type]} channel 频道ID
+ * @param  {[type]} endTime 用户离开频道时间
+ * @return {[type]}         [description]
+ */
+export function closeChannel(channel, endTime) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		channel: _status,
+		endTime: endTime
+	}
+	return new Promise((resolve) => {
+
+		getPost('/closeChannel', _params, function(response) {
+			resolve(true);
+		},function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 用户评价
+ * @param  {[type]} channel    频道ID
+ * @param  {[type]} liveUserId 主播ID
+ * @param  {[type]} stars      评价星级
+ * @return {[type]}            [description]
+ */
+export function userEvaluate(channel, liveUserId, stars) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		channel: channel,
+		liveUserId: liveUserId,
+		stars: stars,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+	return new Promise((resolve) => {
+
+		getPost('/userEvaluate', _params, function(response) {
 			resolve(true);
 		},function(response) {
 			resolve(false);

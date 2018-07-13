@@ -33,7 +33,7 @@ export default class LivePreview extends EventEmitter {
             btnCallClass: 'btn-call',
             btnDetailsClass: 'btn-details',
             iconAttentionClass: 'live-attention',
-            iconAddAttentionClass: 'live-add-attention',
+            iconAddAttentionClass: 'live-add-attention'
         };
 
         extend(this.data, LANG);
@@ -87,11 +87,11 @@ export default class LivePreview extends EventEmitter {
         let html = '';
 
         html = '<div class="popup remove-on-close lives-wrapper"><div class="lives-video">';
-        html += '<video id="video" class="video" autoplay="autoplay" preload="auto" poster="'+ info.everyday_img +'"><source src="'+ info.live_url +'" type="video/mp4"></video>';
+        html += '<video id="video" class="'+ this.options.videoClass +'" controls autoplay="autoplay" preload="auto" poster="'+ info.everyday_img +'"><source src="'+ info.live_url +'" type="video/mp4"></video>';
         html += '</div><div class="lives-header"><div class="lives-attention"><div class="user-info across"><div class="user-img avatar-female">';
         html += info.user_head ? '<img src="'+ info.user_head +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ info.user_name +'</p><p class="user-txt">'+ info.heat + ' ' + LANG.PUBLIC.Heat +'</p></div>';
-        html += '</div><i class="icon live-attention btn-add-attention"></i></div><div class="icon live-close btn-close"></div></div></div>';
+        html += '</div><i class="icon live-attention '+ this.options.btnAddAttentionClass +'"></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div></div>';
 
         return html;
     }
@@ -105,17 +105,26 @@ export default class LivePreview extends EventEmitter {
         let btnLiveCloseEl = videoModalEl.getElementsByClassName(this.options.btnLiveCloseClass)[0];
 
         addEvent(buttonCallEl, 'click', () => {
-            console.log('呼叫');
             modal.closeModal(videoModalEl);
-            modal.closeModal(this.previewModalEl);
 
             let localInfo = getUserInfo();
+
+            if (parseInt(this.info.live_price / localInfo.userPackage) < 1) {
+                return modal.alert(LANG.HOME.Madal.NotCoins.Text, LANG.HOME.Madal.NotCoins.Title, () => {
+                    location.href = '#/user';
+                }, LANG.HOME.Madal.NotCoins.ButtonsText);
+            }
+
             this.signal = new SignalingClient(Appid, Appcert);
 
             this.signal.login(localInfo.userId).then((uid) => {
-                console.log(uid);
-                let client = new Client(this.signal, localInfo.userId);
-                client.invite(this.info, localInfo);
+                let client = new Client(this.signal, localInfo);
+                client.invite({
+                    userId: this.info.user_name,
+                    userName: this.info.user_name,
+                    userHead: this.info.user_head,
+                    userSex: this.info.user_sex
+                });
             });
         });
 
@@ -131,7 +140,6 @@ export default class LivePreview extends EventEmitter {
         let btnLiveCloseEl = videoModalEl.getElementsByClassName(this.options.btnLiveCloseClass)[0];
 
         addEvent(buttonDetailsEl, 'click', () => {
-            console.log('详细');
             return location.href = '#/details';
         });
 
