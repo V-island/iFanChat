@@ -86,10 +86,6 @@ export default class RtcClient extends EventEmitter {
         extend(this.data, LANG);
         extend(this.options, options);
 
-        console.log(this.options);
-        console.log(this.channelKey);
-        console.log(this.channel);
-        console.log(this.uId);
         this.rtcClientFile = fcConfig.publicFile.client_rtc;
 
         this.clientModalEl = modal.popup(this._clientRtcTemplate(this.info));
@@ -120,14 +116,17 @@ export default class RtcClient extends EventEmitter {
 
         // 关闭
         addEvent(this.btnLiveCloseEl, 'click', () => {
+            modal.confirm(LANG.LIVE_PREVIEW.Madal.QuitLive.Text, () => {
+                this.client.leave(() => {
+                    // console.log("Leavel channel successfully");
+                    modal.closeModal(this.clientModalEl);
 
-            this.client.leave(() => {
-                console.log("Leavel channel successfully");
-                modal.closeModal(this.clientModalEl);
-
-            }, (err) => {
-                console.log("Leave channel failed");
-            });
+                }, (err) => {
+                    // console.log("Leave channel failed");
+                });
+            }, (_modal) => {
+                modal.closeModal(_modal);
+            }, true);
         });
 
         // 加关注
@@ -136,12 +135,13 @@ export default class RtcClient extends EventEmitter {
             addClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
         });
 
-        // 评论
+        // 聊天
         addEvent(this.btnNewsEl, 'click', () => {
             modal.actions(this.tpl.live_news, {
                 title: false,
                 closeBtn: false
             });
+            this.trigger('rtcClient.onChatMsg');
         });
 
         // 分享
@@ -323,7 +323,7 @@ export default class RtcClient extends EventEmitter {
          */
         this.client.join(this.channelKey, this.channel, this.uId, (uid) => {
             console.log(MSG.successJoin.replace('%s', uid));
-            this.trigger('rtcClient.join', this.options.userId, this.options.channel, );
+            this.trigger('rtcClient.join', this.options.userId, this.options.channel);
 
             // 创建本地流, 修改对应的参数可以指定启用/禁用特定功能
             /**
@@ -417,7 +417,7 @@ export default class RtcClient extends EventEmitter {
     _clientRtcTemplate(info) {
         let html = '';
 
-        html = '<div class="popup lives-wrapper">';
+        html = '<div class="popup remove-on-close lives-wrapper">';
         html += '<div class="lives-video"><div id="'+ this.options.liveWindowId +'" class="video" ></div></div>';
         html += '<div class="lives-header"><div class="lives-attention"><div class="user-info across">';
         html += info.userSex == 1 ? '<div class="user-img avatar-male">' : '<div class="user-img avatar-female">';
@@ -432,7 +432,16 @@ export default class RtcClient extends EventEmitter {
         return html;
     }
 }
+
 /**
  * rtcClient.join
  * 当加入到频道的时候，会派发 rtcClient.join 事件，同时会传递用户IDuserId，频道ID channel ，用户加入频道时间 startTime。
+ */
+/**
+ * rtcClient.leave
+ * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递用户IDuserId，频道ID channel ，用户加入频道时间 startTime。
+ */
+/**
+ * rtcClient.onChatMsg
+ * 当发送聊天消息的时候，会派发 rtcClient.onChatMsg 事件，同时会传递消息 Msg。
  */

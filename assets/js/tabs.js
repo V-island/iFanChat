@@ -183,7 +183,6 @@ export default class Tabs extends EventEmitter {
             this.signal = new SignalingClient(fcConfig.agoraAppId, fcConfig.agoraCertificateId);
 
             this.signal.login(info.userId).then((uid) => {
-                console.log('直播登录'+uid);
                 let client = new Client(this.signal, info.userId);
 
                 setLocalStorage(LIVE_STATUS, true);
@@ -192,7 +191,7 @@ export default class Tabs extends EventEmitter {
 
                 addEvent(this.liveBoxEl, 'click', () => {
                     let _setLiveStatus = liveStatus(2);
-                    console.log(_setLiveStatus);
+
                     _setLiveStatus.then((_status) => {
                         this.signal.logout().then(() => {
                             setLocalStorage(LIVE_STATUS, false);

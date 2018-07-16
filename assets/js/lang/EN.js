@@ -376,12 +376,15 @@ const Lang = {
 			Online: {
 				Title: 'If you like her, get in touch with her bravely',
 				Buttons_Maybe: 'Maybe later',
-				Buttons_Call: 'Call',
+				Buttons_Call: 'Call'
 			},
 			NotOnline: {
 				Title: 'Maybe shi is busy， you can leave her a message',
 				Buttons_Maybe: 'Maybe later',
-				Buttons_Details: 'Details',
+				Buttons_Details: 'Details'
+			},
+			QuitLive: {
+				Text: 'Are you sure you want to quit?'
 			}
 		}
 	},

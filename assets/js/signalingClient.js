@@ -5,7 +5,7 @@ import {
     isNumber
 } from './util';
 
-const LoginMode = 'web';
+const LoginMode = '2';
 
 export default class SignalingClient {
 	constructor(appId, appcertificate) {
@@ -125,20 +125,21 @@ export default class SignalingClient {
 
 	/**
 	 * 邀请用户加入指定频道
-	 * @param  {[type]} peerAccount 对方的账号
-	 * @param  {[type]} channel     频道名
+	 * @param  {[type]} channelID 	频道名
+	 * @param  {[type]} peer 		对方的账号
 	 * @param  {[type]} extra     	呼叫的其他信息
 	 * @return {[type]}             [description]
 	 */
-	invite(peerAccount, channel, extra) {
+	invite(channelID, peer, extra) {
+		console.log(channelID, peer, extra);
 		return new Promise((resolve, reject) => {
 			if (!this.session) {
 				throw {
 					Message: '"session" must be initialized before joining channel'
 				}
 			}
-			peerAccount = isNumber(peerAccount) ? peerAccount + LoginMode : peerAccount;
-			this.call = this.session.channelInviteUser2(peerAccount, channel, extra);
+
+			this.call = this.session.channelInviteUser2(channelID, peer, extra);
 
 			[
 				'onInviteReceivedByPeer',	// 远端已收到呼叫回调
@@ -168,16 +169,16 @@ export default class SignalingClient {
 	 * 接受呼叫邀请
 	 * @return {[type]} [description]
 	 */
-	inviteAccept() {
-		this.session && this.session.channelInviteAccept();
+	inviteAccept(extra) {
+		this.session && this.session.channelInviteAccept(extra);
 	}
 
 	/**
 	 * 拒绝呼叫邀请
 	 * @return {[type]} [description]
 	 */
-	inviteRefuse() {
-		this.session && this.session.channelInviteRefuse();
+	inviteRefuse(extra) {
+		this.session && this.session.channelInviteRefuse(extra);
 	}
 
 	/**
@@ -196,8 +197,22 @@ export default class SignalingClient {
 	 * @return {[type]}             [description]
 	 */
 	sendMessage(peerAccount, text) {
-		peerAccount = isNumber(peerAccount) ? peerAccount + LoginMode : peerAccount;
 	    this.session && this.session.messageInstantSend(peerAccount, text);
+	}
+
+	/**
+	 * 客户端群发P2P消息
+	 * 如果要发送对象,使用JSON.stringify
+	 * @param  {[type]} peerAccount 对方的账号
+	 * @param  {[type]} text        消息正文。每条消息最大为 8196 字节可见字符
+	 * @return {[type]}             [description]
+	 */
+	sendMessageAll(peerAccount, text) {
+		for (let i = 1; i < 4; i++) {
+			peerAccount = peerAccount.toString();
+			console.log(peerAccount);
+			this.session && this.session.messageInstantSend(peerAccount + i, text);
+		}
 	}
 
 	/**

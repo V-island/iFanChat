@@ -105,8 +105,6 @@ export default class LivePreview extends EventEmitter {
         let btnLiveCloseEl = videoModalEl.getElementsByClassName(this.options.btnLiveCloseClass)[0];
 
         addEvent(buttonCallEl, 'click', () => {
-            modal.closeModal(videoModalEl);
-
             let localInfo = getUserInfo();
 
             if (parseInt(this.info.live_price / localInfo.userPackage) < 1) {
@@ -120,12 +118,14 @@ export default class LivePreview extends EventEmitter {
             this.signal.login(localInfo.userId).then((uid) => {
                 let client = new Client(this.signal, localInfo);
                 client.invite({
-                    userId: this.info.user_name,
+                    userAccount: this.info.user_id,
                     userName: this.info.user_name,
                     userHead: this.info.user_head,
                     userSex: this.info.user_sex
                 });
             });
+
+            modal.closeModal(videoModalEl);
         });
 
         addEvent(btnLiveCloseEl, 'click', () => {

@@ -18,6 +18,7 @@ import {
 import {
     extend,
     addEvent,
+    createDom,
     importTemplate
 } from './util';
 
@@ -55,15 +56,32 @@ export default class Client {
         Signal.sessionEmitter.on('onMessageInstantReceive', (account, uid, msg) => {
         	let _info = JSON.parse(msg);
 
-        	if (_info.callStatus == 'invite') {
-        		this._onReceiveCall(account, _info.info);
+        	console.log(_info);
+
+        	if (_info.status == 'invite') {
+        		this._onReceiveCall(account, _info);
         	}
-            if (_info.callStatus == 'refuse') {
-        		this._onRefuseCall(account, _info.info);
+            if (_info.status == 'refuse') {
+        		this._onRefuseCall(account);
         	}
-    	    if (_info.callStatus == 'accept') {
-    			this._onJoinChannel(account, _info);
-    		}
+        });
+
+        // 收到呼叫邀请回调
+        Signal.sessionEmitter.on('onInviteReceived', (call) => {
+        	console.log(call);
+        	let account = call.peer;
+        	let channelID = call.channelName;
+        	let _info = JSON.parse(call.extra);
+
+        	console.log(_info);
+        	this._onJoinChannel(account, {
+	    		channelKey: _info.channelKey,
+	    		channel: channelID,
+	    		userId: this.localAccount,
+	    		info: this.info
+	    	});
+
+	    	modal.closeModal(this.callerModalEl);
         });
     }
 
@@ -83,21 +101,24 @@ export default class Client {
 
     	    let getChannelInfo = createChannel();
     	    getChannelInfo.then((data) => {
-    	    	modal.closeModal(this.calledModalEl);
 
-    	    	this.retClient = new RtcClient({
+    	    	console.log(data);
+    	    	console.log(data.channel, account);
+    	    	// 邀请加入直播频道
+    	    	this.signal.invite(data.channel, account, JSON.stringify({
+	    	    	channelKey: data.channelKey
+	    	    }));
+
+    	    	console.log(account);
+    	    	this._createChannel(account, {
     	    		channelKey: data.channelKey,
-    	    		channel: data.channel,
-    	    		userId: data.userId,
-    	    		type: false,
-    	    		info: msg
+		    		channel: data.channel,
+		    		userId: data.userId,
+		    		type: false,
+		    		info: msg
     	    	});
-    	    	this.signal.sendMessage(account, JSON.stringify({
-    	    		info: this.localInfo,
-    	    		channelKey: data.channelKey,
-    	    		channel: data.channel,
-    	    		callStatus: 'accept'
-    	    	}));
+
+    	    	modal.closeModal(this.calledModalEl);
     	    });
     	});
 
@@ -105,15 +126,19 @@ export default class Client {
     	addEvent(btnRefuseEl, 'click', () => {
     	    modal.closeModal(this.calledModalEl);
     	    this.signal.sendMessage(account, JSON.stringify({
-    	    	info: this.localInfo,
-    	    	callStatus: 'refuse'
+    	    	status: 'refuse'
     	    }));
     	});
     }
 
-    _onRefuseCall(account, info) {
-
-    	this.data.LiveInfo = info;
+    /**
+     * 主播拒绝呼叫
+     * @param  {[type]} account 呼叫账号
+     * @return {[type]}         [description]
+     */
+    _onRefuseCall(account) {
+    	this.data.LiveInfo = this.info;
+    	console.log(this.info);
     	let refuseEl = createDom(Template.render(this.tpl.refuse_call, this.data));
     	let contentBlockEl = this.callerModalEl.querySelector('.content-block');
     	contentBlockEl.innerHTML = refuseEl;
@@ -140,14 +165,18 @@ export default class Client {
      */
     invite(info) {
     	if (typeof info !== 'undefined') {
+    		this.info = info;
     		this.callerModalEl = modal.popup(this._calledCallerTemplate(info, true));
     	}
 
 	    let btnCancelEl = this.callerModalEl.getElementsByClassName('btn-cancel')[0];
-
-	    this.signal.sendMessage(info.userId, JSON.stringify({
-	    	info: this.localInfo,
-	    	callStatus: 'invite'
+	    console.log(info);
+	    this.signal.sendMessageAll(info.userAccount, JSON.stringify({
+	    	userAccount: this.localInfo.userId,
+	    	userName: this.localInfo.userName,
+	    	userHead: this.localInfo.userHead,
+	    	userSex: this.localInfo.userSex,
+	    	status: 'invite'
 	    }));
 
 	    addEvent(btnCancelEl, 'click', () => {
@@ -160,7 +189,7 @@ export default class Client {
     	let caller = '<div class="buttons buttons-block"><div class="button button-danger btn-cancel" data-ripple>'+ LANG.LIVE_PREVIEW.Called_Caller.Buttons_Cancel +'</div></div>';
     	let called = '<div class="buttons"><div class="button button-danger btn-refuse" data-ripple>'+ LANG.LIVE_PREVIEW.Called_Caller.Buttons_Refuse +'</div><div class="button button-success btn-accept" data-ripple>'+ LANG.LIVE_PREVIEW.Called_Caller.Buttons_Accept +'</div></div>';
 
-    	html = '<div class="popup popup-call"><div class="content-block"><div class="popup-box"><div class="popup-header"><div class="user-info">';
+    	html = '<div class="popup remove-on-close popup-call"><div class="content-block"><div class="popup-box"><div class="popup-header"><div class="user-info">';
     	html += info.userSex == 1 ? '<div class="user-img avatar-male">' : '<div class="user-img avatar-female">';
     	html += info.userHead ? '<img src="'+ info.userHead +'">' : '';
     	html += '</div><p class="user-name">'+ info.userName + (info.userSex == 1 ? '<i class="icon icon-male"></i>' : '<i class="icon icon-female"></i>') + '</p></div></div>';
@@ -175,8 +204,10 @@ export default class Client {
      * 主播创建直播间
      * @return {[type]} [description]
      */
-    _createChannel() {
-
+    _createChannel(account, _info) {
+    	console.log(account);
+    	console.log(_info);
+    	this.retClient = new RtcClient(_info);
     }
 
     /**
@@ -186,14 +217,7 @@ export default class Client {
      * @return {[type]}         [description]
      */
     _onJoinChannel(account, _info) {
-    	modal.closeModal(this.callerModalEl);
-
-		this.localRetClient = new RtcClient({
-    		channelKey: _info.channelKey,
-    		channel: _info.channel,
-    		userId: this.localAccount,
-    		info: _info.info
-    	});
+		this.localRetClient = new RtcClient(_info);
 
     	// let getLoginChannel = loginChannel();
     	// getLoginChannel.then((data) => {
