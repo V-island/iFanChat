@@ -7,7 +7,9 @@ import {
 } from '../lang';
 
 import {
-    getLogin
+    getLogin,
+    checkCountry,
+    findAllCountry
 } from '../api';
 
 import {
@@ -48,7 +50,16 @@ export default class Login extends EventEmitter {
 		Group.on('click', '.form-control.country', function() {
 			let $self = $(this);
 			let lang = $self.data('lang');
-			modal.countryModal(lang);
+			let getCountry = checkCountry();
+
+			if (getCountry) {
+				modal.countryModal(lang, getCountry);
+			}else {
+				let getAllCountry = findAllCountry();
+				getAllCountry.then((data) => {
+				    modal.countryModal(lang, data);
+				});
+			}
 		});
 
 		// 输入状态

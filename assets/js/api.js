@@ -31,6 +31,7 @@ const LoginMode = 2; // 登入方式 1.APP 2.web 3.PC
 const TOKEN_NAME = 'TOKEN';
 const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
+const COUNTRY_NAME = 'COUNTRY';
 
 const NEW_List_DATA = [{
 	user_id: 1,
@@ -279,9 +280,34 @@ export function checkLogin() {
 	return getLocalStorage(UER_NAME) === null ? true : false;
 }
 
+// 验证是否保存国家信息
+export function checkCountry() {
+	let country = getLocalStorage(COUNTRY_NAME);
+	return country !== null ? country : false;
+}
+
 //------------------------------------------------------------------------------------------------------
 //-----注册、登入模块
 //------------------------------------------------------------------------------------------------------
+
+/**
+ * 获取所有国家和号码编号
+ * @return {[type]} [description]
+ */
+export function findAllCountry(id = 0) {
+
+	return new Promise((resolve) => {
+
+		getPost('/findAllCountry', {
+			language_id: id
+		}, function(response) {
+			setLocalStorage(COUNTRY_NAME, response.data);
+			resolve(response.data);
+		},function(response) {
+			resolve(false);
+		});
+	});
+};
 
 /**
  * 发送验证码

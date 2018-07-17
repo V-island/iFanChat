@@ -5,6 +5,11 @@ import {
     getLangConfig,
     setLangConfig
 } from './lang';
+
+import {
+    findAllCountry
+} from './api';
+
 import {
     createDom,
     refreshURL
@@ -12,7 +17,6 @@ import {
 
 const LANG = getLangConfig();
 const PUBLIC = LANG.PUBLIC;
-const COUNTRY = LANG.COUNTRY;
 const _modalTemplateTempDiv = document.createElement('div');
 
 export default class Modal extends EventEmitter {
@@ -656,24 +660,30 @@ export default class Modal extends EventEmitter {
      * 国家语言选择
      * @return {[type]}            [description]
      */
-    countryModal(lang) {
+    countryModal(lang, params, callbackOk) {
         const self = this;
-        let params = COUNTRY;
         let modalHTML = '',
             listHTML = '';
-        let titleHTML = params.Title ? '<h1 class="title">'+ params.Title +'</h1>' : '';
+        let titleHTML = '<h1 class="title">'+ PUBLIC.Country +'</h1>';
         let closeHTML = '<div class="icon-btn close-popup" data-ripple><i class="icon icon-arrow-back"></i></div>';
 
-        params.Lists.forEach((_data, index) => {
-            listHTML += '<li class="list-item '+ (lang == _data.lang ? 'active' : '') +'" data-lang="'+ _data.lang +'" data-ripple><span class="list-item-text">'+ _data.text +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
+        params.forEach((_data, index) => {
+            console.log(_data);
+            listHTML += '<li class="list-item '+ (lang == _data.language_code ? 'active' : '') +'" data-id="'+ _data.id +'" data-lang-id="'+ _data.language_id +'" data-lang="'+ _data.language_code +'" data-ripple><span class="list-item-text">'+ _data.country_name +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
-        modalHTML = '<div class="popup"><header class="bar bar-flex no-bg">'+ (closeHTML + titleHTML) +'</header><div class="content block"><ul class="list list-user list-info popup-list no-bg">'+ listHTML +'</ul></div></div>';
+        modalHTML = '<div class="popup remove-on-close"><header class="bar bar-flex no-bg">'+ (closeHTML + titleHTML) +'</header><div class="content block"><ul class="list list-user list-info popup-list no-bg">'+ listHTML +'</ul></div></div>';
         return self.popup(modalHTML, function(modal) {
             modal.find('.list-item').on('click', function() {
                 let _self = $(this);
+                let _id = _self.data('id');
+                let _langId = _self.data('langId');
                 let _lang = _self.data('lang');
-                setLangConfig(_lang);
-                refreshURL();
+                let getAllCountry = findAllCountry(_langId);
+
+                getAllCountry.then((data) => {
+                    setLangConfig(_lang);
+                    refreshURL();
+                });
             });
         });
     }

@@ -419,6 +419,7 @@ const Lang = {
 	PUBLIC: {
 		Billing: 'Gold/Min',
 		Heat: 'heat',
+		Country: 'Country',
 		Status: {
 			Busy: 'Busy',
 			Waiting: 'waiting'
@@ -450,30 +451,6 @@ const Lang = {
 		ConfirmButtonOk: 'Confirm',
 		ConfirmButtonCancel: 'Cancel',
 		modalPreloaderTitle: 'Loading'
-	},
-	COUNTRY: {
-		Title: 'Country',
-		Lists: [{
-			text: 'China',
-			value: '+86',
-			lang: 'zh_cn'
-		}, {
-			text: 'United Kingdom',
-			value: '+44',
-			lang: 'en'
-		}, {
-			text: 'U.S.A',
-			value: '+1',
-			lang: 'en'
-		}, {
-			text: 'France',
-			value: '+33',
-			lang: 'en'
-		}, {
-			text: 'Brazil',
-			value: '+55',
-			lang: 'en'
-		}]
 	}
 }
 

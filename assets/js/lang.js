@@ -2,8 +2,7 @@
 import en from './lang/EN';
 import zh_cn from './lang/ZH-CN';
 
-const ITEM = 'Lang';
-const COUNTRY = 'Country_code';
+const LANG_NAME = 'LANG';
 const DEFAULT = {
 	lang: en
 };
@@ -17,12 +16,12 @@ const LANG = {
  * @return {[type]} [description]
  */
 export function getLangConfig() {
-    let lang = localStorage.getItem(ITEM);
+    let lang = localStorage.getItem(LANG_NAME);
 
     if (lang) {
 		return JSON.parse(lang);
     }else {
-    	localStorage.setItem(ITEM, JSON.stringify(DEFAULT.lang));
+    	localStorage.setItem(LANG_NAME, JSON.stringify(DEFAULT.lang));
     	return en;
     }
 };
@@ -34,5 +33,5 @@ export function getLangConfig() {
 export function setLangConfig(lang) {
     const _lang = LANG[lang] || en;
     console.log(_lang);
-    localStorage.setItem(ITEM, JSON.stringify(_lang));
+    localStorage.setItem(LANG_NAME, JSON.stringify(_lang));
 };

@@ -18,7 +18,8 @@ import {
     hasClass,
     getData,
     addClass,
-    removeClass
+    removeClass,
+    refreshURL
 } from '../util';
 
 const LANG = getLangConfig();
@@ -111,7 +112,7 @@ export default class LiveInformation extends EventEmitter {
 	    		addClass(this.btnSubmitEl, this.options.disabledClass);
 
 	    		uploadVideo(this.file, 2, function(data) {
-	    			window.location.reload();
+	    			refreshURL();
 	    			console.log(data);
 	    		}, function(progress) {
 	    		    console.log(progress);
