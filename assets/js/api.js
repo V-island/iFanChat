@@ -513,7 +513,7 @@ export function closeChannel(channel, endTime) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
 		userId: _info.userId,
-		channel: _status,
+		channel: channel,
 		endTime: endTime
 	}
 	return new Promise((resolve) => {

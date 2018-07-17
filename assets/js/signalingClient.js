@@ -8,9 +8,9 @@ import {
 const LoginMode = '2';
 
 export default class SignalingClient {
-	constructor(appId, appcertificate) {
+	constructor(appId) {
 		this._appId = appId;
-		this._appcert = appcertificate;
+		// this._appcert = appcertificate;
 		this.signal = Signal(appId);
 		this.sessionEmitter = new EventEmitter();
 		this.channelEmitter = new EventEmitter();

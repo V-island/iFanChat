@@ -180,7 +180,7 @@ export default class Tabs extends EventEmitter {
             if (!_status) return;
 
             let info = getUserInfo();
-            this.signal = new SignalingClient(fcConfig.agoraAppId, fcConfig.agoraCertificateId);
+            this.signal = new SignalingClient(fcConfig.agoraAppId);
 
             this.signal.login(info.userId).then((uid) => {
                 let client = new Client(this.signal, info.userId);

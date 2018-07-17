@@ -1,4 +1,5 @@
 import Template from 'art-template/lib/template-web';
+import * as moment from 'moment';
 import EventEmitter from './eventEmitter';
 import AgoraRTC from './components/AgoraRTCSDK-2.3.0';
 import Modal from './modal';
@@ -80,6 +81,7 @@ export default class RtcClient extends EventEmitter {
         this.channelKey = null;
         this.channel = options.channel + '';
         this.uId = options.userId;
+        console.log(options.userId);
         this.type = options.type;
         this.info = options.info;
 
@@ -118,11 +120,11 @@ export default class RtcClient extends EventEmitter {
         addEvent(this.btnLiveCloseEl, 'click', () => {
             modal.confirm(LANG.LIVE_PREVIEW.Madal.QuitLive.Text, () => {
                 this.client.leave(() => {
-                    // console.log("Leavel channel successfully");
+                    console.log("Leavel channel successfully");
                     modal.closeModal(this.clientModalEl);
-
+                    this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'));
                 }, (err) => {
-                    // console.log("Leave channel failed");
+                    console.log("Leave channel failed");
                 });
             }, (_modal) => {
                 modal.closeModal(_modal);
@@ -141,7 +143,7 @@ export default class RtcClient extends EventEmitter {
                 title: false,
                 closeBtn: false
             });
-            this.trigger('rtcClient.onChatMsg');
+            this.trigger('rtcClient.onChatMsg', Msg);
         });
 
         // 分享
@@ -235,7 +237,7 @@ export default class RtcClient extends EventEmitter {
             this.client.leave(() => {
                 console.log("Leavel channel successfully");
                 modal.closeModal(this.clientModalEl);
-                this.trigger('rtcClient.leave');
+                this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'));
             }, (err) => {
                 console.log("Leave channel failed");
             });
@@ -323,7 +325,7 @@ export default class RtcClient extends EventEmitter {
          */
         this.client.join(this.channelKey, this.channel, this.uId, (uid) => {
             console.log(MSG.successJoin.replace('%s', uid));
-            this.trigger('rtcClient.join', this.options.userId, this.options.channel);
+            this.trigger('rtcClient.join', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'));
 
             // 创建本地流, 修改对应的参数可以指定启用/禁用特定功能
             /**
@@ -435,11 +437,11 @@ export default class RtcClient extends EventEmitter {
 
 /**
  * rtcClient.join
- * 当加入到频道的时候，会派发 rtcClient.join 事件，同时会传递用户IDuserId，频道ID channel ，用户加入频道时间 startTime。
+ * 当加入到频道的时候，会派发 rtcClient.join 事件，同时会传递频道ID channel ，用户加入频道时间 startTime。
  */
 /**
  * rtcClient.leave
- * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递用户IDuserId，频道ID channel ，用户加入频道时间 startTime。
+ * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel ，用户加入频道时间 startTime。
  */
 /**
  * rtcClient.onChatMsg

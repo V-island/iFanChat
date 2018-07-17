@@ -4,7 +4,6 @@ import Modal from './modal';
 import fcConfig from './intro';
 
 import {
-	getUserInfo,
     createChannel,
     loginChannel,
     closeChannel,
@@ -56,8 +55,6 @@ export default class Client {
         Signal.sessionEmitter.on('onMessageInstantReceive', (account, uid, msg) => {
         	let _info = JSON.parse(msg);
 
-        	console.log(_info);
-
         	if (_info.status == 'invite') {
         		this._onReceiveCall(account, _info);
         	}
@@ -102,8 +99,6 @@ export default class Client {
     	    let getChannelInfo = createChannel();
     	    getChannelInfo.then((data) => {
 
-    	    	console.log(data);
-    	    	console.log(data.channel, account);
     	    	// 邀请加入直播频道
     	    	this.signal.invite(data.channel, account, JSON.stringify({
 	    	    	channelKey: data.channelKey
@@ -170,7 +165,7 @@ export default class Client {
     	}
 
 	    let btnCancelEl = this.callerModalEl.getElementsByClassName('btn-cancel')[0];
-	    console.log(info);
+
 	    this.signal.sendMessageAll(info.userAccount, JSON.stringify({
 	    	userAccount: this.localInfo.userId,
 	    	userName: this.localInfo.userName,
@@ -205,9 +200,12 @@ export default class Client {
      * @return {[type]} [description]
      */
     _createChannel(account, _info) {
-    	console.log(account);
-    	console.log(_info);
     	this.retClient = new RtcClient(_info);
+
+    	// 退出直播间
+    	this.retClient.on('rtcClient.leave', (channel) => {
+        	this._anchorTemplate(channel);
+        });
     }
 
     /**
@@ -219,8 +217,72 @@ export default class Client {
     _onJoinChannel(account, _info) {
 		this.localRetClient = new RtcClient(_info);
 
-    	// let getLoginChannel = loginChannel();
-    	// getLoginChannel.then((data) => {
-    	// });
+    	// 加入直播间
+    	this.localRetClient.on('rtcClient.join', (channel, startTime) => {
+        	let getLoginChannel = loginChannel(channel, startTime);
+        	console.log(channel, startTime);
+        	getLoginChannel.then((data) => {
+        		if (!data) return;
+        	});
+        });
+
+        // 退出直播间
+    	this.localRetClient.on('rtcClient.leave', (channel, endTime) => {
+    		console.log(channel, endTime);
+        	let getCloseChannel = closeChannel(channel, endTime);
+        	getCloseChannel.then((data) => {
+        		if (!data) return;
+
+        		this._assessTemplate(channel);
+        	});
+        });
+    }
+
+    /**
+     * 评价
+     * @param  {[type]} channel [description]
+     * @return {[type]}         [description]
+     */
+    _assessTemplate(channel) {
+    	this.data.LiveInfo = this.info;
+    	console.log(this.info);
+
+    	let endLiveUserHTML = createDom(Template.render(this.tpl.end_live_user, this.data));
+    	let endLiveUserEl = modal.popup(endLiveUserHTML);
+
+	    let btnSubmitEl = endLiveUserEl.getElementsByClassName('btn-submit')[0];
+	    let btnMaybeEl = endLiveUserEl.getElementsByClassName('btn-maybe')[0];
+
+	    addEvent(btnMaybeEl, 'click', () => {
+	        modal.closeModal(endLiveUserEl);
+	    });
+
+	    addEvent(btnSubmitEl, 'click', () => {
+	        modal.closeModal(endLiveUserEl);
+	    });
+    }
+
+    /**
+     * 直播统计
+     * @param  {[type]} channel [description]
+     * @return {[type]}         [description]
+     */
+    _anchorTemplate(channel) {
+    	this.data.LiveInfo = this.info;
+    	console.log(this.info);
+
+    	let endLiveAnchorHTML = createDom(Template.render(this.tpl.end_live_anchor, this.data));
+    	let endLiveAnchorEl = modal.popup(endLiveAnchorHTML);
+
+	    let btnYesEl = endLiveAnchorEl.getElementsByClassName('btn-yes')[0];
+	    let btnLiveAgainEl = endLiveAnchorEl.getElementsByClassName('btn-live-again')[0];
+
+	    addEvent(btnYesEl, 'click', () => {
+	        modal.closeModal(endLiveAnchorEl);
+	    });
+
+	    addEvent(btnLiveAgainEl, 'click', () => {
+	        modal.closeModal(endLiveAnchorEl);
+	    });
     }
 }

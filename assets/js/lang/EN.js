@@ -372,6 +372,24 @@ const Lang = {
 			Buttons_Call_Again: 'CALL AGAIN',
 			Buttons_Maybe: 'Myabe Later'
 		},
+		End_Live_User: {
+			Title: 'Rating',
+			Text: 'Are you satisfied with me?',
+			Chat_Length: 'Chat length：',
+			Min: 'min',
+			Buttons_Submit: 'SUBMIT',
+			Buttons_Maybe: 'Myabe Later'
+		},
+		End_Live_Anchor: {
+			Title: 'Live Details',
+			Live_Time_Today: 'Live broadcast time today:',
+			Min: 'min',
+			Chat_Length: 'Chat length',
+			Increase_Score: 'Increase Score',
+			Text: 'The gift received on this broadcast',
+			Buttons_Yes: 'YES',
+			Buttons_Live_Again: 'Live Again'
+		},
 		Madal: {
 			Online: {
 				Title: 'If you like her, get in touch with her bravely',
