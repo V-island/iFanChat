@@ -8,7 +8,7 @@ const DEFAULT = {
 };
 const LANG = {
 	'en': en,
-	'zh_cn': zh_cn
+	'zh': zh_cn
 };
 
 /**
@@ -32,6 +32,5 @@ export function getLangConfig() {
  */
 export function setLangConfig(lang) {
     const _lang = LANG[lang] || en;
-    console.log(_lang);
     localStorage.setItem(LANG_NAME, JSON.stringify(_lang));
 };

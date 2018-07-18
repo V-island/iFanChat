@@ -14,11 +14,14 @@ import {
 import {
     extend,
     createDom,
+    getLocalStorage,
     isPoneAvailable,
     addCountdown
 } from '../util';
 
+const COUNTRY_ID_NAME = 'COUNTRY_ID';
 const LANG = getLangConfig();
+const COUNTRY = getLocalStorage(COUNTRY_ID_NAME);
 const modal = new Modal();
 
 export default class Register extends EventEmitter {
@@ -44,9 +47,14 @@ export default class Register extends EventEmitter {
 	}
 
 	_bindEvent() {
-		let Form = $('form.form-register', this.RegisterEl);
+		let FormRegister = $('form.form-register', this.RegisterEl);
 		let Group = $('.form-group', this.RegisterEl);
-
+		let InputCountryId = $('input[name="country_id"]', FormRegister);
+		console.log(InputCountryId);
+		console.log(InputCountryId.length > 0);
+		if (InputCountryId.length > 0) {
+			InputCountryId.val(COUNTRY.id);
+		}
 		// 选择国家
 		Group.on('click', '.form-control.country', function() {
 			let $self = $(this);
@@ -104,7 +112,7 @@ export default class Register extends EventEmitter {
 		});
 
 		// 表单提交
-		Form.submit(function(e) {
+		FormRegister.submit(function(e) {
 			let $self = $(this);
 			// let $input = $(this).find('input.form-control');
 			let _params = $self.serialize();

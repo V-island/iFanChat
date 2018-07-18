@@ -7,13 +7,14 @@ import {
 } from './lang';
 
 import {
-    findAllCountry
-} from './api';
-
-import {
     createDom,
-    refreshURL
+    refreshURL,
+    getLocalStorage,
+    setLocalStorage
 } from './util';
+
+const COUNTRY_ID_NAME = 'COUNTRY_ID';
+const COUNTRY_NAME = 'COUNTRY';
 
 const LANG = getLangConfig();
 const PUBLIC = LANG.PUBLIC;
@@ -330,7 +331,7 @@ export default class Modal extends EventEmitter {
             }
         }
         let titleHTML = params.title ? '<div class="modal-title">' + params.title + '</div>' : '';
-        let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="ion ion-md-close"></i></a>' : '';
+        let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="icon modals-close"></i></a>' : '';
         let headerHTML = titleHTML || closeHTML ? '<div class="modal-header">' + (titleHTML + closeHTML) + '</div>' : '';
         let modalHTML = '<div class="modal">' + headerHTML + '<ul class="list modal-list">' + buttonsHTML + '</ul></div>';
 
@@ -461,15 +462,13 @@ export default class Modal extends EventEmitter {
      * 操作表
      * @param  {[string]} modal         [description]
      * @param  {[type]} params          [description]
-     * @param  {[function]} callbackOk  通过事件
      * @return {[type]}        [description]
      */
-    actions(modal, params, callback) {
+    actions(modal, params) {
         const self = this;
-
         params = params || {};
-        let titleHTML = '<div class="modal-title">' + (params.title ? params.title : '') + '</div>';
-        let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="ion ion-md-close"></i></a>' : '';
+        let titleHTML = params.title ? '<div class="modal-title">' + params.title + '</div>' : false;
+        let closeHTML = params.closeBtn ? '<a href="javascript: void(0)" class="modal-close"><i class="icon modals-close"></i></a>' : false;
         let headerHTML = titleHTML || closeHTML ? '<div class="modal-header">' + (titleHTML + closeHTML) + '</div>' : '';
         let cancelHTML = params.cancelBtn ? '<a href="javascript: void(0)" class="actions-button-cancel" data-ripple>' + (params.cancelIcon ? '<i class="icon modals-close"></i>' : self.defaults.confirmButtonCancel) + '</a>' : '';
         let modalHTML = '<div class="actions-modal '+ (params.theme ? params.theme : '') +'">' + (headerHTML + modal + cancelHTML) + '</div>';
@@ -660,15 +659,15 @@ export default class Modal extends EventEmitter {
      * 国家语言选择
      * @return {[type]}            [description]
      */
-    countryModal(lang, params, callbackOk) {
+    countryModal(lang) {
         const self = this;
         let modalHTML = '',
             listHTML = '';
         let titleHTML = '<h1 class="title">'+ PUBLIC.Country +'</h1>';
         let closeHTML = '<div class="icon-btn close-popup" data-ripple><i class="icon icon-arrow-back"></i></div>';
+        let params = getLocalStorage(COUNTRY_NAME);
 
         params.forEach((_data, index) => {
-            console.log(_data);
             listHTML += '<li class="list-item '+ (lang == _data.language_code ? 'active' : '') +'" data-id="'+ _data.id +'" data-lang-id="'+ _data.language_id +'" data-lang="'+ _data.language_code +'" data-ripple><span class="list-item-text">'+ _data.country_name +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
         modalHTML = '<div class="popup remove-on-close"><header class="bar bar-flex no-bg">'+ (closeHTML + titleHTML) +'</header><div class="content block"><ul class="list list-user list-info popup-list no-bg">'+ listHTML +'</ul></div></div>';
@@ -678,12 +677,14 @@ export default class Modal extends EventEmitter {
                 let _id = _self.data('id');
                 let _langId = _self.data('langId');
                 let _lang = _self.data('lang');
-                let getAllCountry = findAllCountry(_langId);
 
-                getAllCountry.then((data) => {
-                    setLangConfig(_lang);
-                    refreshURL();
+                setLocalStorage(COUNTRY_ID_NAME, {
+                    id: _id,
+                    langId: _langId,
+                    gain: false
                 });
+                setLangConfig(_lang);
+                refreshURL();
             });
         });
     }

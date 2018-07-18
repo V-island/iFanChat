@@ -31,6 +31,7 @@ const LoginMode = 2; // 登入方式 1.APP 2.web 3.PC
 const TOKEN_NAME = 'TOKEN';
 const UER_NAME = 'USE_INFO';
 const UUID = 'UUID';
+const COUNTRY_ID_NAME = 'COUNTRY_ID';
 const COUNTRY_NAME = 'COUNTRY';
 
 const NEW_List_DATA = [{
@@ -282,8 +283,24 @@ export function checkLogin() {
 
 // 验证是否保存国家信息
 export function checkCountry() {
-	let country = getLocalStorage(COUNTRY_NAME);
-	return country !== null ? country : false;
+	let country = getLocalStorage(COUNTRY_ID_NAME);
+
+	return new Promise((resolve) => {
+
+		if (country === null) {
+			let _country = findAllCountry();
+			_country.then((data) => {
+	            resolve(true);
+	        });
+		}else if (!country.gain) {
+			let _country = findAllCountry(country.id, country.langId);
+			_country.then((data) => {
+	            resolve(true);
+	        });
+		}else {
+			resolve(false);
+		}
+	});
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -294,17 +311,20 @@ export function checkCountry() {
  * 获取所有国家和号码编号
  * @return {[type]} [description]
  */
-export function findAllCountry(id = 0) {
+export function findAllCountry(id = 2, langId = 2) {
 
 	return new Promise((resolve) => {
 
 		getPost('/findAllCountry', {
-			language_id: id
+			language_id: langId
 		}, function(response) {
+			setLocalStorage(COUNTRY_ID_NAME, {
+				id: id,
+				langId: langId,
+				gain: true
+			});
 			setLocalStorage(COUNTRY_NAME, response.data);
-			resolve(response.data);
-		},function(response) {
-			resolve(false);
+			resolve(true);
 		});
 	});
 };
@@ -461,6 +481,21 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 //------------------------------------------------------------------------------------------------------
 //-----直播模块
 //------------------------------------------------------------------------------------------------------
+/**
+ * 礼物数据字典
+ * @return {[type]} [description]
+ */
+export function findAllgifts() {
+
+	return new Promise((resolve) => {
+
+		getPost('/findAllgifts', {}, function(response) {
+			resolve(response.data);
+		},function(response) {
+			resolve(false);
+		});
+	});
+};
 
 /**
  * 主播创建直播间并加入

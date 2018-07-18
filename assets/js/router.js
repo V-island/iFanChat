@@ -7,7 +7,8 @@ import {
 } from './lang';
 
 import {
-    checkLogin
+    checkLogin,
+    checkCountry
 } from './api';
 
 import {
@@ -413,43 +414,47 @@ import {
             //     obj[fn]();
             // });
 
-            let classDoc = this.cache[url].component.attachTo(this.cache[url].content);
-            classDoc.on('pageLoadStart', (newDoc)  => {
-                let $currentDoc = this.$view.find('.' + routerConfig.sectionGroupClass);
-                let $newDoc = $(newDoc);
-                let $allSection = $newDoc.find('.' + routerConfig.pageClass);
-                let $visibleSection = $newDoc.find('.' + routerConfig.curPageClass);
+            // 判读国家列表
+            let _country = checkCountry();
+            _country.then(() => {
+                let classDoc = this.cache[url].component.attachTo(this.cache[url].content);
+                classDoc.on('pageLoadStart', (newDoc)  => {
+                    let $currentDoc = this.$view.find('.' + routerConfig.sectionGroupClass);
+                    let $newDoc = $(newDoc);
+                    let $allSection = $newDoc.find('.' + routerConfig.pageClass);
+                    let $visibleSection = $newDoc.find('.' + routerConfig.curPageClass);
 
-                if (!$visibleSection.length) {
-                    $visibleSection = $allSection.eq(0);
-                }
+                    if (!$visibleSection.length) {
+                        $visibleSection = $allSection.eq(0);
+                    }
 
-                if (!$visibleSection.attr('id')) {
-                    $visibleSection.attr('id', this._generateRandomId());
-                }
+                    if (!$visibleSection.attr('id')) {
+                        $visibleSection.attr('id', this._generateRandomId());
+                    }
 
-                let $currentSection = this._getCurrentSection();
+                    let $currentSection = this._getCurrentSection();
 
-                if (!$currentSection.length) {
-                    $currentSection.trigger(EVENTS.beforePageSwitch, [$currentSection.attr('id'), $currentSection]);
-                }
+                    if (!$currentSection.length) {
+                        $currentSection.trigger(EVENTS.beforePageSwitch, [$currentSection.attr('id'), $currentSection]);
+                    }
 
-                if (!$allSection.length) {
-                    $allSection.removeClass(routerConfig.curPageClass);
-                }
+                    if (!$allSection.length) {
+                        $allSection.removeClass(routerConfig.curPageClass);
+                    }
 
-                // 判断Nav Tabs
-                if (this.cache[url].navTabs === 1) {
-                    let tabs = new Tabs($visibleSection[0]);
-                    // console.log(tabs);
-                }
+                    // 判断Nav Tabs
+                    if (this.cache[url].navTabs === 1) {
+                        let tabs = new Tabs($visibleSection[0]);
+                        // console.log(tabs);
+                    }
 
-                $visibleSection.addClass(routerConfig.curPageClass);
-                // prepend 而不 append 的目的是避免 append 进去新的 document 在后面，
-                // 其里面的默认展示的(.page-current) 的页面直接就覆盖了原显示的页面（因为都是 absolute）
-                this.$view.prepend($newDoc);
-                $('[data-ripple]').ripple();
-                if ($currentSection.length) this._animateDocument($currentDoc, $newDoc, $visibleSection, direction);
+                    $visibleSection.addClass(routerConfig.curPageClass);
+                    // prepend 而不 append 的目的是避免 append 进去新的 document 在后面，
+                    // 其里面的默认展示的(.page-current) 的页面直接就覆盖了原显示的页面（因为都是 absolute）
+                    this.$view.prepend($newDoc);
+                    $('[data-ripple]').ripple();
+                    if ($currentSection.length) this._animateDocument($currentDoc, $newDoc, $visibleSection, direction);
+                });
             });
         }
 

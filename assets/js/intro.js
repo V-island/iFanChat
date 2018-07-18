@@ -5,7 +5,6 @@ import FindPassword from './pages/find_password';
 import SetPassword from './pages/set_password';
 
 import Home from './pages/home';
-import Live from './pages/live';
 import Favorite from './pages/favorite';
 import Message from './pages/message';
 import User from './pages/user';
@@ -76,10 +75,6 @@ const fcConfig = {
         path: '../pages/home.html',
         component: Home,
         navTabs: 1
-    }, {
-        name: 'live',
-        path: '../pages/live.html',
-        component: Live
     }, {
         name: 'favorite',
         path: '../pages/favorite.html',

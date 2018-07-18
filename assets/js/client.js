@@ -1,9 +1,12 @@
 import Template from 'art-template/lib/template-web';
+import EventEmitter from './eventEmitter';
 import RtcClient from './rtcClient'
 import Modal from './modal';
 import fcConfig from './intro';
 
 import {
+    liveStatus,
+    getUserInfo,
     createChannel,
     loginChannel,
     closeChannel,
@@ -18,14 +21,19 @@ import {
     extend,
     addEvent,
     createDom,
+    getData,
+    hasClass,
+    addClass,
+    removeClass,
     importTemplate
 } from './util';
 
 const LANG = getLangConfig();
 const modal = new Modal();
 
-export default class Client {
+export default class Client extends EventEmitter {
     constructor(sclient, localInfo) {
+        super();
 
         this.data = {};
         this.signal = sclient;
@@ -61,16 +69,20 @@ export default class Client {
             if (_info.status == 'refuse') {
         		this._onRefuseCall(account);
         	}
+            if (_info.status == 'cahts') {
+                this._onCahtsCall(_info.message);
+            }
+            if (_info.status == 'gifts') {
+                this._onGiftsCall(_info.gift_id);
+            }
         });
 
         // 收到呼叫邀请回调
         Signal.sessionEmitter.on('onInviteReceived', (call) => {
-        	console.log(call);
         	let account = call.peer;
         	let channelID = call.channelName;
         	let _info = JSON.parse(call.extra);
 
-        	console.log(_info);
         	this._onJoinChannel(account, {
 	    		channelKey: _info.channelKey,
 	    		channel: channelID,
@@ -104,7 +116,6 @@ export default class Client {
 	    	    	channelKey: data.channelKey
 	    	    }));
 
-    	    	console.log(account);
     	    	this._createChannel(account, {
     	    		channelKey: data.channelKey,
 		    		channel: data.channel,
@@ -200,11 +211,20 @@ export default class Client {
      * @return {[type]} [description]
      */
     _createChannel(account, _info) {
-    	this.retClient = new RtcClient(_info);
+    	this.retClient = new RtcClient(this.signal, account, _info);
 
     	// 退出直播间
     	this.retClient.on('rtcClient.leave', (channel) => {
         	this._anchorTemplate(channel);
+        });
+
+        // 发送评论消息
+        this.retClient.on('rtcClient.onChatMsg', (Msg) => {
+
+            this.signal.sendMessage(account, JSON.stringify({
+                status: 'cahts',
+                message: Msg
+            }));
         });
     }
 
@@ -215,7 +235,7 @@ export default class Client {
      * @return {[type]}         [description]
      */
     _onJoinChannel(account, _info) {
-		this.localRetClient = new RtcClient(_info);
+		this.localRetClient = new RtcClient(this.signal, account, _info);
 
     	// 加入直播间
     	this.localRetClient.on('rtcClient.join', (channel, startTime) => {
@@ -227,15 +247,57 @@ export default class Client {
         });
 
         // 退出直播间
-    	this.localRetClient.on('rtcClient.leave', (channel, endTime) => {
+    	this.localRetClient.on('rtcClient.leave', (channel, endTime, info) => {
     		console.log(channel, endTime);
-        	let getCloseChannel = closeChannel(channel, endTime);
-        	getCloseChannel.then((data) => {
-        		if (!data) return;
+            this._assessTemplate(channel, info);
 
-        		this._assessTemplate(channel);
-        	});
+        	// let getCloseChannel = closeChannel(channel, endTime);
+        	// getCloseChannel.then((data) => {
+        	// 	if (!data) return;
+
+        	// 	this._assessTemplate(channel, info);
+        	// });
         });
+
+        // 发送评论消息
+        this.localRetClient.on('rtcClient.onChatMsg', (Msg) => {
+
+            this.signal.sendMessage(account, JSON.stringify({
+                status: 'cahts',
+                message: Msg
+            }));
+        });
+
+        // 发送礼物消息
+        this.localRetClient.on('rtcClient.onGift', (giftId) => {
+
+            this.signal.sendMessage(account, JSON.stringify({
+                status: 'gifts',
+                gift_id: giftId
+            }));
+        });
+    }
+
+    /**
+     * 接收评论消息
+     * @param  {[type]} message 评论消息
+     * @return {[type]}         [description]
+     */
+    _onCahtsCall(message, _type) {
+        console.log(message);
+        console.log(this.options.type);
+        let commentEl = createDom('<label class="'+ (this.options.type ? '' : 'anchor') +'"><span>'+ (_type ? this.localInfo.userName : this.info.userName) +'</span>:'+ message +'</label>');
+        console.log(commentEl);
+        this.livesCommentsEl.append(commentEl);
+    }
+
+    /**
+     * 接收礼物消息
+     * @param  {[type]} giftId  礼物ID
+     * @return {[type]}         [description]
+     */
+    _onGiftsCall(giftId) {
+        console.log(giftId);
     }
 
     /**
@@ -243,21 +305,53 @@ export default class Client {
      * @param  {[type]} channel [description]
      * @return {[type]}         [description]
      */
-    _assessTemplate(channel) {
-    	this.data.LiveInfo = this.info;
-    	console.log(this.info);
+    _assessTemplate(channel, info) {
+    	this.data.LiveInfo = info;
 
-    	let endLiveUserHTML = createDom(Template.render(this.tpl.end_live_user, this.data));
-    	let endLiveUserEl = modal.popup(endLiveUserHTML);
-
+    	let endLiveUserEl = modal.popup(Template.render(this.tpl.end_live_user, this.data));
 	    let btnSubmitEl = endLiveUserEl.getElementsByClassName('btn-submit')[0];
 	    let btnMaybeEl = endLiveUserEl.getElementsByClassName('btn-maybe')[0];
+        let starsBoxEl = endLiveUserEl.getElementsByClassName('stars')[0];
+        let starsItemEl = endLiveUserEl.getElementsByClassName('icon-star');
+        let starsLabelEl = endLiveUserEl.getElementsByClassName('stars-label')[0];
 
-	    addEvent(btnMaybeEl, 'click', () => {
-	        modal.closeModal(endLiveUserEl);
+        // 评分
+        for (let i = 0; i < starsItemEl.length; i++) {
+            addEvent(starsItemEl[i], 'click', () => {
+                if (hasClass(starsItemEl[i], 'active')) {
+                    return;
+                }
+                let starsActiveEl = starsBoxEl.getElementsByClassName('active');
+                let index = getData(starsItemEl[i], 'index');
+                let j = 0;
+
+                for (let a = 0; a < starsActiveEl.length; a++) {
+                    removeClass(starsActiveEl[a], 'active');
+                }
+
+                do {
+                    addClass(starsItemEl[j], 'active');
+                    j++;
+                }
+                while (j < i);
+
+                setData(starsLabelEl, 'index', index);
+                starsLabelEl.innerHTML = index + '.0';
+            });
+        }
+
+        // 提交评分
+	    addEvent(btnSubmitEl, 'click', () => {
+            let stars = getData(starsLabelEl, 'index');
+            let getUserEvaluate = userEvaluate(channel, info.userAccount, stars);
+
+            getUserEvaluate.then(() => {
+                modal.closeModal(endLiveUserEl);
+            });
 	    });
 
-	    addEvent(btnSubmitEl, 'click', () => {
+        // 不评价
+	    addEvent(btnMaybeEl, 'click', () => {
 	        modal.closeModal(endLiveUserEl);
 	    });
     }
@@ -268,12 +362,11 @@ export default class Client {
      * @return {[type]}         [description]
      */
     _anchorTemplate(channel) {
-    	this.data.LiveInfo = this.info;
-    	console.log(this.info);
+    	this.data.LiveInfo = getUserInfo();
+        console.log(this.data);
 
-    	let endLiveAnchorHTML = createDom(Template.render(this.tpl.end_live_anchor, this.data));
-    	let endLiveAnchorEl = modal.popup(endLiveAnchorHTML);
-
+    	let endLiveAnchorEl = modal.popup(Template.render(this.tpl.end_live_anchor, this.data));
+        console.log(endLiveAnchorEl);
 	    let btnYesEl = endLiveAnchorEl.getElementsByClassName('btn-yes')[0];
 	    let btnLiveAgainEl = endLiveAnchorEl.getElementsByClassName('btn-live-again')[0];
 
@@ -283,6 +376,12 @@ export default class Client {
 
 	    addEvent(btnLiveAgainEl, 'click', () => {
 	        modal.closeModal(endLiveAnchorEl);
+            this.trigger('client.close');
 	    });
     }
 }
+
+/**
+ * client.close
+ * 当加入到频道的时候，会派发 client.close 事件。
+ */

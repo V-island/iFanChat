@@ -361,6 +361,26 @@ const Lang = {
 		Btn_Auth: 'Re-authenticate'
 	},
 	LIVE_PREVIEW: {
+		Actions: {
+			Account: 'account:',
+			Coins: 'coins',
+			ShareTo: 'Share to',
+			Gift: 'Gift',
+			Recharge: 'Recharge',
+			Send: 'Send'
+		},
+		Share: {
+			Facebook: 'Facebook',
+			Twitter: 'Twitter',
+			Tumblr: 'Tumblr'
+		},
+		Recharge: {
+			Select_Amount: 'Select Amount',
+			Payment_Method: 'Payment Method',
+			PayPal: 'PayPal',
+			Credit_Card: 'Credit Card',
+			Buttons: 'CONFIRM'
+		},
 		Called_Caller: {
 			Title: 'calling...',
 			Buttons_Cancel: 'CANCEL',
@@ -403,6 +423,10 @@ const Lang = {
 			},
 			QuitLive: {
 				Text: 'Are you sure you want to quit?'
+			},
+			InsufficientAmount: {
+				Title: 'Insufficient Amount',
+				Text: 'Your gold coins will be used <span> after 5 minutes</span> please recharge in'
 			}
 		}
 	},

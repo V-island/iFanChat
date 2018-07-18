@@ -17,6 +17,7 @@ import {
 import {
     extend,
     addEvent,
+    dispatchEvent,
     importTemplate,
     createDom,
     hasClass,
@@ -198,6 +199,10 @@ export default class Tabs extends EventEmitter {
                             this.tabsEl.removeChild(this.liveBoxEl);
                         });
                     });
+                });
+
+                client.on('client.close', () => {
+                    dispatchEvent(this.liveBoxEl, 'click');
                 });
             });
         });

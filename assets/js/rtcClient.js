@@ -6,10 +6,8 @@ import Modal from './modal';
 import fcConfig from './intro';
 
 import {
-    createChannel,
-    loginChannel,
-    closeChannel,
-    userEvaluate
+    getUserInfo,
+    findAllgifts
 } from './api';
 
 import {
@@ -18,13 +16,34 @@ import {
 
 import {
     extend,
+    createDom,
     addEvent,
     isNumber,
+    getData,
+    hasClass,
+    addClass,
+    removeClass,
     importTemplate
 } from './util';
 
 const LANG = getLangConfig();
 const modal = new Modal();
+const IconGiftList = [
+    'gift-lollipop',
+    'gift-flowers',
+    'gift-kiss',
+    'gift-baby-bear',
+    'gift-love',
+    'gift-chocolate',
+    'gift-bunch-love',
+    'gift-perfume',
+    'gift-cake',
+    'gift-ring',
+    'gift-crown',
+    'gift-sports-car',
+    'gift-aircraft',
+    'gift-castle'
+];
 
 const LoginMode = 'web';
 const MSG = {
@@ -81,9 +100,9 @@ export default class RtcClient extends EventEmitter {
         this.channelKey = null;
         this.channel = options.channel + '';
         this.uId = options.userId;
-        console.log(options.userId);
         this.type = options.type;
         this.info = options.info;
+        this.localInfo = getUserInfo();
 
         extend(this.data, LANG);
         extend(this.options, options);
@@ -105,13 +124,20 @@ export default class RtcClient extends EventEmitter {
     _init() {
         this.tpl = {};
 
-        importTemplate(this.rtcClientFile, (id, _template) => {
-            this.tpl[id] = _template;
-        });
+        let getAllgifts = findAllgifts();
+        getAllgifts.then((data) => {
+            this.data.GiftList = data;
+            this.data.IconGiftList = IconGiftList;
+            this.data.UserInfoList = this.localInfo;
 
-        this._createClient();
-        this._bindEvent();
-        this._subscribeEvents();
+            importTemplate(this.rtcClientFile, (id, _template) => {
+                this.tpl[id] = Template.render(_template, this.data);
+            });
+
+            this._createClient();
+            this._bindEvent();
+            this._subscribeEvents();
+        });
     }
 
     _bindEvent() {
@@ -122,7 +148,8 @@ export default class RtcClient extends EventEmitter {
                 this.client.leave(() => {
                     console.log("Leavel channel successfully");
                     modal.closeModal(this.clientModalEl);
-                    this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'));
+                    this.localStream.close();
+                    this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'), this.info);
                 }, (err) => {
                     console.log("Leave channel failed");
                 });
@@ -139,27 +166,82 @@ export default class RtcClient extends EventEmitter {
 
         // 聊天
         addEvent(this.btnNewsEl, 'click', () => {
-            modal.actions(this.tpl.live_news, {
+            let newsModalEl = modal.actions(this.tpl.live_news, {
                 title: false,
                 closeBtn: false
             });
-            this.trigger('rtcClient.onChatMsg', Msg);
+            let textareaEl = newsModalEl.getElementsByClassName('news-input')[0];
+            let btnNewsPhizEl = newsModalEl.getElementsByClassName('news-phiz')[0];
+            let btnSendEl = newsModalEl.getElementsByClassName('btn-send')[0];
+
+            addEvent(btnSendEl, 'click', () => {
+                let _val = textareaEl.value;
+
+                if (_val === null) {
+                    return;
+                }
+
+                this.trigger('rtcClient.onChatMsg', _val);
+            });
         });
 
         // 分享
         addEvent(this.btnShareEl, 'click', () => {
-            modal.actions(this.tpl.live_share, {
-                title: 'Share to',
+            let shareModalEl = modal.actions(this.tpl.live_share, {
+                title: LANG.LIVE_PREVIEW.Actions.ShareTo,
                 closeBtn: true
             });
+            let shareLabelEl = shareModalEl.getElementsByClassName('share-label');
+
+            for (let i = 0; i < shareLabelEl.length; i++) {
+                console.log(shareLabelEl[i]);
+            }
         });
 
         // 礼物
         if (typeof this.btnGiftEl !== 'undefined') {
             addEvent(this.btnGiftEl, 'click', () => {
-                modal.actions(this.tpl.live_gift, {
-                    title: 'Gift',
+                let giftModalEl = modal.actions(this.tpl.live_gift, {
+                    title: LANG.LIVE_PREVIEW.Actions.Gift,
                     closeBtn: true
+                });
+                let tagEl = giftModalEl.getElementsByClassName('tag');
+                let giftLabelEl = giftModalEl.getElementsByClassName('gift-label');
+                let btnRechargeEl = giftModalEl.getElementsByClassName('btn-recharge')[0];
+                let btnSendEl = giftModalEl.getElementsByClassName('btn-send')[0];
+
+                for (let i = 0; i < giftLabelEl.length; i++) {
+                    addEvent(giftLabelEl[i], 'click', () => {
+                        if (hasClass(giftLabelEl[i], 'active')) {
+                            return;
+                        }
+
+                        let tagActiveEl = tagEl.getElementsByClassName('active')[0];
+                        console.log(tagActiveEl);
+                        if (tagActiveEl) {
+                            removeClass(tagActiveEl, 'active');
+                        }
+                        addClass(giftLabelEl[i], 'active');
+                    });
+                }
+
+                addEvent(btnSendEl, 'click', () => {
+                    let tagActiveEl = tagEl.getElementsByClassName('active')[0];
+
+                    if (!tagActiveEl) {
+                        return;
+                    }
+                    let giftId = getData(tagActiveEl, 'id');
+                    this._onGiftsCall(giftId);
+                    this.trigger('rtcClient.onGift', giftId);
+                });
+
+                // 充值
+                addEvent(btnRechargeEl, 'click', () => {
+                    let rechargeModalEl = modal.actions(this.tpl.live_recharge, {
+                        title: LANG.LIVE_PREVIEW.Actions.Recharge,
+                        closeBtn: true
+                    });
                 });
             });
         }
@@ -237,7 +319,8 @@ export default class RtcClient extends EventEmitter {
             this.client.leave(() => {
                 console.log("Leavel channel successfully");
                 modal.closeModal(this.clientModalEl);
-                this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'));
+                this.localStream.close();
+                this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'), this.info);
             }, (err) => {
                 console.log("Leave channel failed");
             });
@@ -338,7 +421,7 @@ export default class RtcClient extends EventEmitter {
              * @param: options. extensionId the extension id of your chrome extension if share screen is enabled
              * return: created local stream
              */
-            let localStream = AgoraRTC.createStream({
+            this.localStream = AgoraRTC.createStream({
                 streamID: uid,
                 audio: true,
                 video: true,
@@ -350,13 +433,13 @@ export default class RtcClient extends EventEmitter {
              * stream.setVideoProfile
              * @param: profile profile string
              */
-            localStream.setVideoProfile('480P_2');
+            this.localStream.setVideoProfile('480P_2');
 
             // 回调通知应用程序用户已授权访问本地摄像头／麦克风使用权限
             /**
              * @event: accessAllowed User has authorized access to local camera/microphone
              */
-            localStream.on("accessAllowed", () => {
+            this.localStream.on("accessAllowed", () => {
                 console.log(MSG.accessAllowed);
             });
 
@@ -364,7 +447,7 @@ export default class RtcClient extends EventEmitter {
             /**
              * @event: accessDenied User denied access to local camera/microphone
              */
-            localStream.on("accessDenied", () => {
+            this.localStream.on("accessDenied", () => {
                 console.log(MSG.accessDenied);
             });
 
@@ -373,7 +456,7 @@ export default class RtcClient extends EventEmitter {
              * stream.init
              * @param: callback success callback
              */
-            localStream.init(() => {
+            this.localStream.init(() => {
                 console.log(MSG.successGetUserMedia);
 
                 // 将本地流在id为agora-remote的dom中播放
@@ -382,7 +465,7 @@ export default class RtcClient extends EventEmitter {
                  * @param: tag the dom tag where you want to play the video
                  * @return: null
                  */
-                localStream.play(this.options.userLiveWindowId);
+                this.localStream.play(this.options.userLiveWindowId);
 
                 // 将本地音视频流发布至 SD-RTN
                 // 发布本地流以使其可以被远端接收到
@@ -392,7 +475,7 @@ export default class RtcClient extends EventEmitter {
                  * @param: callback failing callback
                  * @return: null
                  */
-                this.client.publish(localStream, (err) => {
+                this.client.publish(this.localStream, (err) => {
                     console.log(MSG.errorPublishStream + err);
                 });
 
@@ -441,9 +524,13 @@ export default class RtcClient extends EventEmitter {
  */
 /**
  * rtcClient.leave
- * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel ，用户加入频道时间 startTime。
+ * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel ，用户加入频道时间 startTime ，用户/主播信息 info
  */
 /**
  * rtcClient.onChatMsg
  * 当发送聊天消息的时候，会派发 rtcClient.onChatMsg 事件，同时会传递消息 Msg。
+ */
+/**
+ * rtcClient.onGift
+ * 当发送礼物消息的时候，会派发 rtcClient.onGift 事件，同时会传递消息 giftId。
  */
