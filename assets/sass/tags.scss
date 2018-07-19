@@ -1,6 +1,14 @@
 // tag
 // ----------------------------------
 //
+.gift-wrapper{
+	overflow: hidden;
+    height: 8.8rem;
+	.gift-content{
+		justify-content: start;
+	}
+}
+
 .tag {
 	@include flex-center;
 	@include flex-werp(wrap);

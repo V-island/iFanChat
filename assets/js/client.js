@@ -22,6 +22,7 @@ import {
     addEvent,
     createDom,
     getData,
+    setData,
     hasClass,
     addClass,
     removeClass,
@@ -70,7 +71,7 @@ export default class Client extends EventEmitter {
         		this._onRefuseCall(account);
         	}
             if (_info.status == 'cahts') {
-                this._onCahtsCall(_info.message);
+                this._onCahtsCall(_info.message, false);
             }
             if (_info.status == 'gifts') {
                 this._onGiftsCall(_info.gift_id);
@@ -211,7 +212,13 @@ export default class Client extends EventEmitter {
      * @return {[type]} [description]
      */
     _createChannel(account, _info) {
-    	this.retClient = new RtcClient(this.signal, account, _info);
+    	this.retClient = new RtcClient(_info);
+        this.clientModalEl = this.retClient.clientModalEl;
+        this.livesCommentsEl = this.retClient.livesCommentsContentEl;
+        this.localType = this.retClient.type;
+        this.infoAnchorName = this.retClient.localInfo.userName;
+        this.infoUserName = this.retClient.info.userName;
+        this.livesCommentsScroll = this.retClient.livesCommentsScroll;
 
     	// 退出直播间
     	this.retClient.on('rtcClient.leave', (channel) => {
@@ -220,7 +227,8 @@ export default class Client extends EventEmitter {
 
         // 发送评论消息
         this.retClient.on('rtcClient.onChatMsg', (Msg) => {
-
+            console.log('发送评论消息', Msg);
+            this._onCahtsCall(Msg, true);
             this.signal.sendMessage(account, JSON.stringify({
                 status: 'cahts',
                 message: Msg
@@ -235,7 +243,13 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _onJoinChannel(account, _info) {
-		this.localRetClient = new RtcClient(this.signal, account, _info);
+		this.localRetClient = new RtcClient(_info);
+        this.clientModalEl = this.localRetClient.clientModalEl;
+        this.livesCommentsEl = this.localRetClient.livesCommentsContentEl;
+        this.localType = this.localRetClient.type;
+        this.infoAnchorName = this.localRetClient.info.userName;
+        this.infoUserName = this.localRetClient.localInfo.userName;
+        this.livesCommentsScroll = this.localRetClient.livesCommentsScroll;
 
     	// 加入直播间
     	this.localRetClient.on('rtcClient.join', (channel, startTime) => {
@@ -261,7 +275,7 @@ export default class Client extends EventEmitter {
 
         // 发送评论消息
         this.localRetClient.on('rtcClient.onChatMsg', (Msg) => {
-
+            this._onCahtsCall(Msg, true);
             this.signal.sendMessage(account, JSON.stringify({
                 status: 'cahts',
                 message: Msg
@@ -270,7 +284,7 @@ export default class Client extends EventEmitter {
 
         // 发送礼物消息
         this.localRetClient.on('rtcClient.onGift', (giftId) => {
-
+            this._onGiftsCall(giftId);
             this.signal.sendMessage(account, JSON.stringify({
                 status: 'gifts',
                 gift_id: giftId
@@ -283,12 +297,23 @@ export default class Client extends EventEmitter {
      * @param  {[type]} message 评论消息
      * @return {[type]}         [description]
      */
-    _onCahtsCall(message, _type) {
+    _onCahtsCall(message, type) {
         console.log(message);
-        console.log(this.options.type);
-        let commentEl = createDom('<label class="'+ (this.options.type ? '' : 'anchor') +'"><span>'+ (_type ? this.localInfo.userName : this.info.userName) +'</span>:'+ message +'</label>');
-        console.log(commentEl);
+        let _type = false;
+
+        if (this.localType) {
+            // 用户
+            _type = type ? true : false;
+        }else {
+            // 主播
+            _type = type ? false : true;
+        }
+        console.log(_type);
+        let commentEl = createDom('<label class="'+ (_type ? '' : 'anchor') +'"><span>'+ (_type ? this.infoUserName : this.infoAnchorName) +'</span>:'+ message +'</label>');
+
         this.livesCommentsEl.append(commentEl);
+        this.livesCommentsScroll.refresh();
+        this.livesCommentsScroll.scrollToElement(commentEl);
     }
 
     /**

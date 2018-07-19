@@ -361,6 +361,9 @@
 	.news-input {
 	    flex-grow: 1;
 	    border-color: $color-text;
+	    font-size: 0.6rem;
+	    color: $color-text-gray;
+	    caret-color: $color-primary;
 	}
 
 	.news-phiz{
@@ -575,7 +578,7 @@
 	overflow: hidden;
 	@include  flex-vertical(column);
 
-	>label{
+	label{
 		background: $live-mask-bg-color;
 		padding: 0.35rem 0.5rem;
 		color: $color-text;
@@ -583,6 +586,7 @@
 		line-height: 1.5;
 		margin: 0.35rem 0;
 		border-radius: 0.75rem;
+		display: block;
 
 		span{
 			color: $color-primary;

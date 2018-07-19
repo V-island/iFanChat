@@ -1,7 +1,8 @@
 import Template from 'art-template/lib/template-web';
 import * as moment from 'moment';
+import BScroll from 'better-scroll';
 import EventEmitter from './eventEmitter';
-import AgoraRTC from './components/AgoraRTCSDK-2.3.0';
+import AgoraRTC from './components/AgoraRTCSDK-2.3.1';
 import Modal from './modal';
 import fcConfig from './intro';
 
@@ -86,7 +87,8 @@ export default class RtcClient extends EventEmitter {
             type: true,
             liveWindowId: 'video',
             userLiveWindowId: 'video-us',
-            livesCommentsClass: 'lives-comments',
+            livesCommentsClass: '.lives-comments',
+            livesCommentsContentClass: 'lives-comments-content',
             iconAttentionClass: 'live-attention',
             iconAddAttentionClass: 'live-add-attention',
             btnLiveCloseClass: 'btn-close',
@@ -106,18 +108,20 @@ export default class RtcClient extends EventEmitter {
 
         extend(this.data, LANG);
         extend(this.options, options);
-
+        console.log(this.options);
         this.rtcClientFile = fcConfig.publicFile.client_rtc;
 
         this.clientModalEl = modal.popup(this._clientRtcTemplate(this.info));
 
-        this.livesCommentsEl = this.clientModalEl.getElementsByClassName(this.options.livesCommentsClass)[0];
+        this.livesCommentsContentEl = this.clientModalEl.getElementsByClassName(this.options.livesCommentsContentClass)[0];
         this.btnLiveCloseEl = this.clientModalEl.getElementsByClassName(this.options.btnLiveCloseClass)[0];
         this.btnAddAttentionEl = this.clientModalEl.getElementsByClassName(this.options.btnAddAttentionClass)[0];
         this.btnNewsEl = this.clientModalEl.getElementsByClassName(this.options.btnNewsClass)[0];
         this.btnShareEl = this.clientModalEl.getElementsByClassName(this.options.btnShareClass)[0];
         this.btnGiftEl = this.clientModalEl.getElementsByClassName(this.options.btnGiftClass)[0];
 
+        this.livesCommentsEl = this.clientModalEl.querySelector(this.options.livesCommentsClass);
+        this.livesCommentsScroll = new BScroll(this.livesCommentsEl);
         this._init();
     }
 
@@ -180,8 +184,9 @@ export default class RtcClient extends EventEmitter {
                 if (_val === null) {
                     return;
                 }
-
+                console.log(_val);
                 this.trigger('rtcClient.onChatMsg', _val);
+                modal.closeModal(newsModalEl);
             });
         });
 
@@ -205,10 +210,18 @@ export default class RtcClient extends EventEmitter {
                     title: LANG.LIVE_PREVIEW.Actions.Gift,
                     closeBtn: true
                 });
-                let tagEl = giftModalEl.getElementsByClassName('tag');
+                let giftWrapperEl = giftModalEl.querySelector('.gift-wrapper');
                 let giftLabelEl = giftModalEl.getElementsByClassName('gift-label');
                 let btnRechargeEl = giftModalEl.getElementsByClassName('btn-recharge')[0];
                 let btnSendEl = giftModalEl.getElementsByClassName('btn-send')[0];
+                let giftWrapperScroll = new BScroll(giftWrapperEl, {
+                    startY: 0,
+                    scrollX: true,
+                    scrollY: false,
+                    momentum: false,
+                    tap: true,
+                    bounce: false
+                });
 
                 for (let i = 0; i < giftLabelEl.length; i++) {
                     addEvent(giftLabelEl[i], 'click', () => {
@@ -216,7 +229,7 @@ export default class RtcClient extends EventEmitter {
                             return;
                         }
 
-                        let tagActiveEl = tagEl.getElementsByClassName('active')[0];
+                        let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
                         console.log(tagActiveEl);
                         if (tagActiveEl) {
                             removeClass(tagActiveEl, 'active');
@@ -226,7 +239,7 @@ export default class RtcClient extends EventEmitter {
                 }
 
                 addEvent(btnSendEl, 'click', () => {
-                    let tagActiveEl = tagEl.getElementsByClassName('active')[0];
+                    let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
 
                     if (!tagActiveEl) {
                         return;
@@ -234,6 +247,7 @@ export default class RtcClient extends EventEmitter {
                     let giftId = getData(tagActiveEl, 'id');
                     this._onGiftsCall(giftId);
                     this.trigger('rtcClient.onGift', giftId);
+                    modal.closeModal(giftModalEl);
                 });
 
                 // 充值
@@ -509,7 +523,7 @@ export default class RtcClient extends EventEmitter {
         html += info.userHead ? '<img src="'+ info.userHead +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ info.userName +'</p><p class="user-txt">'+ info.userHeat + ' ' + LANG.PUBLIC.Heat +'</p></div></div>';
         html += '<i class="icon live-attention '+ this.options.btnAddAttentionClass +'"></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div>';
-        html += '<div class="lives-footer"><div class="lives-comments"></div>';
+        html += '<div class="lives-footer"><div class="lives-comments"><div class="'+ this.options.livesCommentsContentClass +'"></div></div>';
         html += '<div class="lives-buttons rtc-buttons"><div class="icon live-news '+ this.options.btnNewsClass +'"></div><div class="icon live-share '+ this.options.btnShareClass +'"></div>';
         html += this.options.type ? '<div class="icon live-gift '+ this.options.btnGiftClass +'"></div>' : '';
         html += '</div><div class="lives-video lives-video-us"><div id="'+ this.options.userLiveWindowId +'" class="video" ></div></div></div></div></div></div>';

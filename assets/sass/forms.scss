@@ -44,6 +44,11 @@ textarea {
     resize: none;
 }
 
+input, textarea, [contenteditable] {
+  color: $color-text-gray;
+  caret-color: $color-primary;
+}
+
 .form-control {
     display: block;
     width: 100%;

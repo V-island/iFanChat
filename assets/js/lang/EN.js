@@ -407,7 +407,7 @@ const Lang = {
 			Chat_Length: 'Chat length',
 			Increase_Score: 'Increase Score',
 			Text: 'The gift received on this broadcast',
-			Buttons_Yes: 'YES',
+			Buttons_Yes: 'Take a rest',
 			Buttons_Live_Again: 'Live Again'
 		},
 		Madal: {

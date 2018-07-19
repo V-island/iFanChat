@@ -1,4 +1,4 @@
-import AgoraSig from './components/AgoraSig-1.3.0';
+import AgoraSig from './components/AgoraSig-1.3.3';
 import EventEmitter from './components/EventEmitter';
 
 import {
