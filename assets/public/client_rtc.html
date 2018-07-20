@@ -32,10 +32,10 @@
     <div class="actions-modal-group gift-wrapper">
         {{if GiftList}}
             <div class="gift-content">
-                <div class="tag">
+                <div class="tag gift-item">
                 {{each GiftList}}
-                    {{if ($index > 7) && (($index % 8) == 0) }} <div class="tag"> {{/if}}
-                    <label class="gift-label" data-id="{{$value.id}}" data-ripple>
+                    {{if ($index > 7) && (($index % 8) == 0) }} <div class="tag gift-item"> {{/if}}
+                    <label class="gift-label {{if $value.gifts_price == 0 }} active {{/if}}" data-id="{{$value.id}}" data-ripple>
                         <i class="icon {{IconGiftList[$index]}}"></i>
                         <p class="name">{{$value.gifts_name}}</p>
                         <p>{{$value.gifts_price}} {{LIVE_PREVIEW.Actions.Coins}}</p>

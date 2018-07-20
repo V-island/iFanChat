@@ -96,7 +96,8 @@ const VIDEO_List_DATA = [{
 	user_id: 1,
 	id: 199,
 	video_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
-	video_new_name: "Do you like me",
+	video_title: "Do you like me",
+	create_time: "2018-8-19",
 	support: 9999,
 	watch_number: 999,
 	price: 10,
@@ -106,7 +107,8 @@ const VIDEO_List_DATA = [{
 	user_id: 2,
 	id: 456,
 	video_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
-	video_new_name: "Do you not come to see such",
+	video_title: "Do you not come to see such",
+	create_time: "2018-8-19",
 	support: 685,
 	watch_number: 9999,
 	price: 10,
@@ -476,7 +478,196 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 	});
 };
 
+/**
+ * 所有兴趣爱好列表
+ * @return {[type]} [description]
+ */
+export function findAllUserHobby() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
 
+	return new Promise((resolve) => {
+		getPost('/findAllUserHobby', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 查询某个用户的兴趣爱好
+ * @return {[type]} [description]
+ */
+export function findHobbyByUserId() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/findHobbyByUserId', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 获取所有性格特点列表
+ * @return {[type]} [description]
+ */
+export function findAllCharacterType() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		belongId: id
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/findAllCharacterType', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 查询某个用户的性格类型
+ * @return {[type]} [description]
+ */
+export function findCharacterTypeByUserId(id = 1) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		belongId: id
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/findCharacterTypeByUserId', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 修改个人资料
+ * @param  {[type]} params [description]
+ * @return {[type]}        [description]
+ */
+export function updateUserInfo(params) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac(),
+	}
+	if (typeof params.name !== 'undefined') {
+		_params.userName = params.name;
+	}
+	if (typeof params.sex !== 'undefined') {
+		_params.userSex = params.sex;
+	}
+	if (typeof params.age !== 'undefined') {
+		_params.userAge = params.age;
+	}
+	if (typeof params.height !== 'undefined') {
+		_params.userHeight = params.height;
+	}
+	if (typeof params.weight !== 'undefined') {
+		_params.userWeight = params.weight;
+	}
+	if (typeof params.goal !== 'undefined') {
+		_params.makeFriendsGoal = params.goal;
+	}
+
+	return new Promise((resolve) => {
+		getPost('/updateUserInfo', _params, function(response) {
+			resolve(true);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 我上传的视频
+ * @return {[type]} [description]
+ */
+export function findMyVideo() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/findMyVideo', _params, function(response) {
+			resolve(response.data ? response.data : VIDEO_List_DATA);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 查看我的历史观看视频
+ * @return {[type]} [description]
+ */
+export function findWatchHistory() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/findWatchHistory', _params, function(response) {
+			resolve(response.data ? response.data : VIDEO_List_DATA);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 关注
+ * @return {[type]} [description]
+ */
+// export function findAllgifts() {
+
+// 	return new Promise((resolve) => {
+
+// 		getPost('/findAllgifts', {}, function(response) {
+// 			resolve(response.data);
+// 		},function(response) {
+// 			resolve(false);
+// 		});
+// 	});
+// };
 
 //------------------------------------------------------------------------------------------------------
 //-----直播模块
@@ -648,6 +839,30 @@ export function getAdvertisement() {
 	});
 };
 
+/**
+ * 获取播放视频地址
+ * @param  {[type]} videoID [description]
+ * @return {[type]}         [description]
+ */
+export function playVideo(videoID) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		Id: videoID,
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/playVideo', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
 
 /**
  * 新人列表
@@ -712,7 +927,7 @@ export function videoClips(_page, _number, _type) {
 };
 
 /**
- * 获取视频标签
+ * 获取视频类别
  * @return {[type]} [description]
  */
 export function videoType() {
@@ -720,6 +935,82 @@ export function videoType() {
 	return new Promise((resolve) => {
 		getPost('/getVideoType', {}, function(response) {
 			resolve(response.data ? response.data : VIDEO_TYPE_DATA);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 赠送礼物接口
+ * @param  {[type]} liveID    主播ID
+ * @param  {[type]} channelID 直播间ID
+ * @param  {[type]} giftsID   礼物ID
+ * @param  {Number} amount    礼物数量
+ * @return {[type]}           [description]
+ */
+export function reward(liveID, channelID, giftsID, amount = 1) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac(),
+		live_user_id: liveID,
+		live_room_id: channelID,
+		gifts_id: giftsID,
+		amount: amount
+	}
+
+	return new Promise((resolve) => {
+		getPost('/reward', _params, function(response) {
+			resolve(true);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 获取该直播间的收益详情
+ * @param  {[type]} channelID 直播间ID
+ * @return {[type]}           [description]
+ */
+export function roomProfit(channelID) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac(),
+		channel: channelID
+	}
+
+	return new Promise((resolve) => {
+		getPost('/roomProfit', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 直播结束切换主播状态
+ * @return {[type]} [description]
+ */
+export function liveAgain() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/liveAgain', _params, function(response) {
+			resolve(true);
 		}, function(response) {
 			resolve(false);
 		});

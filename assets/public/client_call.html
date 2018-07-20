@@ -124,21 +124,21 @@
             <div class="popup-header">
                 <p class="header-title">{{LIVE_PREVIEW.End_Live_Anchor.Title}}</p>
                 <div class="user-info">
-                    <div class="user-img {{if LiveInfo.userSex == 1}} avatar-male {{else}} avatar-female {{/if}}">
-                        {{if LiveInfo.userHead}}
-                            <img src="{{LiveInfo.userHead}}">
+                    <div class="user-img avatar-female">
+                        {{if TodayLive.user_head}}
+                            <img src="{{TodayLive.user_head}}">
                         {{/if}}
                     </div>
-                    <p class="user-name">{{LiveInfo.userName}} {{if LiveInfo.userSex == 1}} <i class="icon icon-male"></i> {{else}} <i class="icon icon-female"></i> {{/if}}</p>
+                    <p class="user-name">{{TodayLive.user_name}}</p>
                 </div>
-                <p class="header-txt">{{LIVE_PREVIEW.End_Live_Anchor.Live_Time_Today}} 120{{LIVE_PREVIEW.End_Live_Anchor.Min}}</p>
+                <p class="header-txt">{{LIVE_PREVIEW.End_Live_Anchor.Live_Time_Today}} {{TodayLive.today_chat_time}}{{LIVE_PREVIEW.End_Live_Anchor.Min}}</p>
                 <div class="anchor-score">
                     <div class="score-item">
-                        <h3>160<small>{{LIVE_PREVIEW.End_Live_Anchor.Min}}</small></h3>
+                        <h3>{{TodayLive.room_chat_time}}<small>{{LIVE_PREVIEW.End_Live_Anchor.Min}}</small></h3>
                         <p>{{LIVE_PREVIEW.End_Live_Anchor.Chat_Length}}</p>
                     </div>
                     <div class="score-item">
-                        <h3>6000</h3>
+                        <h3>{{TodayLive.user_reward_score}}</h3>
                         <p>{{LIVE_PREVIEW.End_Live_Anchor.Increase_Score}}</p>
                     </div>
                 </div>
@@ -146,24 +146,16 @@
 
             <div class="popup-content score-box">
                 <p>{{LIVE_PREVIEW.End_Live_Anchor.Text}}</p>
-                <div class="tag score-gift">
-                    <div class="item">
-                        <span class="icon gift-aircraft item-img"></span>
-                        <span class="item-amount">X 10</span>
+                {{if TodayLive}}
+                    <div class="tag score-gift">
+                        {{each TodayLive}}
+                            <div class="item">
+                                <span class="icon item-img {{IconGiftList[$index]}}"></span>
+                                <span class="item-amount">X {{$value.amount}}</span>
+                            </div>
+                        {{/each}}
                     </div>
-                    <div class="item">
-                        <span class="icon gift-baby-bear item-img"></span>
-                        <span class="item-amount">X 10</span>
-                    </div>
-                    <div class="item">
-                        <span class="icon gift-bunch-love item-img"></span>
-                        <span class="item-amount">X 10</span>
-                    </div>
-                    <div class="item">
-                        <span class="icon gift-cake item-img"></span>
-                        <span class="item-amount">X 10</span>
-                    </div>
-                </div>
+                {{/if}}
             </div>
 
             <div class="buttons buttons-vertical">
@@ -173,4 +165,29 @@
 
         </div>
     </div>
+</script>
+
+<!-- 礼物弹框 -->
+<script id="gifts_bullet_box" type="text/html">
+    {{if GiftList}}
+        <div class="lives-attention gifts-items">
+            {{each GiftList}}
+                {{if $value.id == GiftsId}}
+                    <div class="user-info across">
+                        <div class="user-img {{if LiveInfo.userSex == 1}} avatar-male {{else}} avatar-female {{/if}}">
+                            {{if LiveInfo.userHead}}
+                                <img src="{{LiveInfo.userHead}}">
+                            {{/if}}
+                        </div>
+                        <div class="across-body">
+                            <p class="user-name">{{LiveInfo.userName}}</p>
+                            <p class="user-txt">{{$value.gifts_name}}</p>
+                        </div>
+                        <i class="icon {{IconGiftList[$index]}}"></i>
+                        <p class="gift-amount">X1</p>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </div>
+    {{/if}}
 </script>

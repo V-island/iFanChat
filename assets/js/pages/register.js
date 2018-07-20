@@ -21,7 +21,6 @@ import {
 
 const COUNTRY_ID_NAME = 'COUNTRY_ID';
 const LANG = getLangConfig();
-const COUNTRY = getLocalStorage(COUNTRY_ID_NAME);
 const modal = new Modal();
 
 export default class Register extends EventEmitter {
@@ -39,6 +38,8 @@ export default class Register extends EventEmitter {
 	}
 
 	_init(element) {
+		this.Country = getLocalStorage(COUNTRY_ID_NAME);
+
 		this.RegisterEl = createDom(Template.render(element, LANG));
 		setTimeout(() => {
 			this.trigger('pageLoadStart', this.RegisterEl);
@@ -50,10 +51,9 @@ export default class Register extends EventEmitter {
 		let FormRegister = $('form.form-register', this.RegisterEl);
 		let Group = $('.form-group', this.RegisterEl);
 		let InputCountryId = $('input[name="country_id"]', FormRegister);
-		console.log(InputCountryId);
-		console.log(InputCountryId.length > 0);
+
 		if (InputCountryId.length > 0) {
-			InputCountryId.val(COUNTRY.id);
+			InputCountryId.val(this.Country.id);
 		}
 		// 选择国家
 		Group.on('click', '.form-control.country', function() {

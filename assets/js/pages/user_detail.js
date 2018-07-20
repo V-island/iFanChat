@@ -7,6 +7,15 @@ import {
 } from '../lang';
 
 import {
+	findWatchHistory,
+    updateUserInfo,
+    findAllUserHobby,
+    findHobbyByUserId,
+    findAllCharacterType,
+    findCharacterTypeByUserId
+} from '../api';
+
+import {
     extend,
     createDom
 } from '../util';
@@ -19,21 +28,62 @@ export default class UserDetail extends EventEmitter {
 	constructor(element, options) {
 	    super();
 
+	    this.data = {};
 	    this.options = {
-    		data: []
+	    	itemAvatarClass: 'item-avatar',
+	    	itemUsernameClass: 'item-username',
+	    	itemGenderClass: 'item-gender',
+	    	itemAgeClass: 'item-age',
+	    	itemHeightClass: 'item-height',
+	    	itemWeightClass: 'item-weight',
+	    	itemInterestClass: 'item-interest',
+	    	itemTypeClass: 'item-type',
+	    	itemLoveClass: 'item-love',
+	    	itemFriendsClass: 'item-friends',
+	    	itemMetaTxtClass: 'list-item-meta-txt'
         };
 
 	    extend(this.options, options);
+	    extend(this.data, LANG);
 
-	    this._init(element);
+	    this.init(element);
 	}
 
-	_init(element) {
-		console.log('这里是userDetailjs');
-		this.UserDetailEl = createDom(Template.render(element, LANG));
-	    setTimeout(() => {
+	init(element) {
+		let getUserDetail = findWatchHistory();
+
+		getUserDetail.then((data) => {
+			this.data.UserDetail = data;
+
+			this.UserDetailEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.UserDetailEl);
-		}, 0);
+			this._init();
+		});
+	}
+
+	_init() {
+		this.itemAvatarEl = this.UserDetailEl.getElementsByClassName(this.options.itemAvatarClass)[0];
+		this.itemUsernameEl = this.UserDetailEl.getElementsByClassName(this.options.itemUsernameClass)[0];
+		this.itemGenderEl = this.UserDetailEl.getElementsByClassName(this.options.itemGenderClass)[0];
+		this.itemAgeEl = this.UserDetailEl.getElementsByClassName(this.options.itemAgeClass)[0];
+		this.itemHeightEl = this.UserDetailEl.getElementsByClassName(this.options.itemHeightClass)[0];
+		this.itemWeightEl = this.UserDetailEl.getElementsByClassName(this.options.itemWeightClass)[0];
+		this.itemInterestEl = this.UserDetailEl.getElementsByClassName(this.options.itemInterestClass)[0];
+		this.itemTypeEl = this.UserDetailEl.getElementsByClassName(this.options.itemTypeClass)[0];
+		this.itemLoveEl = this.UserDetailEl.getElementsByClassName(this.options.itemLoveClass)[0];
+		this.itemFriendsEl = this.UserDetailEl.getElementsByClassName(this.options.itemFriendsClass)[0];
+
+		// this.itemAvatarTxtEl = this.itemAvatarEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemUsernameTxtEl = this.itemUsernameEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemGenderTxtEl = this.itemGenderEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemAgeTxtEl = this.itemAgeEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemHeightTxtEl = this.itemHeightEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemWeightTxtEl = this.itemWeightEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemInterestTxtEl = this.itemInterestEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemTypeTxtEl = this.itemTypeEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemLoveTxtEl = this.itemLoveEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		this.itemFriendsTxtEl = this.itemFriendsEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+
 		this._bindEvent();
 	}
 
@@ -41,70 +91,92 @@ export default class UserDetail extends EventEmitter {
 		let Info = $('.list-info', this.UserDetailEl);
 		let metaClass = '.list-item-meta-txt';
 
-		// 用户名
-		Info.on('click', '.list-item[data-madal-username]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Username.Madal;
+		// 头像
+		addEvent(this.itemAvatarEl, 'click', () => {
+			let record = new Record({
+		    	config: {
+		    	    audio: false,
+		    	    video: true
+		    	},
+		        newDayVideo: true,
+		        notUpload: true,
+		        takePhotos: true
+    		});
 
-			modal.prompt(_madal.Placeholder, _madal.Title,
+			record.show();
+			record.on('record.success', (file, imgURL) => {
+			});
+        });
+
+		// 用户名
+		addEvent(this.itemUsernameEl, 'click', () => {
+			modal.prompt(DETAIL.Username.Madal.Placeholder, DETAIL.Username.Madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
-					$self.find(metaClass).text(value);
+
+					this.itemUsernameTxtEl.innerText = value;
+					updateUserInfo({
+						name: value
+					});
 				},
 				function(value) {
 					console.log('取消修改' + value);
 				}
 			);
-		});
+        });
 
 		// 性别
-		Info.on('click', '.list-item[data-madal-gender]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Gender.Madal;
-
+		addEvent(this.itemGenderEl, 'click', () => {
 			modal.options({
 				buttons: [{
-					text: _madal.Male,
-					value: _madal.Male,
+					text: DETAIL.Gender.Madal.Male,
+					value: DETAIL.Gender.Madal.Male,
 					fill: true,
 					onClick: function(text, value) {
 						console.log('确认修改' + value);
-						$self.find(metaClass).text(text);
+						this.itemGenderTxtEl.innerText = value;
+						updateUserInfo({
+							sex: value
+						});
 					}
 				}, {
-					text: _madal.Female,
-					value: _madal.Female,
+					text: DETAIL.Gender.Madal.Female,
+					value: DETAIL.Gender.Madal.Female,
 					onClick: function(text, value) {
 						console.log('确认修改' + value);
-						$self.find(metaClass).text(text);
+						this.itemGenderTxtEl.innerText = value;
+						updateUserInfo({
+							sex: value
+						});
 					}
 				}]
 			});
-		});
+        });
 
 		// 年龄
-		Info.on('click', '.list-item[data-madal-age]', function(e) {
-			let $self = $(this);
-			let _title = DETAIL.Age.Madal.Title;
+		addEvent(this.itemAgeEl, 'click', () => {
 
-			modal.dateTimePickerModal(_title,
+			modal.dateTimePickerModal(DETAIL.Age.Madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
-					$self.find(metaClass).text(value);
+					this.itemAgeTxtEl.innerText = value;
+					updateUserInfo({
+						age: value
+					});
 				},
 			);
 		});
 
 		// 身高
-		Info.on('click', '.list-item[data-madal-height]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Height.Madal;
-			let _unit = DETAIL.Height.Unit;
+		addEvent(this.itemHeightEl, 'click', () => {
 
-			modal.prompt(_madal.Placeholder, _madal.Title,
+			modal.prompt(DETAIL.Height.Madal.Placeholder, DETAIL.Height.Madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
-					$self.find(metaClass).text(value + _unit);
+					this.itemHeightTxtEl.innerText = value + DETAIL.Height.Unit;
+					updateUserInfo({
+						height: value
+					});
 				},
 				function(value) {
 					console.log('取消修改' + value);
@@ -113,15 +185,15 @@ export default class UserDetail extends EventEmitter {
 		});
 
 		// 体重
-		Info.on('click', '.list-item[data-madal-weight]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Body_Weight.Madal;
-			let _unit = DETAIL.Body_Weight.Unit;
+		addEvent(this.itemWeightEl, 'click', () => {
 
-			modal.prompt(_madal.Placeholder, _madal.Title,
+			modal.prompt(DETAIL.Body_Weight.Madal.Placeholder, DETAIL.Body_Weight.Madal.Title,
 				function(value) {
 					console.log('确认修改' + value);
-					$self.find(metaClass).text(value + _unit);
+					this.itemWeightTxtEl.innerText = value + DETAIL.Height.Unit;
+					updateUserInfo({
+						weight: value
+					});
 				},
 				function(value) {
 					console.log('取消修改' + value);
@@ -129,76 +201,87 @@ export default class UserDetail extends EventEmitter {
 			);
 		});
 
-		Info.on('click', '.list-item[data-madal-interest]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Interest.Madal;
+		// 用户交友目的
+		addEvent(this.itemFriendsEl, 'click', () => {
 
-			modal.checkboxModal({
-				text: _madal.Text,
-				title: _madal.Title,
-				data: _madal.Lists,
-				closeBtn: true,
-				selected: 3,
-			}, function(data) {
-				let text = [];
-				data.forEach((_data, index) => {
-				    text.push(_data.text);
-				});
-				$self.find(metaClass).text(text.join(' and '));
-			});
-
-		});
-
-		Info.on('click', '.list-item[data-madal-type]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Your_Type.Madal;
-
-			modal.checkboxModal({
-				text: _madal.Text,
-				title: _madal.Title,
-				data: _madal.Lists,
-				closeBtn: true,
-				selected: 3,
-			}, function(data) {
-				let text = [];
-				data.forEach((_data, index) => {
-				    text.push(_data.text);
-				});
-				$self.find(metaClass).text(text.join(' and '));
-			});
-
-		});
-
-		Info.on('click', '.list-item[data-madal-love]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Love.Madal;
-
-			modal.checkboxModal({
-				text: _madal.Text,
-				title: _madal.Title,
-				data: _madal.Lists,
-				closeBtn: true,
-				selected: 3,
-			}, function(data) {
-				let text = [];
-				data.forEach((_data, index) => {
-				    text.push(_data.text);
-				});
-				$self.find(metaClass).text(text.join(' and '));
-			});
-
-		});
-
-		Info.on('click', '.list-item[data-madal-friends]', function(e) {
-			let $self = $(this);
-			let _madal = DETAIL.Why_Make_Friends.Madal;
-
-			modal.pickerModal(_madal.Lists, _madal.Title,
+			modal.pickerModal(DETAIL.Why_Make_Friends.Madal.Placeholder, DETAIL.Why_Make_Friends.Madal.Title,
 				function(value, text) {
 					console.log('确认修改' + text);
-					$self.find(metaClass).text(text);
+					this.itemFriendsTxtEl.innerText = text;
+					updateUserInfo({
+						goal: value
+					});
 				},
 			);
+		});
+
+		// 兴趣
+		addEvent(this.itemInterestEl, 'click', () => {
+			let getAllUserHobby = findAllUserHobby();
+			let getHobby = findHobbyByUserId()
+
+			Promise.all([getAllUserHobby, getHobby]).then((data) => {
+				modal.checkboxModal({
+					text: DETAIL.Interest.Madal.Text,
+					title: DETAIL.Interest.Madal.Title,
+					data: data[0],
+					selectData: data[1],
+					closeBtn: true,
+					selected: 3,
+				}, function(data) {
+					let text = [];
+					data.forEach((_data, index) => {
+					    text.push(_data.text);
+					});
+					this.itemInterestTxtEl.innerText = text.join(' and ');
+				});
+			});
+		});
+
+		// 你的类型
+		addEvent(this.itemTypeEl, 'click', () => {
+			let getAllCharacterType = findAllCharacterType();
+			let getCharacterType = findCharacterTypeByUserId(1);
+
+			Promise.all([getAllCharacterType, getCharacterType]).then((data) => {
+				modal.checkboxModal({
+					text: DETAIL.Your_Type.Madal.Text,
+					title: DETAIL.Your_Type.Madal.Title,
+					data: data[0],
+					selectData: data[1],
+					closeBtn: true,
+					selected: 3,
+				}, function(data) {
+					let text = [];
+					data.forEach((_data, index) => {
+					    text.push(_data.text);
+					});
+					this.itemTypeTxtEl.innerText = text.join(' and ');
+				});
+			});
+		});
+
+		// 喜爱的类型
+		addEvent(this.itemLoveEl, 'click', () => {
+			let getAllCharacterType = findAllCharacterType();
+			let getCharacterType = findCharacterTypeByUserId(2);
+
+			Promise.all([getAllCharacterType, getCharacterType]).then((data) => {
+				modal.checkboxModal({
+					text: DETAIL.Love.Madal.Text,
+					title: DETAIL.Love.Madal.Title,
+					data: data[0],
+					selectData: data[1],
+					closeBtn: true,
+					selected: 3,
+				}, function(data) {
+					let text = [];
+					data.forEach((_data, index) => {
+					    text.push(_data.text);
+					});
+					this.itemLoveTxtEl.innerText = text.join(' and ');
+				});
+			});
 		});
 	}
 

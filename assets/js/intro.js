@@ -8,8 +8,13 @@ import Home from './pages/home';
 import Favorite from './pages/favorite';
 import Message from './pages/message';
 import User from './pages/user';
+
+// 用户中心
 import UserDetail from './pages/user_detail';
-import LiveInformation from './pages/live_information';
+import UserVideo from './pages/user_video';
+import UserWatch from './pages/user_watch';
+import UserProof from './pages/user_proof';
+import UserBlacklist from './pages/user_blacklist';
 
 // 全局变量
 const fcConfig = {
@@ -51,24 +56,20 @@ const fcConfig = {
         children: [{
             name: 'find',
             path: '../pages/find_password.html',
-            component: FindPassword,
-            init: 1
+            component: FindPassword
         }, {
             name: 'set',
             path: '../pages/set_password.html',
-            component: SetPassword,
-            init: 1
+            component: SetPassword
         }]
     }, {
         name: 'register',
         path: '../pages/register.html',
         component: Register,
-        init: 1,
         children: [{
             name: 'terms',
             path: '../pages/terms_service.html',
-            component: Register,
-            init: 1
+            component: Register
         }]
     }, {
         name: 'home',
@@ -95,9 +96,21 @@ const fcConfig = {
             path: '../pages/user_detail.html',
             component: UserDetail
         }, {
+            name: 'video',
+            path: '../pages/user_video.html',
+            component: UserVideo
+        }, {
+            name: 'watch',
+            path: '../pages/user_watch.html',
+            component: UserWatch
+        }, {
             name: 'proof',
-            path: '../pages/live_information.html',
-            component: LiveInformation
+            path: '../pages/user_proof.html',
+            component: UserProof
+        }, {
+            name: 'blacklist',
+            path: '../pages/user_blacklist.html',
+            component: UserBlacklist
         }]
     }]
 };

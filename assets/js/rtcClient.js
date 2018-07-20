@@ -85,10 +85,11 @@ export default class RtcClient extends EventEmitter {
         this.data = {};
         this.options = {
             type: true,
-            liveWindowId: 'video',
-            userLiveWindowId: 'video-us',
+            liveWindowId: 'rtc-video',
+            userLiveWindowId: 'rtc-video-us',
             livesCommentsClass: '.lives-comments',
             livesCommentsContentClass: 'lives-comments-content',
+            livesGiftsClass: 'lives-gifts',
             iconAttentionClass: 'live-attention',
             iconAddAttentionClass: 'live-add-attention',
             btnLiveCloseClass: 'btn-close',
@@ -102,9 +103,9 @@ export default class RtcClient extends EventEmitter {
         this.channelKey = null;
         this.channel = options.channel + '';
         this.uId = options.userId;
-        this.type = options.type;
         this.info = options.info;
         this.localInfo = getUserInfo();
+        this.IconGiftList = IconGiftList;
 
         extend(this.data, LANG);
         extend(this.options, options);
@@ -114,6 +115,7 @@ export default class RtcClient extends EventEmitter {
         this.clientModalEl = modal.popup(this._clientRtcTemplate(this.info));
 
         this.livesCommentsContentEl = this.clientModalEl.getElementsByClassName(this.options.livesCommentsContentClass)[0];
+        this.livesGiftsEl = this.clientModalEl.getElementsByClassName(this.options.livesGiftsClass)[0];
         this.btnLiveCloseEl = this.clientModalEl.getElementsByClassName(this.options.btnLiveCloseClass)[0];
         this.btnAddAttentionEl = this.clientModalEl.getElementsByClassName(this.options.btnAddAttentionClass)[0];
         this.btnNewsEl = this.clientModalEl.getElementsByClassName(this.options.btnNewsClass)[0];
@@ -140,7 +142,6 @@ export default class RtcClient extends EventEmitter {
 
             this._createClient();
             this._bindEvent();
-            this._subscribeEvents();
         });
     }
 
@@ -211,28 +212,43 @@ export default class RtcClient extends EventEmitter {
                     closeBtn: true
                 });
                 let giftWrapperEl = giftModalEl.querySelector('.gift-wrapper');
+                let giftContentEl = giftModalEl.getElementsByClassName('gift-content')[0];
+                let giftItemEl = giftModalEl.getElementsByClassName('gift-item');
+
                 let giftLabelEl = giftModalEl.getElementsByClassName('gift-label');
                 let btnRechargeEl = giftModalEl.getElementsByClassName('btn-recharge')[0];
                 let btnSendEl = giftModalEl.getElementsByClassName('btn-send')[0];
+                let giftWidth = giftWrapperEl.offsetWidth;
+
+                giftContentEl.style.width = giftWidth * 2 + 'px';
+                for (let i = 0; i < giftItemEl.length; i++) {
+                    giftItemEl[i].style.width = giftWidth + 'px';
+                }
+
                 let giftWrapperScroll = new BScroll(giftWrapperEl, {
-                    startY: 0,
+                    startX: 0,
                     scrollX: true,
                     scrollY: false,
                     momentum: false,
                     tap: true,
-                    bounce: false
+                    bounce: {
+                        top: false,
+                        bottom: false,
+                        left: true,
+                        right: true
+                    }
                 });
 
                 for (let i = 0; i < giftLabelEl.length; i++) {
-                    addEvent(giftLabelEl[i], 'click', () => {
+                    addEvent(giftLabelEl[i], 'tap', () => {
                         if (hasClass(giftLabelEl[i], 'active')) {
                             return;
                         }
 
-                        let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
-                        console.log(tagActiveEl);
-                        if (tagActiveEl) {
-                            removeClass(tagActiveEl, 'active');
+                        for (let j = 0; j < giftLabelEl.length; j++) {
+                            if (hasClass(giftLabelEl[j], 'active')) {
+                                removeClass(giftLabelEl[j], 'active');
+                            }
                         }
                         addClass(giftLabelEl[i], 'active');
                     });
@@ -240,13 +256,11 @@ export default class RtcClient extends EventEmitter {
 
                 addEvent(btnSendEl, 'click', () => {
                     let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
-
-                    if (!tagActiveEl) {
-                        return;
-                    }
+                    console.log(tagActiveEl);
                     let giftId = getData(tagActiveEl, 'id');
-                    this._onGiftsCall(giftId);
-                    this.trigger('rtcClient.onGift', giftId);
+                    console.log(giftId);
+
+                    this.trigger('rtcClient.onGift', this.info.userAccount, this.options.channel, giftId);
                     modal.closeModal(giftModalEl);
                 });
 
@@ -259,109 +273,6 @@ export default class RtcClient extends EventEmitter {
                 });
             });
         }
-    }
-
-    // 订阅事件
-    _subscribeEvents() {
-        // 该回调通知应用程序远程音视频流已添加
-        /**
-         * client.on
-         * @param: listen to stream event
-         * @param: callback listener callback
-         * @return: null
-         * @event: stream-added when new stream added to channel
-         */
-        this.client.on('stream-added', (evt) => {
-            let stream = evt.stream;
-            console.log("New stream added: " + stream.getId());
-            console.log("Timestamp: " + Date.now());
-            console.log("Subscribe ", stream);
-
-            // 在有新的流加入后订阅远端流
-            /**
-             * client.subscribe
-             * @param: stream stream to subscribe
-             * @param: callback failing callback
-             * @return: null
-             */
-            this.client.subscribe(stream, (err) => {
-                console.log(MSG.errorSubscribe, err);
-            });
-        });
-
-        // 该回调通知应用程序已接收远程音视频流。
-        /**
-         * @event: stream-subscribed when a stream is successfully subscribed
-         */
-        this.client.on('stream-subscribed', (evt) => {
-            let stream = evt.stream;
-            console.log("Got stream-subscribed event");
-            console.log("Timestamp: " + Date.now());
-            console.log("Subscribe remote stream successfully: " + stream.getId());
-            console.log(evt);
-            console.log('获取的远程流');
-            stream.play(this.options.liveWindowId);
-
-            // 获取连接状态
-            stream.getStats((stats) => {
-                console.log('获取subscribe 流连接状态');
-                console.log(stats);
-            });
-        });
-
-        // 该回调通知应用程序已删除远程音视频流，即对方调用了 unpublish stream。
-        /**
-         * @event: stream-removed when a stream is removed
-         */
-        this.client.on("stream-removed", (evt) => {
-            let stream = evt.stream;
-            console.log("Stream removed: " + evt.stream.getId());
-            console.log("Timestamp: " + Date.now());
-            console.log(evt);
-            // stream.stop();
-        });
-
-        // 该回调通知应用程序对方用户已离开频道，即对方调用了 client.leave()。
-        /**
-         * @event: peer-leave when existing stream left the channel
-         */
-        this.client.on('peer-leave', (evt) => {
-            console.log("Peer has left: " + evt.uid);
-            console.log("Timestamp: " + Date.now());
-            console.log(evt);
-
-            this.client.leave(() => {
-                console.log("Leavel channel successfully");
-                modal.closeModal(this.clientModalEl);
-                this.localStream.close();
-                this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'), this.info);
-            }, (err) => {
-                console.log("Leave channel failed");
-            });
-        });
-
-        // 该回调通知应用程序有出错信息，需要进行处理。
-        /**
-         * @event: error Application has error information
-         */
-        this.client.on('error', (err) => {
-            console.log("Got error msg:", err.reason);
-            if (err.reason === 'DYNAMIC_KEY_TIMEOUT') {
-
-                /**
-                 * client.renewChannelKey
-                 * @param: key - channel key
-                 * @param: callback - success callback
-                 * @param: callback - error callback
-                 * return: null
-                 */
-                this.client.renewChannelKey(this.channelKey, () => {
-                    console.log(MSG.successRenewChannelKey);
-                }, (err) => {
-                    console.log(MSG.errorRenewChannelKey, err);
-                });
-            }
-        });
     }
 
     // 创建 Client 对象
@@ -511,6 +422,111 @@ export default class RtcClient extends EventEmitter {
         }, (err) => {
             console.log(MSG.errorJoin, err);
         });
+
+        this._subscribeEvents();
+    }
+
+    // 订阅事件
+    _subscribeEvents() {
+        // 该回调通知应用程序远程音视频流已添加
+        /**
+         * client.on
+         * @param: listen to stream event
+         * @param: callback listener callback
+         * @return: null
+         * @event: stream-added when new stream added to channel
+         */
+        this.client.on('stream-added', (evt) => {
+            let stream = evt.stream;
+            console.log("New stream added: " + stream.getId());
+            console.log("Timestamp: " + Date.now());
+            console.log("Subscribe ", stream);
+
+            // 在有新的流加入后订阅远端流
+            /**
+             * client.subscribe
+             * @param: stream stream to subscribe
+             * @param: callback failing callback
+             * @return: null
+             */
+            this.client.subscribe(stream, (err) => {
+                console.log(MSG.errorSubscribe, err);
+            });
+        });
+
+        // 该回调通知应用程序已接收远程音视频流。
+        /**
+         * @event: stream-subscribed when a stream is successfully subscribed
+         */
+        this.client.on('stream-subscribed', (evt) => {
+            let stream = evt.stream;
+            console.log("Got stream-subscribed event");
+            console.log("Timestamp: " + Date.now());
+            console.log("Subscribe remote stream successfully: " + stream.getId());
+            console.log(evt);
+            console.log('获取的远程流');
+            stream.play(this.options.liveWindowId);
+
+            // 获取连接状态
+            stream.getStats((stats) => {
+                console.log('获取subscribe 流连接状态');
+                console.log(stats);
+            });
+        });
+
+        // 该回调通知应用程序已删除远程音视频流，即对方调用了 unpublish stream。
+        /**
+         * @event: stream-removed when a stream is removed
+         */
+        this.client.on("stream-removed", (evt) => {
+            let stream = evt.stream;
+            console.log("Stream removed: " + evt.stream.getId());
+            console.log("Timestamp: " + Date.now());
+            console.log(evt);
+            // stream.stop();
+        });
+
+        // 该回调通知应用程序对方用户已离开频道，即对方调用了 client.leave()。
+        /**
+         * @event: peer-leave when existing stream left the channel
+         */
+        this.client.on('peer-leave', (evt) => {
+            console.log("Peer has left: " + evt.uid);
+            console.log("Timestamp: " + Date.now());
+            console.log(evt);
+
+            this.client.leave(() => {
+                console.log("Leavel channel successfully");
+                modal.closeModal(this.clientModalEl);
+                this.localStream.close();
+                this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'), this.info);
+            }, (err) => {
+                console.log("Leave channel failed");
+            });
+        });
+
+        // 该回调通知应用程序有出错信息，需要进行处理。
+        /**
+         * @event: error Application has error information
+         */
+        this.client.on('error', (err) => {
+            console.log("Got error msg:", err.reason);
+            if (err.reason === 'DYNAMIC_KEY_TIMEOUT') {
+
+                /**
+                 * client.renewChannelKey
+                 * @param: key - channel key
+                 * @param: callback - success callback
+                 * @param: callback - error callback
+                 * return: null
+                 */
+                this.client.renewChannelKey(this.channelKey, () => {
+                    console.log(MSG.successRenewChannelKey);
+                }, (err) => {
+                    console.log(MSG.errorRenewChannelKey, err);
+                });
+            }
+        });
     }
 
     _clientRtcTemplate(info) {
@@ -523,6 +539,7 @@ export default class RtcClient extends EventEmitter {
         html += info.userHead ? '<img src="'+ info.userHead +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ info.userName +'</p><p class="user-txt">'+ info.userHeat + ' ' + LANG.PUBLIC.Heat +'</p></div></div>';
         html += '<i class="icon live-attention '+ this.options.btnAddAttentionClass +'"></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div>';
+        html += '<div class="'+ this.options.livesGiftsClass +'"></div>';
         html += '<div class="lives-footer"><div class="lives-comments"><div class="'+ this.options.livesCommentsContentClass +'"></div></div>';
         html += '<div class="lives-buttons rtc-buttons"><div class="icon live-news '+ this.options.btnNewsClass +'"></div><div class="icon live-share '+ this.options.btnShareClass +'"></div>';
         html += this.options.type ? '<div class="icon live-gift '+ this.options.btnGiftClass +'"></div>' : '';
@@ -546,5 +563,5 @@ export default class RtcClient extends EventEmitter {
  */
 /**
  * rtcClient.onGift
- * 当发送礼物消息的时候，会派发 rtcClient.onGift 事件，同时会传递消息 giftId。
+ * 当发送礼物消息的时候，会派发 rtcClient.onGift 事件，同时会传递主播ID liveID，频道ID channelID，礼物ID giftId。
  */

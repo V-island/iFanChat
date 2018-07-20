@@ -10,7 +10,11 @@ import {
     createChannel,
     loginChannel,
     closeChannel,
-    userEvaluate
+    userEvaluate,
+    reward,
+    roomProfit,
+    liveAgain,
+    findAllgifts
 } from './api';
 
 import {
@@ -74,6 +78,7 @@ export default class Client extends EventEmitter {
                 this._onCahtsCall(_info.message, false);
             }
             if (_info.status == 'gifts') {
+                console.log('收到礼物系统消息ID'+ _info.gift_id);
                 this._onGiftsCall(_info.gift_id);
             }
         });
@@ -215,19 +220,26 @@ export default class Client extends EventEmitter {
     	this.retClient = new RtcClient(_info);
         this.clientModalEl = this.retClient.clientModalEl;
         this.livesCommentsEl = this.retClient.livesCommentsContentEl;
-        this.localType = this.retClient.type;
-        this.infoAnchorName = this.retClient.localInfo.userName;
-        this.infoUserName = this.retClient.info.userName;
+        this.livesGiftsEl = this.retClient.livesGiftsEl;
+        this.localType = this.retClient.options.type;
+        this.anchorClientInfo = this.retClient.localInfo;
+        this.userClientInfo = this.retClient.info;
         this.livesCommentsScroll = this.retClient.livesCommentsScroll;
+        this.IconGiftListData = this.retClient.IconGiftList;
 
     	// 退出直播间
     	this.retClient.on('rtcClient.leave', (channel) => {
-        	this._anchorTemplate(channel);
+
+            let getRoomProfit = roomProfit(channel);
+            getRoomProfit.then((data) => {
+                if (!data) return;
+
+                this._anchorTemplate(data);
+            });
         });
 
         // 发送评论消息
         this.retClient.on('rtcClient.onChatMsg', (Msg) => {
-            console.log('发送评论消息', Msg);
             this._onCahtsCall(Msg, true);
             this.signal.sendMessage(account, JSON.stringify({
                 status: 'cahts',
@@ -246,15 +258,17 @@ export default class Client extends EventEmitter {
 		this.localRetClient = new RtcClient(_info);
         this.clientModalEl = this.localRetClient.clientModalEl;
         this.livesCommentsEl = this.localRetClient.livesCommentsContentEl;
-        this.localType = this.localRetClient.type;
-        this.infoAnchorName = this.localRetClient.info.userName;
-        this.infoUserName = this.localRetClient.localInfo.userName;
+        this.livesGiftsEl = this.localRetClient.livesGiftsEl;
+        this.localType = this.localRetClient.options.type;
+        this.anchorClientInfo = this.localRetClient.info;
+        this.userClientInfo = this.localRetClient.localInfo;
         this.livesCommentsScroll = this.localRetClient.livesCommentsScroll;
+        this.IconGiftListData = this.localRetClient.IconGiftList;
 
     	// 加入直播间
     	this.localRetClient.on('rtcClient.join', (channel, startTime) => {
         	let getLoginChannel = loginChannel(channel, startTime);
-        	console.log(channel, startTime);
+
         	getLoginChannel.then((data) => {
         		if (!data) return;
         	});
@@ -283,12 +297,24 @@ export default class Client extends EventEmitter {
         });
 
         // 发送礼物消息
-        this.localRetClient.on('rtcClient.onGift', (giftId) => {
+        this.localRetClient.on('rtcClient.onGift', (liveID, channelID, giftId) => {
+            console.log('发送礼物系统消息ID'+ giftId);
             this._onGiftsCall(giftId);
             this.signal.sendMessage(account, JSON.stringify({
                 status: 'gifts',
                 gift_id: giftId
             }));
+
+            // let getReward = reward(liveID, channelID, giftId);
+            // getReward.then((data) => {
+            //     if (!data) return;
+
+            //     this._onGiftsCall(giftId);
+            //     this.signal.sendMessage(account, JSON.stringify({
+            //         status: 'gifts',
+            //         gift_id: giftId
+            //     }));
+            // });
         });
     }
 
@@ -298,7 +324,6 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _onCahtsCall(message, type) {
-        console.log(message);
         let _type = false;
 
         if (this.localType) {
@@ -308,8 +333,8 @@ export default class Client extends EventEmitter {
             // 主播
             _type = type ? false : true;
         }
-        console.log(_type);
-        let commentEl = createDom('<label class="'+ (_type ? '' : 'anchor') +'"><span>'+ (_type ? this.infoUserName : this.infoAnchorName) +'</span>:'+ message +'</label>');
+
+        let commentEl = createDom('<label class="'+ (_type ? '' : 'anchor') +'"><span>'+ (_type ? this.userClientInfo.userName : this.anchorClientInfo.userName) +'</span>:'+ message +'</label>');
 
         this.livesCommentsEl.append(commentEl);
         this.livesCommentsScroll.refresh();
@@ -323,6 +348,23 @@ export default class Client extends EventEmitter {
      */
     _onGiftsCall(giftId) {
         console.log(giftId);
+        let _data = {};
+        let getAllgifts = findAllgifts();
+
+        getAllgifts.then((data) => {
+            _data.GiftsId = giftId;
+            _data.GiftList = data;
+            _data.IconGiftList = this.IconGiftListData;
+            _data.LiveInfo = this.userClientInfo;
+
+            let giftsEl = createDom(Template.render(this.tpl.gifts_bullet_box, _data));
+
+            this.livesGiftsEl.append(giftsEl);
+
+            setTimeout(() => {
+                this.livesGiftsEl.removeChild(giftsEl);
+            }, 4000);
+        });
     }
 
     /**
@@ -386,9 +428,10 @@ export default class Client extends EventEmitter {
      * @param  {[type]} channel [description]
      * @return {[type]}         [description]
      */
-    _anchorTemplate(channel) {
-    	this.data.LiveInfo = getUserInfo();
-        console.log(this.data);
+    _anchorTemplate(data) {
+        console.log(data);
+        this.data.TodayLive = data;
+        this.data.IconGiftList = this.IconGiftListData;
 
     	let endLiveAnchorEl = modal.popup(Template.render(this.tpl.end_live_anchor, this.data));
         console.log(endLiveAnchorEl);
@@ -403,6 +446,12 @@ export default class Client extends EventEmitter {
 	        modal.closeModal(endLiveAnchorEl);
             this.trigger('client.close');
 	    });
+
+        // 直播结束切换主播状态
+        // let getLiveAgain = liveAgain();
+        // getLiveAgain.then((data) => {
+        //     if (!data) return;
+        // });
     }
 }
 

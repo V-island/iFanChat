@@ -597,6 +597,33 @@
 		}
 	}
 }
+.lives-gifts{
+	position: absolute;
+	left: 0.75rem;
+	top: 50%;
+	min-height: 2.1rem;
+
+	>.gifts-items{
+		width: 9.1rem;
+		background: linear-gradient(to right, rgba(51, 51, 51, 0.2), rgba(51, 51, 51, 0));
+	}
+
+	.user-info{
+		>i.icon{
+			@include size(2.1rem);
+			margin-top: -0.7rem;
+		}
+
+		.user-txt{
+			color: $color-primary;
+		}
+
+		.gift-amount{
+			font-size: 1rem;
+		    color: $color-primary;
+		}
+	}
+}
 
 // upload-wrapper
 // ------------------------------
@@ -865,5 +892,17 @@
 	>p.remarks-audit-text {
 		font-size: 0.6rem;
 		color: $color-text;
+	}
+}
+
+// user-wrapper
+//------------------------------
+.user-wrapper{
+	padding: 0 0.75rem;
+	height: 100%;
+
+	.box-cards{
+		margin-top: 0;
+		margin-bottom: 0;
 	}
 }

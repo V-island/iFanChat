@@ -181,6 +181,34 @@ span.tag-label {
 }
 
 .card-video {
+    &.video-add-card {
+        background: transparent;
+        box-shadow: 0 0 0.1rem rgba(225, 225, 255, 0.3);
+
+        .card-content {
+            font-size: 0.5rem;
+            border: 1px solid $color-text-remarks;
+            @include flex-spindle-center(center, column);
+
+            >p.add-title {
+                color: $color-text;
+            }
+            >p.text {
+                color: $color-text-gray-light;
+            }
+        }
+        .icon-box {
+            @include size(3.15rem);
+            @include flex-spindle-center(center, column);
+            border: 1px solid $color-text;
+            border-radius: 50%;
+            margin-bottom: 0.7rem;
+
+            >i.icon{
+                @include size(1rem);
+            }
+        }
+    }
     .card-content {
         width: 100%;
         height: 11.2rem;
@@ -198,6 +226,14 @@ span.tag-label {
             padding-right: 0.35rem;
             line-height: 2;
             margin: 0.35rem 0 0.4rem 0;
+        }
+
+        .btn-close-video {
+            position: absolute;
+            top: 0.35rem;
+            right: 0.35rem;
+            z-index: 2;
+            @include size(0.7rem);
         }
 
     }
