@@ -5,34 +5,26 @@
             <a class="icon-btn back" data-ripple>
                 <i class="icon icon-arrow-back"></i>
             </a>
-            <h1 class="title">{{USER_VIDEO.Title}}</h1>
+            <h1 class="title">{{USER_WATCH.Title}}</h1>
         </header>
         <!-- 这里是页面内容区 -->
         <div class="content block">
             <div class="user-wrapper">
                 <div class="row box-cards">
-                    <div class="col-50 card card-video video-add-card">
-                        <div class="card-content">
-                            <div class="icon-box">
-                                <i class="icon user-add-video"></i>
-                            </div>
-                            <p class="add-title">{{USER_VIDEO.Add_Title}}</p>
-                            <p class="text">{{USER_VIDEO.Add_Text}}</p>
-                        </div>
-                    </div>
-
-                    {{if MyVideo}}
-                        {{each MyVideo}}
-                            <div class="col-50 card card-video">
-                                <div class="card-content" data-id="{{$value.id}}" data-url="{{$value.video_url}}">
-                                    <div class="btn-close-video">
-                                        <i class="icon user-close-video"></i>
-                                    </div>
+                    {{if WatchHistory}}
+                        {{each WatchHistory}}
+                            <div class="col-50 card card-video" data-id="{{$value.id}}">
+                                <div class="card-content">
                                     <div class="media" style="background-image: url({{$value.video_img}});"></div>
                                     <div class="showdom">
                                         <p class="summary-txt">{{$value.video_title}}</p>
                                         <div class="video-info">
-                                            <p class="video-time">{{$value.create_time}}</p>
+                                            <div class="user-info">
+                                                <div class="user-img avatar-female">
+                                                    <img src="{{$value.user_head}}">
+                                                </div>
+                                                <p class="user-name">{{$value.user_name}}</p>
+                                            </div>
                                             <div class="user-follow">
                                                 <span class="tag-label praise">
                                                     {{if $value.support > 999}}
@@ -55,7 +47,7 @@
                             </div>
                         {{/each}}
                     {{else}}
-                        <p class="no-more">{{USER_VIDEO.No_More}}</p>
+                        <p class="no-more">{{USER_WATCH.No_More}}</p>
                     {{/if}}
                 </div>
                 <!-- /.box-cards -->

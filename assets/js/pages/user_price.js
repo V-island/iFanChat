@@ -17,7 +17,7 @@ import {
 
 const LANG = getLangConfig();
 
-export default class UserBlacklist extends EventEmitter {
+export default class UserPrice extends EventEmitter {
 	constructor(element, options) {
 	    super();
 
@@ -37,22 +37,18 @@ export default class UserBlacklist extends EventEmitter {
 
 		getUserInfo.then((data) => {
 			this.data.UserInfo = data ? data : false;
-			this.UserEl = createDom(Template.render(element, this.data));
-			this.trigger('pageLoadStart', this.UserEl);
+			console.log(data);
+
+			this.UserPriceEl = createDom(Template.render(element, this.data));
+			this.trigger('pageLoadStart', this.UserPriceEl);
 			this._init();
 		});
 	}
 
 	_init() {
-		this.listItemEl = this.UserEl.getElementsByClassName(this.options.listItemClass);
-		this._bindEvent();
-	}
-
-	_bindEvent() {
-
 	}
 
 	static attachTo(element, options) {
-	    return new UserBlacklist(element, options);
+	    return new UserPrice(element, options);
 	}
 }

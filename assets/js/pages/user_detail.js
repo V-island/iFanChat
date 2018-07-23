@@ -7,7 +7,8 @@ import {
 } from '../lang';
 
 import {
-	findWatchHistory,
+	personInfo,
+    uploadHead,
     updateUserInfo,
     findAllUserHobby,
     findHobbyByUserId,
@@ -50,9 +51,9 @@ export default class UserDetail extends EventEmitter {
 	}
 
 	init(element) {
-		let getUserDetail = findWatchHistory();
+		let getPersonInfo = personInfo();
 
-		getUserDetail.then((data) => {
+		getPersonInfo.then((data) => {
 			this.data.UserDetail = data;
 
 			this.UserDetailEl = createDom(Template.render(element, this.data));
@@ -88,9 +89,6 @@ export default class UserDetail extends EventEmitter {
 	}
 
 	_bindEvent() {
-		let Info = $('.list-info', this.UserDetailEl);
-		let metaClass = '.list-item-meta-txt';
-
 		// 头像
 		addEvent(this.itemAvatarEl, 'click', () => {
 			let record = new Record({

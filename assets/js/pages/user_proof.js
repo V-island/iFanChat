@@ -48,8 +48,8 @@ export default class LiveInformation extends EventEmitter {
 	init(element) {
 		let gethasAudit = hasAudit();
 
-		Promise.all([gethasAudit]).then((data) => {
-			this.data.HasAudit = data[0] ? data[0] : 0; // 0.未上传 1.未审核 2.审核通过 3.审核不通过
+		gethasAudit.then((data) => {
+			this.data.HasAudit = data ? data : 0; // 0.未上传 1.未审核 2.审核通过 3.审核不通过
 			this.LiveInformationEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.LiveInformationEl);
 			this._init();

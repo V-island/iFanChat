@@ -101,8 +101,61 @@ const Lang = {
 		Title: 'Watch history',
 		No_More: 'No more~'
 	},
+	USER_PRICE: {
+		Title: 'Chatting price',
+		Current_Price: 'Current price:',
+		Certified: 'The more star rating，the more money',
+		Non_Certified: 'Non certified',
+		Button: 'GO',
+		Certified_Remarks: {
+			Title: 'How to improve the star rating',
+			Content: [{
+				Title: "Chatting time",
+				Text: "Every day，The time of chatting must be more than two hours"
+			}, {
+				Title: "Score",
+				Text: "The score represents the user's  approval of you"
+			}, {
+				Title: "Somebody's go od opinions",
+				Text: "That's very important，five star awards will take up an important part of your performance"
+			}]
+		},
+		Non_Certified_Remarks: {
+			Title: 'Live information incomplete',
+			Content: [
+				'You must improve your live information；',
+				'After that， you can earn money by chatting；'
+			]
+		}
+	},
+	USER_ACCOUNT: {
+		Title: 'Account',
+		Buttons: 'CONFIRM',
+		Remarks_Content: 'read and agree the',
+		Remarks_Text: 'Services Terms'
+	},
+	USER_SCORE: {
+		Title: 'Score',
+		Text: 'Remaining score',
+		Secondary_Title: 'Exchange cash',
+		Score: 'score'
+	},
 	USER_BLACKLIST: {
 		Title: 'Blacklist'
+	},
+	USER_SETTING: {
+		Title: 'Setting',
+		Account_Security: 'Account security',
+		Message_Notification: {
+			Title: 'Message notification',
+			Text: 'After opening, the  text message or video invitation can only be received for the first time. <br/>Please open it in the settings - notification function to ensure normal function.'
+		},
+		Message_Sound: 'Message sound',
+		Message_Shock: 'Message shock',
+		Help: 'Help',
+		Suggestion: 'Suggestion',
+		About_Me: 'About me',
+		Quit: 'Quit'
 	},
 	LOGIN: {
 		Title: 'Welcome',
@@ -319,6 +372,7 @@ const Lang = {
 		Favorite: 'Favorite',
 		Message: 'Message',
 		Me: 'Me',
+		History: 'History',
 		Lives_Btn: {
 			Live: 'Live',
 			Video: 'Video'

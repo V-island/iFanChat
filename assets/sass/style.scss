@@ -349,6 +349,49 @@
 			width: 5.5rem;
 		}
 	}
+
+	&.theme-white{
+		>p.recharge-label{
+			span{
+				&.money{
+					color: $color-primary;
+				}
+			}
+		}
+		.tag{
+			&:after{
+				background: #444;
+			}
+
+			label.recharge-label{
+				border-color: $color-text;
+
+				.cost{
+					color: $color-text;
+				}
+				&.active{
+					border-color: $color-primary;
+
+					.cost{
+						color: $color-text-gray;
+					}
+				}
+			}
+		}
+		.list{
+			color: $color-text;
+		}
+		> .button{
+			width: 12rem;
+			margin-top: 2rem;
+		}
+		.account-pay{
+			font-size: 0.6rem;
+			color: $color-text;
+			text-align: center;
+		    line-height: 1.5rem;
+		}
+	}
 }
 
 .share-group{
@@ -899,10 +942,216 @@
 //------------------------------
 .user-wrapper{
 	padding: 0 0.75rem;
-	height: 100%;
+	// height: 100%;
 
+	.banner{
+	    margin-bottom: 2.45rem;
+	}
 	.box-cards{
 		margin-top: 0;
 		margin-bottom: 0;
+	}
+}
+
+// user-cover-wrapper
+//------------------------------
+.user-cover-wrapper{
+	margin: 0 !important;
+
+	>.cover-header{
+		height: 11.5rem;
+		padding-top: 2rem;
+		color: $color-text;
+		background-image: linear-gradient(to right, $popup-gradient-color-top, $popup-gradient-color-bottom);
+		@include spindle-vertical(column);
+	}
+	>.cover-content{
+		padding: 0.7rem;
+	}
+
+	// price
+	>.price-header{
+		.user-info >.user-img{
+			@include size(3.85rem);
+		}
+
+		.user-current-price{
+			font-size: 0.6rem;
+			line-height: 2.5;
+
+			>label{
+				font-weight: 500;
+			}
+		}
+	}
+	>.price-content{
+		.price-remarks-header{
+			text-align: center;
+		    margin-bottom: 1.5rem;
+
+			>p {
+				font-size: 0.6rem;
+				color: $color-text-gray-light;
+			    min-width: 13rem;
+			    display: inline-block;
+			    position: relative;
+
+			    $starts: after, before;
+			    @each $start in $starts {
+				    &:#{$start}{
+				    	content: "";
+			    	    height: 1px;
+			    	    width: 2.1rem;
+			    	    display: block;
+			    	    background: $color-text-gray-light;
+			    	    position: absolute;
+			    	    top: 0.4rem;
+
+				        @if $start == after {
+				            left: 0;
+				        }
+				        @else {
+				        	right: 0;
+				        }
+
+				    }
+
+				}
+			}
+		}
+
+		.price-remarks-box{
+		    margin-bottom: 0.7rem;
+		}
+
+		p.price-remarks-title {
+			color: $color-text;
+			font-size: 0.7rem;
+			line-height: 1.5;
+
+			&:before {
+				content: "";
+				@include size(0.35rem);
+				background: $color-primary;
+				border-radius: 50%;
+				display: inline-block;
+				margin-right: 0.35rem;
+			}
+		}
+
+		p.price-remarks-txt {
+			color: $color-text-remarks;
+			font-size: 0.5rem;
+			line-height: 1.5;
+		    padding: 0 0.7rem;
+		}
+
+		p.price-not-remarks {
+			text-align: center;
+			color: $color-text;
+			font-size: 0.75rem;
+
+			&.title-primary {
+				color: $color-primary;
+				margin: 1.4rem 0;
+			}
+		}
+
+		>.button{
+		    margin: 5rem 2.5rem 0;
+		}
+	}
+
+	// score
+	>.score-header{
+		@include spindle-center(center);
+		height: 6.55rem;
+		padding: 0;
+
+		.score-amount{
+			font-size: 1.25rem;
+			color: $color-text;
+		}
+		.score-remark{
+			font-size: 0.6rem;
+			color: $color-text-gray-light;
+		}
+	}
+	>.score-content{
+		>p.header-title{
+			font-size: 0.6rem;
+			color: $color-text;
+		}
+	}
+}
+
+// star-box
+//------------------------------
+.star-box{
+	margin-top: 1rem;
+	padding: 0 2.45rem;
+	width: 100%;
+
+	.star-label,
+	.star-content{
+		@include flex-spindle(space-between);
+
+		>span{
+			font-size: 0.35rem;
+		}
+	}
+
+	.star-label{
+		>.active{
+			position: relative;
+
+			&:before {
+				content: "";
+				@include ImageBox('users/icon-stars-bullet');
+				width: 1.4rem;
+				height: 1.05rem;
+				position: absolute;
+				top: -0.3rem;
+				left: -0.6rem;
+			}
+			>span {
+				position: absolute;
+				top: -0.25rem;
+				right: -0.5rem;
+			}
+		}
+	}
+
+	.star-content{
+		border-radius: 0.35rem;
+	    overflow: hidden;
+
+	    &.disable{
+	    	>span{
+	    		background: $color-text-gray-light;
+	    	}
+	    }
+
+	    >span{
+	    	background: $color-text;
+	    	flex: 1 0 0;
+	    	height: 0.2rem;
+	    	margin-right: 1px;
+
+	    	&:last-of-type{
+	    		margin-right: 0;
+	    	}
+
+	    	&.active{
+	    		background: $color-primary;
+	    	}
+	    }
+	}
+
+	p.star-text{
+		text-align: center;
+		color: $color-text-gray-light;
+		font-size: 0.5rem;
+		line-height: 1.5rem;
 	}
 }

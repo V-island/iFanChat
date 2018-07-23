@@ -165,8 +165,9 @@ const USER_INFO = {
 	user_age: 0,
 	user_package: 0,
 	user_score: 0,
+	user_identity: 2,
 	user_authentication: 1,
-	live_level: 0,
+	live_level: 3,
 	live_price: 0,
 	vmount: 0,
 	wmount: 0
@@ -275,7 +276,7 @@ export function getUserInfo() {
 export function checkAuth() {
 	let _auth = getLocalStorage(UER_NAME);
 
-	return _auth.userAuth === 2 ? true : false;
+	return _auth.userIdentity === 2 ? true : false;
 }
 
 // 验证登录状态
@@ -423,22 +424,24 @@ export function getUpdatePassword(params, callback) {
 
 /**
  * 登出
- * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function loginOut(callback) {
+export function appLoginOut() {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
+		status: 2,
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
-		status: 2
+		loginMode: LoginMode,
+		mac: getMac()
 	}
-	getPost('/updatePassword', _params, function(response) {
+
+	getPost('/appLoginOut', _params, function(response) {
 		modal.toast(response.message);
-		callback();
+		clearLocalStorage();
+		location.href = '#/login';
 	});
 };
-
 
 
 //------------------------------------------------------------------------------------------------------
@@ -463,6 +466,7 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 	return new Promise((resolve) => {
 		getPost('/personCenter', _params, function(response) {
 			_info.userAuth = response.data.user_authentication;
+			_info.userIdentity = response.data.user_identity;
 			_info.userName = response.data.user_name;
 			_info.userHead = response.data.user_head;
 			_info.userSex = response.data.user_sex;
@@ -473,7 +477,8 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 			if (_checkLogin) {
 				return location.href = '#/home';
 			}
-			resolve(response.data ? response.data : USER_INFO);
+			// resolve(response.data ? response.data : USER_INFO);
+			resolve(USER_INFO);
 		});
 	});
 };
@@ -529,7 +534,6 @@ export function findHobbyByUserId() {
 export function findAllCharacterType() {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
-		belongId: id
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
@@ -552,7 +556,7 @@ export function findAllCharacterType() {
 export function findCharacterTypeByUserId(id = 1) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
-		belongId: id
+		belongId: id,
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
@@ -562,6 +566,28 @@ export function findCharacterTypeByUserId(id = 1) {
 	return new Promise((resolve) => {
 		getPost('/findCharacterTypeByUserId', _params, function(response) {
 			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 个人详情
+ * @return {[type]} [description]
+ */
+export function personInfo() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/personInfo', _params, function(response) {
+			resolve(response.data ? response.data : VIDEO_List_DATA);
 		}, function(response) {
 			resolve(false);
 		});
@@ -579,7 +605,7 @@ export function updateUserInfo(params) {
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
-		mac: getMac(),
+		mac: getMac()
 	}
 	if (typeof params.name !== 'undefined') {
 		_params.userName = params.name;
@@ -657,17 +683,50 @@ export function findWatchHistory() {
  * 关注
  * @return {[type]} [description]
  */
-// export function findAllgifts() {
+export function follow() {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
 
-// 	return new Promise((resolve) => {
+	return new Promise((resolve) => {
 
-// 		getPost('/findAllgifts', {}, function(response) {
-// 			resolve(response.data);
-// 		},function(response) {
-// 			resolve(false);
-// 		});
-// 	});
-// };
+		getPost('/follow', _params, function(response) {
+			resolve(true);
+		},function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 头像上传
+ * @param  {[type]}   _file      上传照片
+ * @param  {Function} callback   [description]
+ * @param  {[type]}   onProgress [description]
+ * @return {[type]}              [description]
+ */
+export function uploadHead(_file, callback, onProgress) {
+	let _info = getLocalStorage(UER_NAME);
+	let formData = new FormData();
+
+	formData.append("keyword", 'uploadHead');
+	formData.append("userId", _info.userId);
+	formData.append("token", getLocalStorage(TOKEN_NAME));
+	formData.append("loginMode", LoginMode);
+	formData.append("mac", getMac());
+	formData.append("file", _file);
+
+	getPost(formData, function(response) {
+		callback(response);
+	}, function(progress) {
+		onProgress(progress);
+	});
+};
+
 
 //------------------------------------------------------------------------------------------------------
 //-----直播模块
@@ -762,9 +821,9 @@ export function loginChannel(channel, startTime) {
  * @return {[type]}         [description]
  */
 export function closeChannel(channel, endTime) {
-	let _info = getLocalStorage(UER_NAME);
+	// let _info = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		// userId: _info.userId,
 		channel: channel,
 		endTime: endTime
 	}
@@ -1070,6 +1129,30 @@ export function hasAudit() {
 
 	return new Promise((resolve) => {
 		getPost('/hasAudit', _params, function(response) {
+			resolve(response.data);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 删除视频
+ * @param  {[type]} _id 视频ID
+ * @return {[type]}     [description]
+ */
+export function deleteVideo(_id) {
+	let _info = getLocalStorage(UER_NAME);
+	let _params = {
+		id: _id,
+		userId: _info.userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/deleteVideo', _params, function(response) {
 			resolve(response.data);
 		}, function(response) {
 			resolve(false);

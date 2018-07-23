@@ -10,7 +10,7 @@
     padding-right: $bar-side-spacing;
     padding-left: $bar-side-spacing;
     background-color: $bar-bg-color;
-    @include hairline(bottom, $border-default-color);
+    // @include hairline(bottom, $border-default-color);
     -webkit-backface-visibility: hidden;
     // Make sure the bar is visible when a modal animates in.
     backface-visibility: hidden;
@@ -84,7 +84,7 @@
     background-image: linear-gradient(to right, $bar-gradient-color-left, $bar-gradient-color-right);
 
     .icon-btn {
-        flex: 0 auto;
+        flex: 0 0 auto;
         text-align: center;
         width: 2rem;
         height: 1.8rem;
@@ -92,9 +92,15 @@
     }
 
     .back + .title {
-        margin-left: -2rem;
+        // margin-left: -2rem;
     }
 
+    .font-btn {
+        flex: 0 0 auto;
+        text-align: center;
+        font-size: 0.6rem;
+        line-height: 1.5;
+    }
 
     .title-content {
         flex: 1 auto;
