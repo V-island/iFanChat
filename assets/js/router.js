@@ -329,7 +329,7 @@ import {
 
             if (route.children) {
                 route.children.forEach(function(child) {
-                    let childMatchAs = child.name ? (route.name +'/'+ child.name) : undefined;
+                    let childMatchAs = child.name ? (routes.name +'/'+ child.name) : undefined;
                     _this._addRouteRecord(child, pathList, _this, childMatchAs);
                 });
             }
@@ -580,7 +580,6 @@ import {
                 let name = child.name !== undefined ? child.name : routerConfig.rootUrl;
                 if (Href == name) template = child;
             });
-
             return template;
         }
 

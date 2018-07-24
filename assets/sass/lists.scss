@@ -149,6 +149,17 @@
     &.list-info{
         padding: 0;
 
+        >li.list-info-item{
+
+            >.list-info-text{
+                background: #656A78;
+                color: #C2C2C2;
+                font-size: 0.5rem;
+                padding: 0.35rem 0.7rem;
+                line-height: 1.5;
+            }
+        }
+
         .list-item{
             // padding: 0;
             // margin: 0 0.8rem;

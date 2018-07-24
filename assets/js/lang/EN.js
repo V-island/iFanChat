@@ -140,6 +140,9 @@ const Lang = {
 		Secondary_Title: 'Exchange cash',
 		Score: 'score'
 	},
+	USER_INVITE: {
+		Title: 'Invite'
+	},
 	USER_BLACKLIST: {
 		Title: 'Blacklist'
 	},
@@ -156,6 +159,35 @@ const Lang = {
 		Suggestion: 'Suggestion',
 		About_Me: 'About me',
 		Quit: 'Quit'
+	},
+	USER_SETTING_SECURITY: {
+		Title: 'Account security',
+		Text: 'Mobile phone number registered'
+	},
+	USER_SETTING_HELP: {
+		Title: 'Help',
+		Content: [{
+			Title: "Security of mobile phone registration",
+			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
+		}, {
+			Title: "How to be the network anchor",
+			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
+		}, {
+			Title: "How can the anchors get more invitations",
+			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
+		}, {
+			Title: "What's the use of short video",
+			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
+		}]
+	},
+	USER_SETTING_SUGGESTION: {
+		Title: 'Suggestion'
+	},
+	USER_SETTING_ABOUT: {
+		Title: 'About me',
+		Version: 'version:',
+		Company: 'company:',
+		Address: 'address:'
 	},
 	LOGIN: {
 		Title: 'Welcome',

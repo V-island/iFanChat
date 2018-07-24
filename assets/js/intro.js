@@ -23,6 +23,10 @@ import UserInvite from './pages/user_invite';
 
 import UserBlacklist from './pages/user_blacklist';
 import UserSetting from './pages/user_setting';
+import UserSettingSecurity from './pages/user_setting_security';
+import UserSettingHelp from './pages/user_setting_help';
+import UserSettingSuggestion from './pages/user_setting_suggestion';
+import UserSettingAbout from './pages/user_setting_about';
 
 // 全局变量
 const fcConfig = {
@@ -142,7 +146,24 @@ const fcConfig = {
         }, {
             name: 'setting',
             path: '../pages/user_setting.html',
-            component: UserSetting
+            component: UserSetting,
+            children: [{
+                name: 'security',
+                path: '../pages/user_setting_security.html',
+                component: UserSettingSecurity
+            }, {
+                name: 'help',
+                path: '../pages/user_setting_help.html',
+                component: UserSettingHelp
+            }, {
+                name: 'suggestion',
+                path: '../pages/user_setting_suggestion.html',
+                component: UserSettingSuggestion
+            }, {
+                name: 'about',
+                path: '../pages/user_setting_about.html',
+                component: UserSettingAbout
+            }]
         }]
     }]
 };
