@@ -525,20 +525,19 @@ export default class Modal extends EventEmitter {
      * @param  {[array]} data           为二位数组，如[lists1, lists2, lists3]
      * @param  {[string]} title          标题文字
      * @param  {[function]} callbackOk     通过事件
-     * @param  {[function]} callbackCancel 取消事件
      * @return {[type]}                [description]
      */
-    pickerModal(data, title, callbackOk, callbackCancel) {
+    pickerModal(data, title, callbackOk) {
         const self = this;
 
         if (typeof title === 'function') {
-            callbackCancel = arguments[2];
             callbackOk = arguments[1];
             title = false;
         }
         let picker = new Picker({
             data: [data],
             title: title,
+            valueEqualText: true,
             buttons: [{
                 text: self.defaults.confirmButtonCancel,
                 fill: true,
@@ -550,7 +549,7 @@ export default class Modal extends EventEmitter {
         picker.show();
         picker.on('picker.valuechange', function(selectedVal, selectedText, selectedIndex) {
             self.closeModal(picker.modalEl);
-            callbackOk(selectedIndex, selectedText);
+            callbackOk(selectedVal[0], selectedText[0], selectedIndex[0]);
         });
         picker.on('picker.cancel', function() {
             self.closeModal(picker.modalEl);
@@ -589,8 +588,8 @@ export default class Modal extends EventEmitter {
                 }
             ],
             onClick: function (modal, index, picker) {
-                if (index === 0 && callbackCancel) callbackCancel(picker.getDate());
-                if (index === 1 && callbackOk) callbackOk(picker.getDate());
+                if (index === 0 && callbackCancel) callbackCancel(picker.getDate('YYYY-MM-DD'));
+                if (index === 1 && callbackOk) callbackOk(picker.getDate('YYYY-MM-DD'));
             },
             onEvent: function (modal) {
                 let _element = modal.querySelector('.data-time-picker');
@@ -623,7 +622,7 @@ export default class Modal extends EventEmitter {
 
         params.data.forEach((_data, index) => {
             console.log(_data);
-            listHTML += '<li class="list-item" data-val="'+ _data.value +'" data-ripple><span class="list-item-text">'+ _data.text +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
+            listHTML += '<li class="list-item" data-val="'+ _data.value +'" data-ripple><span class="list-item-text">'+ _data.hobby_name +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
         modalHTML = '<div class="popup"><header class="bar bar-flex">'+ (closeHTML + titleHTML) +'</header><div class="content block">'+ textHTML + '<ul class="list list-user list-info popup-list">'+ listHTML +'</ul></div></div>';
         return self.popup(modalHTML, function(modal) {

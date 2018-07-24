@@ -154,7 +154,7 @@ export default class RtcClient extends EventEmitter {
                     console.log("Leavel channel successfully");
                     modal.closeModal(this.clientModalEl);
                     this.localStream.close();
-                    this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'), this.info);
+                    this.trigger('rtcClient.leave', this.options.channel, this.info);
                 }, (err) => {
                     console.log("Leave channel failed");
                 });
@@ -333,7 +333,7 @@ export default class RtcClient extends EventEmitter {
          */
         this.client.join(this.channelKey, this.channel, this.uId, (uid) => {
             console.log(MSG.successJoin.replace('%s', uid));
-            this.trigger('rtcClient.join', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'));
+            this.trigger('rtcClient.join', this.options.channel);
 
             // 创建本地流, 修改对应的参数可以指定启用/禁用特定功能
             /**
@@ -499,7 +499,7 @@ export default class RtcClient extends EventEmitter {
                 console.log("Leavel channel successfully");
                 modal.closeModal(this.clientModalEl);
                 this.localStream.close();
-                this.trigger('rtcClient.leave', this.options.channel, moment().format('YYYY-MM-DD HH:mm:ss'), this.info);
+                this.trigger('rtcClient.leave', this.options.channel, this.info);
             }, (err) => {
                 console.log("Leave channel failed");
             });
@@ -551,11 +551,11 @@ export default class RtcClient extends EventEmitter {
 
 /**
  * rtcClient.join
- * 当加入到频道的时候，会派发 rtcClient.join 事件，同时会传递频道ID channel ，用户加入频道时间 startTime。
+ * 当加入到频道的时候，会派发 rtcClient.join 事件，同时会传递频道ID channel。
  */
 /**
  * rtcClient.leave
- * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel ，用户加入频道时间 startTime ，用户/主播信息 info
+ * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel，用户/主播信息 info
  */
 /**
  * rtcClient.onChatMsg

@@ -190,9 +190,11 @@
 }
 
 /**
- * 垂直布局
- * @param  {[string]}  column 顺序
- * @param  {[string]}  column-reverse 倒序
+ * 垂直/倒序布局
+ * @param  {[string]}  column           竖直顺序
+ * @param  {[string]}  column-reverse   竖直倒序
+ * @param  {[string]}  row              横向顺序
+ * @param  {[string]}  row-reverse      横向倒序
  */
 @mixin flex-vertical($col){
     @include flexbox;

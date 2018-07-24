@@ -17,6 +17,7 @@ export default class Picker extends EventEmitter {
             title: '',
             selectedIndex: null,
             closeBtn: true,
+            valueEqualText: false,
             wrapperClass: 'wheels-wrapper',
             pickerClass: 'wheels',
             confirmClass: 'btn-confirm',
@@ -76,7 +77,7 @@ export default class Picker extends EventEmitter {
                 let value = null,
                     text = null;
                 if (self.data[i].length) {
-                    value = self.data[i][index].value;
+                    value = self.options.valueEqualText ? self.data[i][index].text : self.data[i][index].value;
                     text = self.data[i][index].text;
                 }
                 if (self.selectedVal[i] !== value) {
@@ -157,7 +158,7 @@ export default class Picker extends EventEmitter {
     _itemTemplate(data) {
         let html = '';
         data.forEach((_data, index) => {
-            html += '<li class="'+ this.options.itemClass + ' ' + (index === 0 ? this.options.showClass : '') +'" data-val="'+ _data.value +'">'+ _data.text +'</li>';
+            html += '<li class="'+ this.options.itemClass + ' ' + (index === 0 ? this.options.showClass : '') +'" data-val="'+ (this.options.valueEqualText ? _data.text : _data.value) +'">'+ _data.text +'</li>';
         });
         return html;
     }

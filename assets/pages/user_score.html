@@ -12,9 +12,23 @@
         <div class="content block user-cover-wrapper">
             <div class="cover-header score-header">
                 <p class="score-amount">{{UserInfo.user_score}}</p>
-                <p class="score-remark">{{USER_SCORE.Text}}</p>
             </div>
             <!-- /.cover-header -->
+            <div class="score-list">
+                <div class="score-item">
+                    <h3>{{UserInfo.user_score}}</h3>
+                    <p>{{USER_SCORE.Total}}</p>
+                </div>
+                <div class="score-item">
+                    <h3>{{UserInfo.user_score}}</h3>
+                    <p>{{USER_SCORE.Live}}</p>
+                </div>
+                <div class="score-item">
+                    <h3>{{UserInfo.user_score}}</h3>
+                    <p>{{USER_SCORE.Video}}</p>
+                </div>
+            </div>
+            <!-- /.score-list -->
             <div class="cover-content score-content">
                 <p class="header-title">{{USER_SCORE.Secondary_Title}}</p>
 

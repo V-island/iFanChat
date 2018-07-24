@@ -794,15 +794,13 @@ export function liveStatus(_status) {
 /**
  * 用户接受邀请加入直播间
  * @param  {[type]} channel   频道ID
- * @param  {[type]} startTime 用户加入频道时间
  * @return {[type]}           [description]
  */
-export function loginChannel(channel, startTime) {
+export function loginChannel(channel) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
 		userId: _info.userId,
-		channel: channel,
-		startTime: startTime
+		channel: channel
 	}
 	return new Promise((resolve) => {
 
@@ -817,15 +815,11 @@ export function loginChannel(channel, startTime) {
 /**
  * 关闭频道
  * @param  {[type]} channel 频道ID
- * @param  {[type]} endTime 用户离开频道时间
  * @return {[type]}         [description]
  */
-export function closeChannel(channel, endTime) {
-	// let _info = getLocalStorage(UER_NAME);
+export function closeChannel(channel) {
 	let _params = {
-		// userId: _info.userId,
-		channel: channel,
-		endTime: endTime
+		channel: channel
 	}
 	return new Promise((resolve) => {
 

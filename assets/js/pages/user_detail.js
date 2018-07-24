@@ -18,6 +18,8 @@ import {
 
 import {
     extend,
+    dataAges,
+    addEvent,
     createDom
 } from '../util';
 
@@ -74,16 +76,15 @@ export default class UserDetail extends EventEmitter {
 		this.itemLoveEl = this.UserDetailEl.getElementsByClassName(this.options.itemLoveClass)[0];
 		this.itemFriendsEl = this.UserDetailEl.getElementsByClassName(this.options.itemFriendsClass)[0];
 
-		// this.itemAvatarTxtEl = this.itemAvatarEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemUsernameTxtEl = this.itemUsernameEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemGenderTxtEl = this.itemGenderEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemAgeTxtEl = this.itemAgeEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemHeightTxtEl = this.itemHeightEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemWeightTxtEl = this.itemWeightEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
-		this.itemInterestTxtEl = this.itemInterestEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
-		this.itemTypeTxtEl = this.itemTypeEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
-		this.itemLoveTxtEl = this.itemLoveEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemFriendsTxtEl = this.itemFriendsEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		// this.itemInterestTxtEl = this.itemInterestEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		// this.itemTypeTxtEl = this.itemTypeEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
+		// this.itemLoveTxtEl = this.itemLoveEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 
 		this._bindEvent();
 	}
@@ -109,16 +110,11 @@ export default class UserDetail extends EventEmitter {
 		// 用户名
 		addEvent(this.itemUsernameEl, 'click', () => {
 			modal.prompt(DETAIL.Username.Madal.Placeholder, DETAIL.Username.Madal.Title,
-				function(value) {
-					console.log('确认修改' + value);
-
+				(value) => {
 					this.itemUsernameTxtEl.innerText = value;
 					updateUserInfo({
 						name: value
 					});
-				},
-				function(value) {
-					console.log('取消修改' + value);
 				}
 			);
         });
@@ -128,21 +124,18 @@ export default class UserDetail extends EventEmitter {
 			modal.options({
 				buttons: [{
 					text: DETAIL.Gender.Madal.Male,
-					value: DETAIL.Gender.Madal.Male,
-					fill: true,
-					onClick: function(text, value) {
-						console.log('确认修改' + value);
-						this.itemGenderTxtEl.innerText = value;
+					value: 1,
+					onClick: (text, value) => {
+						this.itemGenderTxtEl.innerText = text;
 						updateUserInfo({
 							sex: value
 						});
 					}
 				}, {
 					text: DETAIL.Gender.Madal.Female,
-					value: DETAIL.Gender.Madal.Female,
-					onClick: function(text, value) {
-						console.log('确认修改' + value);
-						this.itemGenderTxtEl.innerText = value;
+					value: 2,
+					onClick: (text, value) => {
+						this.itemGenderTxtEl.innerText = text;
 						updateUserInfo({
 							sex: value
 						});
@@ -155,11 +148,12 @@ export default class UserDetail extends EventEmitter {
 		addEvent(this.itemAgeEl, 'click', () => {
 
 			modal.dateTimePickerModal(DETAIL.Age.Madal.Title,
-				function(value) {
-					console.log('确认修改' + value);
-					this.itemAgeTxtEl.innerText = value;
+				(value) => {
+					let ages = dataAges(value);
+
+					this.itemAgeTxtEl.innerText = ages;
 					updateUserInfo({
-						age: value
+						age: ages
 					});
 				},
 			);
@@ -169,15 +163,11 @@ export default class UserDetail extends EventEmitter {
 		addEvent(this.itemHeightEl, 'click', () => {
 
 			modal.prompt(DETAIL.Height.Madal.Placeholder, DETAIL.Height.Madal.Title,
-				function(value) {
-					console.log('确认修改' + value);
+				(value) => {
 					this.itemHeightTxtEl.innerText = value + DETAIL.Height.Unit;
 					updateUserInfo({
 						height: value
 					});
-				},
-				function(value) {
-					console.log('取消修改' + value);
 				}
 			);
 		});
@@ -186,15 +176,11 @@ export default class UserDetail extends EventEmitter {
 		addEvent(this.itemWeightEl, 'click', () => {
 
 			modal.prompt(DETAIL.Body_Weight.Madal.Placeholder, DETAIL.Body_Weight.Madal.Title,
-				function(value) {
-					console.log('确认修改' + value);
+				(value) => {
 					this.itemWeightTxtEl.innerText = value + DETAIL.Height.Unit;
 					updateUserInfo({
 						weight: value
 					});
-				},
-				function(value) {
-					console.log('取消修改' + value);
 				}
 			);
 		});
@@ -202,14 +188,14 @@ export default class UserDetail extends EventEmitter {
 		// 用户交友目的
 		addEvent(this.itemFriendsEl, 'click', () => {
 
-			modal.pickerModal(DETAIL.Why_Make_Friends.Madal.Placeholder, DETAIL.Why_Make_Friends.Madal.Title,
-				function(value, text) {
-					console.log('确认修改' + text);
+			modal.pickerModal(DETAIL.Why_Make_Friends.Madal.Lists, DETAIL.Why_Make_Friends.Madal.Title,
+				(value, text, index) => {
 					this.itemFriendsTxtEl.innerText = text;
+					console.log(value);
 					updateUserInfo({
 						goal: value
 					});
-				},
+				}
 			);
 		});
 
@@ -226,7 +212,7 @@ export default class UserDetail extends EventEmitter {
 					selectData: data[1],
 					closeBtn: true,
 					selected: 3,
-				}, function(data) {
+				}, (data) => {
 					let text = [];
 					data.forEach((_data, index) => {
 					    text.push(_data.text);
@@ -249,7 +235,7 @@ export default class UserDetail extends EventEmitter {
 					selectData: data[1],
 					closeBtn: true,
 					selected: 3,
-				}, function(data) {
+				}, (data) => {
 					let text = [];
 					data.forEach((_data, index) => {
 					    text.push(_data.text);
@@ -272,7 +258,7 @@ export default class UserDetail extends EventEmitter {
 					selectData: data[1],
 					closeBtn: true,
 					selected: 3,
-				}, function(data) {
+				}, (data) => {
 					let text = [];
 					data.forEach((_data, index) => {
 					    text.push(_data.text);

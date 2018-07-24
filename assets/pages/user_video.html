@@ -25,8 +25,14 @@
                         {{each MyVideo}}
                             <div class="col-50 card card-video">
                                 <div class="card-content" data-id="{{$value.id}}" data-url="{{$value.video_url}}">
-                                    <div class="btn-close-video">
-                                        <i class="icon user-close-video"></i>
+                                    <div class="card-video-header">
+                                        <span class="tag-label">10 {{PUBLIC.Billing}}</span>
+                                        <span class="status-label review">{{PUBLIC.Review}}</span>
+                                        <span class="status-label refuse">{{PUBLIC.Refuse}}</span>
+                                        <span class="status-label free">{{PUBLIC.Free}}</span>
+                                        <div class="btn-close-video">
+                                            <i class="icon user-close-video"></i>
+                                        </div>
                                     </div>
                                     <div class="media" style="background-image: url({{$value.video_img}});"></div>
                                     <div class="showdom">

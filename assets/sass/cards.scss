@@ -149,9 +149,29 @@ span.tag-label {
             -moz-osx-font-smoothing: grayscale;
             @include iconImage($name, 'icon');
         }
-
     }
+}
 
+span.status-label {
+    font-size: 0.5rem;
+    color: $color-text;
+    padding: 0 0.35rem;
+    border-radius: 0.7rem;
+
+    $status: review, refuse, free;
+    @each $stat in $status {
+        &.#{$stat} {
+            @if $stat == review {
+                background: $color-blue;
+            }
+            @else if $stat == refuse {
+                background: $color-danger;
+            }
+            @else if $stat == free {
+               background: $color-text-gray;
+            }
+        }
+    }
 }
 
 .card-list {
@@ -215,6 +235,19 @@ span.tag-label {
         width: 100%;
         height: 11.2rem;
 
+        .card-video-header{
+            @include spindle-center(space-between);
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 2;
+
+            span.tag-label {
+                font-size: 0.5rem;
+            }
+        }
+
         .showdom {
             top: auto;
             bottom: 0;
@@ -231,10 +264,6 @@ span.tag-label {
         }
 
         .btn-close-video {
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 2;
             text-align: center;
             @include size(1.4rem);
 
@@ -281,7 +310,6 @@ span.tag-label {
             word-break: keep-all;
             white-space: nowrap;
         }
-
     }
 
     .user-follow {

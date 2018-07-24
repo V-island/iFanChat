@@ -56,13 +56,6 @@ $ionicons-version: "4.1.0" !default;
     }
 }
 
-.icon-star{
-    @include iconImage(star-outline, 'icon');
-    &.active {
-        @include iconImage(star, 'icon');
-    }
-}
-
 // Live Icon
 // -----------------------------
 
@@ -162,6 +155,18 @@ $gifts: aircraft, baby-bear, bunch-love, cake, castle, chocolate, crown, flowers
         @include iconImage($gift, 'gifts/gift');
     }
 
+}
+
+// Star Icon
+// -----------------------------
+
+.icon-star{
+    @include iconImage(star-outline, 'icon');
+
+    &.active,
+    &.active ~ &{
+        @include iconImage(star, 'icon');
+    }
 }
 
 // Ionicons Icon Font CSS

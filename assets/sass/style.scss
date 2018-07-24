@@ -1079,11 +1079,31 @@
 			font-size: 1.25rem;
 			color: $color-text;
 		}
-		.score-remark{
-			font-size: 0.6rem;
-			color: $color-text-gray-light;
+	}
+
+	>.score-list{
+		@include flex-spindle(space-around);
+		background-image: linear-gradient(to right, #464956, #656A78);
+		padding: 0.35rem 0;
+
+		.score-item{
+			text-align: center;
+			flex: 1 0 0;
+
+			>h3{
+				font-weight: 600;
+				font-size: 0.7rem;
+				color: $color-text;
+				margin: 0;
+			}
+
+			>p{
+				font-size: 0.6rem;
+				color: $color-text-gray-light;
+			}
 		}
 	}
+
 	>.score-content{
 		>p.header-title{
 			font-size: 0.6rem;

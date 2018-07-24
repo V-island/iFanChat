@@ -88,15 +88,20 @@ export default class Client extends EventEmitter {
         	let account = call.peer;
         	let channelID = call.channelName;
         	let _info = JSON.parse(call.extra);
+            let getLoginChannel = loginChannel(channelID);
 
-        	this._onJoinChannel(account, {
-	    		channelKey: _info.channelKey,
-	    		channel: channelID,
-	    		userId: this.localAccount,
-	    		info: this.info
-	    	});
+            getLoginChannel.then((data) => {
+                if (!data) return;
 
-	    	modal.closeModal(this.callerModalEl);
+                this._onJoinChannel(account, {
+                    channelKey: _info.channelKey,
+                    channel: channelID,
+                    userId: this.localAccount,
+                    info: this.info
+                });
+
+                modal.closeModal(this.callerModalEl);
+            });
         });
     }
 
@@ -229,8 +234,8 @@ export default class Client extends EventEmitter {
 
     	// 退出直播间
     	this.retClient.on('rtcClient.leave', (channel) => {
-
             let getRoomProfit = roomProfit(channel);
+
             getRoomProfit.then((data) => {
                 if (!data) return;
 
@@ -266,25 +271,21 @@ export default class Client extends EventEmitter {
         this.IconGiftListData = this.localRetClient.IconGiftList;
 
     	// 加入直播间
-    	this.localRetClient.on('rtcClient.join', (channel, startTime) => {
-        	let getLoginChannel = loginChannel(channel, startTime);
-
-        	getLoginChannel.then((data) => {
-        		if (!data) return;
-        	});
+    	this.localRetClient.on('rtcClient.join', (channel) => {
+        	this.signal.join(fcConfig.adminChannel);
         });
 
         // 退出直播间
-    	this.localRetClient.on('rtcClient.leave', (channel, endTime, info) => {
-    		console.log(channel, endTime);
-            this._assessTemplate(channel, info);
+    	this.localRetClient.on('rtcClient.leave', (channel, info) => {
 
-        	// let getCloseChannel = closeChannel(channel, endTime);
-        	// getCloseChannel.then((data) => {
-        	// 	if (!data) return;
+            this.signal.leave().then(() => {
 
-        	// 	this._assessTemplate(channel, info);
-        	// });
+                closeChannel(channel).then((data) => {
+                    if (!data) return;
+
+                    this._assessTemplate(channel, info);
+                });
+            });
         });
 
         // 发送评论消息
@@ -299,22 +300,17 @@ export default class Client extends EventEmitter {
         // 发送礼物消息
         this.localRetClient.on('rtcClient.onGift', (liveID, channelID, giftId) => {
             console.log('发送礼物系统消息ID'+ giftId);
-            this._onGiftsCall(giftId);
-            this.signal.sendMessage(account, JSON.stringify({
-                status: 'gifts',
-                gift_id: giftId
-            }));
+            let getReward = reward(liveID, channelID, giftId);
 
-            // let getReward = reward(liveID, channelID, giftId);
-            // getReward.then((data) => {
-            //     if (!data) return;
+            getReward.then((data) => {
+                if (!data) return;
 
-            //     this._onGiftsCall(giftId);
-            //     this.signal.sendMessage(account, JSON.stringify({
-            //         status: 'gifts',
-            //         gift_id: giftId
-            //     }));
-            // });
+                this._onGiftsCall(giftId);
+                this.signal.sendMessage(account, JSON.stringify({
+                    status: 'gifts',
+                    gift_id: giftId
+                }));
+            });
         });
     }
 
@@ -390,18 +386,12 @@ export default class Client extends EventEmitter {
                 }
                 let starsActiveEl = starsBoxEl.getElementsByClassName('active');
                 let index = getData(starsItemEl[i], 'index');
-                let j = 0;
 
-                for (let a = 0; a < starsActiveEl.length; a++) {
+                if (starsActiveEl) {
                     removeClass(starsActiveEl[a], 'active');
                 }
 
-                do {
-                    addClass(starsItemEl[j], 'active');
-                    j++;
-                }
-                while (j < i);
-
+                addClass(starsItemEl[j], 'active');
                 setData(starsLabelEl, 'index', index);
                 starsLabelEl.innerHTML = index + '.0';
             });
@@ -439,19 +429,20 @@ export default class Client extends EventEmitter {
 	    let btnLiveAgainEl = endLiveAnchorEl.getElementsByClassName('btn-live-again')[0];
 
 	    addEvent(btnYesEl, 'click', () => {
-	        modal.closeModal(endLiveAnchorEl);
+            // 直播结束切换主播状态
+            let getLiveAgain = liveAgain();
+
+            getLiveAgain.then((data) => {
+                if (!data) return;
+
+                modal.closeModal(endLiveAnchorEl);
+            });
 	    });
 
 	    addEvent(btnLiveAgainEl, 'click', () => {
 	        modal.closeModal(endLiveAnchorEl);
             this.trigger('client.close');
 	    });
-
-        // 直播结束切换主播状态
-        // let getLiveAgain = liveAgain();
-        // getLiveAgain.then((data) => {
-        //     if (!data) return;
-        // });
     }
 }
 

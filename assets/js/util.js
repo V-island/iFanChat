@@ -150,6 +150,24 @@ export function replaceNote(str) {
         .replace(/(^\s*)|(\s*$)/g, "");
 };
 
+/**
+ * 通过出生年月计算年龄
+ * @param  {[type]} str 日期 2001-01-01
+ * @return {[type]}     [description]
+ */
+export function dataAges(str) {
+    let r = str.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/);
+    if (r == null) return false;
+
+    let d = new Date(r[1], r[3] - 1, r[4]);
+
+    if (d.getFullYear() == r[1] && (d.getMonth() + 1) == r[3] && d.getDate() == r[4]) {
+        let Y = new Date().getFullYear();
+        return (Y - r[1]);
+    }
+    return false;
+}
+
 export function compareVersion(a, b) {
     var as = a.split('.');
     var bs = b.split('.');

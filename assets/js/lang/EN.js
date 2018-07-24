@@ -135,8 +135,10 @@ const Lang = {
 		Remarks_Text: 'Services Terms'
 	},
 	USER_SCORE: {
-		Title: 'Score',
-		Text: 'Remaining score',
+		Title: 'Score  exchange',
+		Total: 'Total',
+		Live: 'Live',
+		Video: 'Video',
 		Secondary_Title: 'Exchange cash',
 		Score: 'score'
 	},
@@ -285,14 +287,19 @@ const Lang = {
 			Madal: {
 				Title: 'Why make friends',
 				Lists: [{
-					text: 'Whatever, let me get excited',
-					value: 0
+					text: 'Long contact, no longer alone'
 				}, {
-					text: 'Long contact, no longer alone',
-					value: 1
+					text: 'For one night'
 				}, {
-					text: 'For one night',
-					value: 2
+					text: 'Whatever, let me get excited.'
+				}, {
+					text: 'Make myself happy every day'
+				}, {
+					text: 'Looking for a friend'
+				}, {
+					text: 'The needs of Physiology'
+				}, {
+					text: 'Other purpose'
 				}]
 			}
 		}
@@ -412,6 +419,9 @@ const Lang = {
 	},
 	PUBLIC: {
 		Billing: 'Gold/Min',
+		Review: 'Review',
+		Refuse: 'Refuse',
+		Free: 'Free',
 		Heat: 'heat',
 		Country: 'Country',
 		Status: {

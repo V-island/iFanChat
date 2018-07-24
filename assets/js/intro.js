@@ -35,6 +35,7 @@ const fcConfig = {
     router: true, //默认使用router
     agora: true, //默认使用Agora DSK
     agoraAppId: '130106827c954803a398814859761e19',
+    adminChannel: 'douliao',
     swipePanel: "left", //滑动打开侧栏
     swipePanelOnlyClose: true, //只允许滑动关闭，不允许滑动打开侧栏
     importJs: '@webcomponents/webcomponentsjs/webcomponents-lite',
