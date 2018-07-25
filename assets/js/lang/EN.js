@@ -224,7 +224,13 @@ const Lang = {
 	},
 	PERSONAL_DETAIL: {
 		Title: 'Personal details',
-		Profile_Photo: 'Profile photo',
+		Profile_photo: {
+			Title: 'Profile photo',
+			Madal: {
+				Take: 'Take a photo',
+				Select: 'Select from the photo  album'
+			}
+		},
 		Username: {
 			Title: 'Username',
 			Madal: {
@@ -265,21 +271,21 @@ const Lang = {
 			Title: 'Interest',
 			Madal: {
 				Title: 'Interest',
-				Text: 'Up to 3 items can be selected'
+				Text: 'Up to %S items can be selected'
 			}
 		},
 		Your_Type: {
 			Title: 'Your type',
 			Madal: {
 				Title: 'Your type',
-				Text: 'Up to 3 items can be selected'
+				Text: 'Up to %S items can be selected'
 			}
 		},
 		Love: {
 			Title: 'Love',
 			Madal: {
 				Title: 'Your favorite type',
-				Text: 'Up to 3 items can be selected'
+				Text: 'Up to %S items can be selected'
 			}
 		},
 		Why_Make_Friends: {

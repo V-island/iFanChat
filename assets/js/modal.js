@@ -615,14 +615,15 @@ export default class Modal extends EventEmitter {
         params = params || {};
         let modalHTML = '',
             listHTML = '';
+        let selected = params.selected ? params.selected : 3;
         let titleHTML = params.title ? '<h1 class="title">'+ params.title +'</h1>' : '';
         let closeHTML = params.closeBtn ? '<div class="icon-btn close-popup" data-ripple><i class="icon icon-arrow-back"></i></div>' : '';
-        let textHTML = params.text ? '<p class="popup-text">' + params.text + '</p>' : '';
-        let selected = params.selected ? params.selected : 3;
+        let textHTML = params.text ? '<p class="popup-text">' + params.text.replace(/%S/, selected) + '</p>' : '';
 
         params.data.forEach((_data, index) => {
-            console.log(_data);
-            listHTML += '<li class="list-item" data-val="'+ _data.value +'" data-ripple><span class="list-item-text">'+ _data.hobby_name +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
+            if (typeof params.filterName !== 'undefined' && _data[params.filterName] != params.filterIndex) return;
+
+            listHTML += '<li class="list-item" data-val="'+ _data[params.nameValue] +'" data-ripple><span class="list-item-text">'+ _data[params.nameText] +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
         modalHTML = '<div class="popup"><header class="bar bar-flex">'+ (closeHTML + titleHTML) +'</header><div class="content block">'+ textHTML + '<ul class="list list-user list-info popup-list">'+ listHTML +'</ul></div></div>';
         return self.popup(modalHTML, function(modal) {
@@ -641,15 +642,14 @@ export default class Modal extends EventEmitter {
             });
             modal.find('.close-popup').on('click', function(e) {
                 let _item = modal.find('.list-item.active');
-                let _Data = [];
+                let _Value = [],
+                    _Text = [];
 
                 modal.find('.list-item.active').each(function (index, el) {
-                    let _child = {};
-                    _child.value = $(el).data('val');
-                    _child.text = $(el).find('.list-item-text').text();
-                    _Data.push(_child);
+                    _Value.push($(el).data('val'));
+                    _Text.push($(el).find('.list-item-text').text());
                 });
-                callbackOk(_Data);
+                callbackOk(_Value, _Text);
             });
         });
     }

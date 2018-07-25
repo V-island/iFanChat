@@ -18,6 +18,8 @@ import {
 
 import {
     extend,
+    getData,
+    setData,
     dataAges,
     addEvent,
     createDom
@@ -43,7 +45,9 @@ export default class UserDetail extends EventEmitter {
 	    	itemTypeClass: 'item-type',
 	    	itemLoveClass: 'item-love',
 	    	itemFriendsClass: 'item-friends',
-	    	itemMetaTxtClass: 'list-item-meta-txt'
+	    	itemMetaTxtClass: 'list-item-meta-txt',
+	    	itemUserImgClass: 'user-img',
+	    	dataSexIndex: 'sex'
         };
 
 	    extend(this.options, options);
@@ -76,6 +80,7 @@ export default class UserDetail extends EventEmitter {
 		this.itemLoveEl = this.UserDetailEl.getElementsByClassName(this.options.itemLoveClass)[0];
 		this.itemFriendsEl = this.UserDetailEl.getElementsByClassName(this.options.itemFriendsClass)[0];
 
+		this.itemUserImgEl = this.itemAvatarEl.getElementsByClassName(this.options.itemUserImgClass)[0];
 		this.itemUsernameTxtEl = this.itemUsernameEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemGenderTxtEl = this.itemGenderEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
 		this.itemAgeTxtEl = this.itemAgeEl.getElementsByClassName(this.options.itemMetaTxtClass)[0];
@@ -92,6 +97,20 @@ export default class UserDetail extends EventEmitter {
 	_bindEvent() {
 		// 头像
 		addEvent(this.itemAvatarEl, 'click', () => {
+			modal.options({
+				buttons: [{
+					text: DETAIL.Gender.Madal.Take,
+					value: 1,
+					onClick: (text, value) => {
+					}
+				}, {
+					text: DETAIL.Gender.Madal.Select,
+					value: 2,
+					onClick: (text, value) => {
+					}
+				}]
+			});
+
 			let record = new Record({
 		    	config: {
 		    	    audio: false,
@@ -127,6 +146,7 @@ export default class UserDetail extends EventEmitter {
 					value: 1,
 					onClick: (text, value) => {
 						this.itemGenderTxtEl.innerText = text;
+						setData(this.itemGenderTxtEl, this.options.dataSexIndex, value);
 						updateUserInfo({
 							sex: value
 						});
@@ -136,6 +156,7 @@ export default class UserDetail extends EventEmitter {
 					value: 2,
 					onClick: (text, value) => {
 						this.itemGenderTxtEl.innerText = text;
+						setData(this.itemGenderTxtEl, this.options.dataSexIndex, value);
 						updateUserInfo({
 							sex: value
 						});
@@ -191,7 +212,6 @@ export default class UserDetail extends EventEmitter {
 			modal.pickerModal(DETAIL.Why_Make_Friends.Madal.Lists, DETAIL.Why_Make_Friends.Madal.Title,
 				(value, text, index) => {
 					this.itemFriendsTxtEl.innerText = text;
-					console.log(value);
 					updateUserInfo({
 						goal: value
 					});
@@ -209,21 +229,22 @@ export default class UserDetail extends EventEmitter {
 					text: DETAIL.Interest.Madal.Text,
 					title: DETAIL.Interest.Madal.Title,
 					data: data[0],
+					nameValue: 'id',
+					nameText: 'hobby_name',
 					selectData: data[1],
 					closeBtn: true,
 					selected: 3,
-				}, (data) => {
-					let text = [];
-					data.forEach((_data, index) => {
-					    text.push(_data.text);
-					});
-					this.itemInterestTxtEl.innerText = text.join(' and ');
+				}, (value, text) => {
+					console.log(value);
+					console.log(text);
+					console.log(value.join(','));
 				});
 			});
 		});
 
 		// 你的类型
 		addEvent(this.itemTypeEl, 'click', () => {
+			let sexIndex = getData(this.itemGenderTxtEl, this.options.dataSexIndex);
 			let getAllCharacterType = findAllCharacterType();
 			let getCharacterType = findCharacterTypeByUserId(1);
 
@@ -232,21 +253,24 @@ export default class UserDetail extends EventEmitter {
 					text: DETAIL.Your_Type.Madal.Text,
 					title: DETAIL.Your_Type.Madal.Title,
 					data: data[0],
+					nameValue: 'id',
+					nameText: 'type_name',
 					selectData: data[1],
+					filterName: 'sex',
+					filterIndex: sexIndex,
 					closeBtn: true,
 					selected: 3,
-				}, (data) => {
-					let text = [];
-					data.forEach((_data, index) => {
-					    text.push(_data.text);
-					});
-					this.itemTypeTxtEl.innerText = text.join(' and ');
+				}, (value, text) => {
+					console.log(value);
+					console.log(text);
+					console.log(value.join(','));
 				});
 			});
 		});
 
 		// 喜爱的类型
 		addEvent(this.itemLoveEl, 'click', () => {
+			let sexIndex = getData(this.itemGenderTxtEl, this.options.dataSexIndex);
 			let getAllCharacterType = findAllCharacterType();
 			let getCharacterType = findCharacterTypeByUserId(2);
 
@@ -255,17 +279,27 @@ export default class UserDetail extends EventEmitter {
 					text: DETAIL.Love.Madal.Text,
 					title: DETAIL.Love.Madal.Title,
 					data: data[0],
+					nameValue: 'id',
+					nameText: 'type_name',
 					selectData: data[1],
+					filterName: 'sex',
+					filterIndex: sexIndex == 1 ? 2 : 1,
 					closeBtn: true,
 					selected: 3,
-				}, (data) => {
-					let text = [];
-					data.forEach((_data, index) => {
-					    text.push(_data.text);
-					});
-					this.itemLoveTxtEl.innerText = text.join(' and ');
+				}, (value, text) => {
+					console.log(value);
+					console.log(text);
+					console.log(value.join(','));
 				});
 			});
+		});
+	}
+
+	_saveAvatarImg(file, imgURL) {
+		let getUploadHead = uploadHead(file);
+
+		getUploadHead.then(() => {
+
 		});
 	}
 

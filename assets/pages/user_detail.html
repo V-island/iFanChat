@@ -11,7 +11,7 @@
         <div class="content block">
             <ul class="list list-user list-info">
                 <li class="list-item user-avatar item-avatar" data-ripple>
-                    <span class="list-item-text">{{PERSONAL_DETAIL.Profile_Photo}}</span>
+                    <span class="list-item-text">{{PERSONAL_DETAIL.Profile_photo.Title}}</span>
                     <div class="list-item-graphic user-info">
                         <div class="user-img {{if UserDetail.user_sex == 1}} avatar-male {{else}} avatar-female {{/if}}">
                             {{if UserDetail.user_head}}
@@ -27,7 +27,7 @@
                 </li>
                 <li class="list-item item-gender" data-ripple>
                     <span class="list-item-text">{{PERSONAL_DETAIL.Gender.Title}}</span>
-                    <span class="list-item-meta-txt">{{if UserDetail.user_sex == 1}} {{PERSONAL_DETAIL.Gender.Madal.Male}} {{else}} {{PERSONAL_DETAIL.Gender.Madal.Female}} {{/if}}</span>
+                    <span class="list-item-meta-txt" data-sex="{{UserDetail.user_sex}}" >{{if UserDetail.user_sex == 1}} {{PERSONAL_DETAIL.Gender.Madal.Male}} {{else}} {{PERSONAL_DETAIL.Gender.Madal.Female}} {{/if}}</span>
                     <span class="icon user-arrow-forward list-item-meta"></span>
                 </li>
                 <li class="list-item item-age" data-ripple>
