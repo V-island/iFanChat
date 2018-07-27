@@ -622,8 +622,16 @@ export default class Modal extends EventEmitter {
 
         params.data.forEach((_data, index) => {
             if (typeof params.filterName !== 'undefined' && _data[params.filterName] != params.filterIndex) return;
+            let _active = false;
 
-            listHTML += '<li class="list-item" data-val="'+ _data[params.nameValue] +'" data-ripple><span class="list-item-text">'+ _data[params.nameText] +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
+            if (typeof params.selectData !== 'undefined') {
+                for (let i = 0; i < params.selectData.length; i++) {
+                    if (_data[params.nameValue] == params.selectData[i][params.nameValue]) {
+                        _active = true;
+                    }
+                }
+            }
+            listHTML += '<li class="list-item '+ (_active ? 'active' : '') +'" data-val="'+ _data[params.nameValue] +'" data-ripple><span class="list-item-text">'+ _data[params.nameText] +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
         modalHTML = '<div class="popup"><header class="bar bar-flex">'+ (closeHTML + titleHTML) +'</header><div class="content block">'+ textHTML + '<ul class="list list-user list-info popup-list">'+ listHTML +'</ul></div></div>';
         return self.popup(modalHTML, function(modal) {

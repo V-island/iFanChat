@@ -20,10 +20,13 @@ import {
     getData,
     addClass,
     removeClass,
-    refreshURL
+    refreshURL,
+    setLocalStorage,
+    getLocalStorage
 } from '../util';
 
 const LANG = getLangConfig();
+const PROOF_NAME = 'HASAUDIT';
 
 export default class LiveInformation extends EventEmitter {
 	constructor(element, options) {
@@ -33,8 +36,7 @@ export default class LiveInformation extends EventEmitter {
     		videoItemsClass: 'upload-video',
     		photosItemsClass: 'upload-photos',
     		btnSubmit: 'btn-live-submit',
-    		btnAuth: 'btn-live-auth',
-    		btnModify: 'btn-live-modify',
+    		btnReturn: 'btn-live-return',
     		showClass: 'choose',
     		disabledClass: 'disabled'
         };
@@ -51,6 +53,10 @@ export default class LiveInformation extends EventEmitter {
 
 		gethasAudit.then((data) => {
 			this.data.HasAudit = data ? data : 0; // 0.未上传 1.未审核 2.审核通过 3.审核不通过
+
+			if (getLocalStorage(PROOF_NAME)) {
+				this.data.HasAudit = 0;
+			}
 			this.LiveInformationEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.LiveInformationEl);
 			this._init();
@@ -62,8 +68,7 @@ export default class LiveInformation extends EventEmitter {
 		this.videoItemsEl = this.LiveInformationEl.getElementsByClassName(this.options.videoItemsClass)[0];
 		this.photosItemsEl = this.LiveInformationEl.getElementsByClassName(this.options.photosItemsClass)[0];
 		this.btnSubmitEl = this.LiveInformationEl.getElementsByClassName(this.options.btnSubmit)[0];
-		this.btnAuthEl = this.LiveInformationEl.getElementsByClassName(this.options.btnAuth)[0];
-		this.btnModifyEl = this.LiveInformationEl.getElementsByClassName(this.options.btnModify)[0];
+		this.btnReturnEl = this.LiveInformationEl.getElementsByClassName(this.options.btnReturn)[0];
 		this._bindEvent();
 	}
 
@@ -103,9 +108,7 @@ export default class LiveInformation extends EventEmitter {
 	    			return;
 	    		}
 
-				let recordPhoto = new RecordPhoto({
-					clippingRound: true
-				});
+				let recordPhoto = new RecordPhoto();
 
 				recordPhoto.on('recordPhoto.clipping', (File, URL) => {
             		this.file.push(File);
@@ -128,11 +131,19 @@ export default class LiveInformation extends EventEmitter {
 	    		addClass(this.btnSubmitEl, this.options.disabledClass);
 
 	    		uploadVideo(this.file, 2, function(data) {
+	    			setLocalStorage(PROOF_NAME, false);
 	    			refreshURL();
-	    			console.log(data);
 	    		}, function(progress) {
 	    		    console.log(progress);
 	    		});
+	        });
+        }
+
+        // 返回
+        if (typeof this.btnReturnEl !== 'undefined') {
+        	addEvent(this.btnReturnEl, 'click', () => {
+        		setLocalStorage(PROOF_NAME, true);
+	        	refreshURL();
 	        });
         }
 

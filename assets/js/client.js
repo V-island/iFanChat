@@ -91,20 +91,15 @@ export default class Client extends EventEmitter {
         	let account = call.peer;
         	let channelID = call.channelName;
         	let _info = JSON.parse(call.extra);
-            let getLoginChannel = loginChannel(channelID);
 
-            getLoginChannel.then((data) => {
-                if (!data) return;
-
-                this._onJoinChannel(account, {
-                    channelKey: _info.channelKey,
-                    channel: channelID,
-                    userId: this.localAccount,
-                    info: this.info
-                });
-
-                modal.closeModal(this.callerModalEl);
+            this._onJoinChannel(account, {
+                channelKey: _info.channelKey,
+                channel: channelID,
+                userId: this.localAccount,
+                info: this.info
             });
+
+            modal.closeModal(this.callerModalEl);
         });
     }
 
@@ -279,7 +274,12 @@ export default class Client extends EventEmitter {
 
     	// 加入直播间
     	this.localRetClient.on('rtcClient.join', (channel) => {
-        	this.signal.join(fcConfig.adminChannel);
+
+            loginChannel(_info.channel).then((data) => {
+                if (!data) return;
+
+                this.signal.join(fcConfig.adminChannel);
+            });
         });
 
         // 退出直播间

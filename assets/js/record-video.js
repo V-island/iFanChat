@@ -2,7 +2,8 @@ import EventEmitter from './eventEmitter';
 import Modal from './modal';
 import Progress from './progress';
 import {
-    uploadVideo
+    uploadVideo,
+    videoType
 } from './api';
 import {
     getLangConfig
@@ -32,19 +33,27 @@ config: {
       }
 },
 **/
+
 export default class RecordVideo extends EventEmitter {
     constructor(options) {
         super();
 
+        this.front = true;
+        this.constraints = {
+            audio: true,
+            video: {
+                width: { min: 776, ideal: 720, max: 1080},
+                height: { min: 1024, ideal: 1280, max: 1920},
+                frameRate: { min: 15, ideal: 30, max: 60 },
+                facingMode: "user"
+            }
+        };
         this.options = {
-            config: {
-                audio: true,
-                video: true
-            },
             minTimes: 60,
             maxTimes: 600,
             newDayVideo: false,
             notUpload: false,
+            editVideoInfo: false,
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
             recordBtnClass: 'btn-record',
@@ -55,143 +64,169 @@ export default class RecordVideo extends EventEmitter {
             cancelClass: 'live-cancel',
             confirmClass: 'live-confirm',
             localUploadClass: 'live-local-upload',
+            livesRemarkClass:'lives-remark',
             startClass: 'record-start',
             inUploadClass: 'upload-in',
             outUploadClass: 'upload-out',
             uploadClass: 'upload-progress',
+
+            videoInfoWrapperClass: 'clipping-wrapper',
+            inVideoInfoClass: 'clipping-in',
+            outVideoInfoClass: 'clipping-out',
+            videoInfoContentClass: 'videoInfo-content',
+            btnEditCloseClass: 'btn-close',
+            btnEditConfirmClass: 'btn-confirm',
+            btnEditSaveLocalClass: 'btn-save-local',
+
             showClass: 'active'
         };
 
         extend(this.options, options);
 
-        this.boxEl = createDom(this._tabsTemplate(this.options));
+        this.recordVideoEl = createDom(this._tabsTemplate(this.options));
 
-        document.body.appendChild(this.boxEl);
+        document.body.appendChild(this.recordVideoEl);
 
-        this.videoEl = this.boxEl.getElementsByClassName(this.options.videoClass)[0];
-        this.recordEl = this.boxEl.getElementsByClassName(this.options.recordBtnClass)[0];
-        this.buttonsEl = this.boxEl.getElementsByClassName(this.options.buttonsClass)[0];
-        this.closeEl = this.boxEl.getElementsByClassName(this.options.closeClass)[0];
-        this.cutoverEl = this.boxEl.getElementsByClassName(this.options.cutoverClass)[0];
-        this.cancelEl = this.boxEl.getElementsByClassName(this.options.cancelClass)[0];
-        this.confirmEl = this.boxEl.getElementsByClassName(this.options.confirmClass)[0];
-        this.localUploadEl = this.boxEl.getElementsByClassName(this.options.localUploadClass)[0];
+        this.videoEl = this.recordVideoEl.getElementsByClassName(this.options.videoClass)[0];
+        this.recordEl = this.recordVideoEl.getElementsByClassName(this.options.recordBtnClass)[0];
+        this.buttonsEl = this.recordVideoEl.getElementsByClassName(this.options.buttonsClass)[0];
+        this.closeEl = this.recordVideoEl.getElementsByClassName(this.options.closeClass)[0];
+        this.cutoverEl = this.recordVideoEl.getElementsByClassName(this.options.cutoverClass)[0];
+        this.cancelEl = this.recordVideoEl.getElementsByClassName(this.options.cancelClass)[0];
+        this.confirmEl = this.recordVideoEl.getElementsByClassName(this.options.confirmClass)[0];
+        this.localUploadEl = this.recordVideoEl.getElementsByClassName(this.options.localUploadClass)[0];
+        this.livesRemarkEl = this.recordVideoEl.getElementsByClassName(this.options.livesRemarkClass)[0];
         this._init();
     }
 
     _init() {
-        const self = this;
-        self.buffers = [];
-        self.photosBuffers = [];
-        self.consentEnd = false;
+        this.buffers = [];
+        this.photosBuffers = [];
+        this.consentEnd = false;
+        this.localImportVideo = false;
 
-        self.progress = new Progress(self.recordEl,{
-            width: self.recordEl.clientHeight,
-            height: self.recordEl.clientHeight,
-            maxspeed: self.options.maxTimes
+        this.progress = new Progress(this.recordEl,{
+            width: this.recordEl.clientHeight,
+            height: this.recordEl.clientHeight,
+            maxspeed: this.options.maxTimes
         });
 
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
-            self._mediaRecorder();
+            this._mediaRecorder();
         } else {
             console.log("你的浏览器不支持访问用户媒体设备");
         }
 
-        showHideDom(self.cancelEl, 'none');
-        showHideDom(self.confirmEl, 'none');
-        if (self.options.newDayVideo) {
-            showHideDom(self.localUploadEl, 'none');
+        showHideDom(this.cancelEl, 'none');
+        showHideDom(this.confirmEl, 'none');
+        if (this.options.newDayVideo) {
+            showHideDom(this.localUploadEl, 'none');
         }
 
-        self._bindEvent();
+        this._bindEvent();
     }
 
     _bindEvent() {
-        let self = this;
-
         // 开始录制/结束录制
-        addEvent(self.recordEl, 'click', function() {
-            if (self.consentEnd) {
+        addEvent(this.recordEl, 'click', () => {
+            if (this.consentEnd) {
                 return;
             }
-            self.consentEnd = true;
+            this.consentEnd = true;
 
-            if(hasClass(self.buttonsEl, self.options.startClass)){
-                removeClass(self.buttonsEl, self.options.startClass);
-                addClass(self.buttonsEl, self.options.showClass);
-                self._stopRecord();
-                showHideDom(self.cancelEl, 'block');
-                showHideDom(self.confirmEl, 'block');
-                showHideDom(self.cutoverEl, 'block');
-
-                self.progress.show();
+            if(hasClass(this.buttonsEl, this.options.startClass)){
+                removeClass(this.buttonsEl, this.options.startClass);
+                addClass(this.buttonsEl, this.options.showClass);
+                this._stopRecord();
+                showHideDom(this.cancelEl, 'block');
+                showHideDom(this.confirmEl, 'block');
+                this.progress.show();
             }else {
-                addClass(self.buttonsEl, self.options.startClass);
-                showHideDom(self.cancelEl, 'none');
-                showHideDom(self.confirmEl, 'none');
-                showHideDom(self.cutoverEl, 'none');
-                self._startRecord();
+                addClass(this.buttonsEl, this.options.startClass);
+                showHideDom(this.cancelEl, 'none');
+                showHideDom(this.confirmEl, 'none');
+                showHideDom(this.cutoverEl, 'none');
+                showHideDom(this.localUploadEl, 'none');
+
+                if (this.options.newDayVideo && typeof this.livesRemarkEl !== 'undefined') {
+                    showHideDom(this.livesRemarkEl, 'none');
+                }
+
+                this._startRecord();
             }
         });
 
         // 关闭录制器
-        addEvent(self.closeEl, 'click', function() {
-            modal.confirm(RECORD_LANG.Madal.ExitRecord.Text, function() {
-                dispatchEvent(self.recordEl, 'click');
-                self.hide();
-            }, function() {}, true);
+        addEvent(this.closeEl, 'click', () => {
+            modal.confirm(RECORD_LANG.Madal.ExitRecord.Text, () => {
+                this._stopStreamedVideo();
+                this.hide();
+            }, () => {}, true);
         });
 
         // 删除录制视频
-        addEvent(self.cancelEl, 'click', function() {
-            modal.confirm(RECORD_LANG.Madal.DeleteVideo.Text, function() {
-                self.buffers = [];
-                self.consentEnd = false;
-                showHideDom(self.cancelEl, 'none');
-                showHideDom(self.confirmEl, 'none');
-                removeClass(self.buttonsEl, self.options.showClass);
-                self._mediaRecorder();
-            }, function() {}, true);
+        addEvent(this.cancelEl, 'click', () => {
+            modal.confirm(RECORD_LANG.Madal.DeleteVideo.Text, () => {
+                this.buffers = [];
+                this.consentEnd = false;
+                showHideDom(this.cancelEl, 'none');
+                showHideDom(this.confirmEl, 'none');
+                showHideDom(this.cutoverEl, 'block');
+                showHideDom(this.localUploadEl, 'block');
+
+                if (this.options.newDayVideo && typeof this.livesRemarkEl !== 'undefined') {
+                    showHideDom(this.livesRemarkEl, 'block');
+                }
+
+                removeClass(this.buttonsEl, this.options.showClass);
+                this._mediaRecorder();
+            }, () => {}, true);
         });
 
         // 上传视频
-        addEvent(self.confirmEl, 'click', function() {
-            self.hide();
+        addEvent(this.confirmEl, 'click', () => {
+            this.hide();
 
-            let videoFile = new File([self.blob], Date.now() + '.mp4', {
-                type: "video/mp4",
-            });
-            let photosFile = new File([self.photosBuffers], Date.now() + '.jpg', {
+            if (!this.localImportVideo) {
+                this.videoFile = new File([this.blob], Date.now() + '.mp4', {
+                    type: "video/mp4",
+                });
+            }
+
+            this.photosFile = new File([this.photosBuffers], Date.now() + '.jpg', {
                 type: "image/jpeg",
             });
 
-            if (self.options.notUpload) {
-                return self.trigger('recordVideo.success', videoFile, self.imgURL);
+            if (this.options.notUpload) {
+                return this.trigger('recordVideo.success', this.videoFile, this.imgURL);
             }
 
-            let _uploadEl = self._uploadVideo();
-            let _progress = new Progress(_uploadEl,{
-                width: _uploadEl.clientHeight,
-                height: _uploadEl.clientHeight,
-                background: '#fff',
-                itemBackground: '#1FC969',
-                lineWidth: 2,
-                showFont: true
-            });
-            let _type = self.newDayVideo ? 2 : 1;
-            uploadVideo([videoFile, photosFile], _type, function(data) {
-                self._uploadHide();
-                self.trigger('recordVideo.upload.success');
-            }, function(progress) {
-                _progress.show(progress);
-            });
+            if (this.options.editVideoInfo) {
+                return videoType().then((data) => {
+                    this._editVideoInfoDOM(data);
+                });
+            }
+
+            this._uploadVideo(this.photosFile, this.photosFile);
+        });
+
+        // 本地导入视频
+        addEvent(this.localUploadEl, 'click', () => {
+            // this._stopStreamedVideo();
+            this._localImportVideo();
         });
 
         // 切换摄像头
-        addEvent(self.cutoverEl, 'click', function() {
-            self.buffers = [];
-            // self.options.config.video.facingMode = { exact: "environment" };
-            self._mediaRecorder();
+        addEvent(this.cutoverEl, 'click', () => {
+            this.buffers = [];
+            this.front = !this.front;
+            extend(this.constraints, {
+                video: {
+                    facingMode: this.front ? 'user' : 'environment'
+                }
+            });
+            this._stopStreamedVideo();
+            this._mediaRecorder();
         });
     }
 
@@ -199,9 +234,10 @@ export default class RecordVideo extends EventEmitter {
         let html = '';
 
         html = '<div class="content record-wrapper">';
-        html += '<div class="lives-video"><video id="video" class="'+ this.options.videoClass +'"></video></div>';
-        html += '<div class="lives-header"><div class="icon '+ this.options.closeClass +'"></div><div class="icon '+ this.options.cutoverClass +'"></div></div>';
-        html += '<div class="lives-buttons record-buttons"><div class="icon '+ this.options.cancelClass +'"></div><div class="'+ this.options.recordBtnClass +'"></div><div class="icon '+ this.options.confirmClass +'"></div><div class="icon '+ this.options.localUploadClass +'"></div></div>';
+        html += '<div class="lives-video"><video id="video" class="'+ options.videoClass +'"></video></div>';
+        html += '<div class="lives-header"><div class="icon '+ options.closeClass +'"></div><div class="icon '+ options.cutoverClass +'"></div></div>';
+        html += '<div class="lives-buttons record-buttons"><div class="icon '+ options.cancelClass +'"></div><div class="'+ options.recordBtnClass +'"></div><div class="icon '+ options.confirmClass +'"></div><div class="icon '+ options.localUploadClass +'"></div></div>';
+        html += options.newDayVideo ? '' :'<p class="'+ options.livesRemarkClass +'">'+ RECORD_LANG.Prompt +'</p>';
         html += '</div>';
 
         return html;
@@ -219,62 +255,78 @@ export default class RecordVideo extends EventEmitter {
         return html;
     }
 
+    _editVideoInfoTemplate(videoType) {
+        let html = '',
+            tagHTML = '';
+
+        if(videoType) {
+            for (let i = 0; i < videoType.length; i++) {
+                tagHTML += '<label class="tag-label" data-id="'+ videoType[i].id +'" ><span>#</span>'+ videoType[i].video_type +'</label>';
+            }
+        }
+
+        html = '<div class="'+ this.options.videoInfoWrapperClass+'">';
+        html += '<header class="bar bar-flex"><div class="icon-btn '+ this.options.btnEditCloseClass +'" data-ripple><i class="icon icon-arrow-back"></i></div><h1 class="title">'+ RECORD_LANG.EditVideoInfo.Title +'</h1></header>';
+        html += '<div class="content block '+ this.options.videoInfoContentClass +'">';
+        html += '<div class="cards-header"><p>'+ RECORD_LANG.EditVideoInfo.AddTag +'</p></div><div class="tag">'+ tagHTML + '</div>';
+        html += '<div class="buttons  buttons-vertical"><div class="button button-primary '+ this.options.btnEditConfirmClass +'" data-ripple>'+ RECORD_LANG.EditVideoInfo.Buttons.Release +'</div><div class="button button-link '+ this.options.btnEditSaveLocalClass +'" data-ripple>'+ RECORD_LANG.EditVideoInfo.Buttons.SaveLocal +'</div></div>';
+        html += '</div></div>';
+
+        return html;
+    }
+
     static attachTo(options) {
         return new RecordVideo(options);
     }
 
     // 获取媒体设备的媒体流
     _mediaRecorder(){
-        let self = this;
+        this._getUserMedia(this.constraints, (stream) => {
+            this.mediaRecoder = new MediaRecorder(stream);
+            this.videoEl.srcObject  = stream;
+            this.videoEl.autoplay = true;
 
-        self._getUserMedia(self.options.config, function(stream) {
-            console.log(stream);
-            self.mediaRecoder = new MediaRecorder(stream);
-            // self.videoEl.src = window.URL && window.URL.createObjectURL(stream) || stream;
-            self.videoEl.srcObject  = stream;
-            self.videoEl.autoplay = true;
+            this.mediaRecoder.ondataavailable = (event) => {
 
-            self.mediaRecoder.ondataavailable = function (event) {
-
-                if(self.mediaRecoder.state == "inactive"){
+                if(this.mediaRecoder.state == "inactive"){
                     return;
                 }
 
                 // 计时器-最小
-                if (self.buffers.length == self.options.minTimes) {
-                    self.consentEnd = false;
+                if (this.buffers.length == this.options.minTimes) {
+                    this.consentEnd = false;
                 }
 
                 // 计时器-结束
-                if (self.buffers.length > self.options.maxTimes) {
-                    if (self.options.newDayVideo) {
-                        self.consentEnd = false;
-                        dispatchEvent(self.recordEl, 'click');
+                if (this.buffers.length > this.options.maxTimes) {
+                    if (this.options.newDayVideo) {
+                        this.consentEnd = false;
+                        dispatchEvent(this.recordEl, 'click');
                         return;
                     }
-                    dispatchEvent(self.recordEl, 'click');
+                    dispatchEvent(this.recordEl, 'click');
                     return;
                 }
 
-                self.buffers.push(event.data);
-                self.progress.show(self.buffers.length);
-                setTimeout(function() {
-                    self._createIMG();
-                }, self.options.minTimes / 2);
+                this.buffers.push(event.data);
+                this.progress.show(this.buffers.length);
+                setTimeout(() => {
+                    this._createIMG(this.videoEl);
+                }, this.options.minTimes / 2);
             };
 
-            self.mediaRecoder.onstart = function () {
-                self.trigger('recordVideo.start');
+            this.mediaRecoder.onstart = () => {
+                this.trigger('recordVideo.start');
             };
 
             // 添加录制结束的事件监听，保存录制数据
-            self.mediaRecoder.onstop = function () {
-                self.trigger('recordVideo.stop');
-                self.blob = new Blob(self.buffers,{type:"video/mp4"});
-                self.videoEl.src = URL.createObjectURL(self.blob);
-                self.videoEl.play();
+            this.mediaRecoder.onstop = () => {
+                this.trigger('recordVideo.stop');
+                this.blob = new Blob(this.buffers,{type:"video/mp4"});
+                this.videoEl.src = URL.createObjectURL(this.blob);
+                this.videoEl.play();
             };
-        }, function(error) {
+        }, (error) => {
             console.log(error);
         });
     }
@@ -319,31 +371,30 @@ export default class RecordVideo extends EventEmitter {
     _stopRecord() {
         if(this.mediaRecoder.state == "recording"){
 
-            let tracks = this.mediaRecoder.stream.getTracks();
-            for (let i = 0; i < tracks.length; i++) {
-                tracks[i].stop();
-            }
+            this._stopStreamedVideo();
             this.mediaRecoder.stop();
         }
     }
 
-    // 上传视频
-    _uploadVideo() {
-        this.progressEl = createDom(this._uploadTemplate());
+    // 关闭向Video DOM 推流
+    _stopStreamedVideo() {
+        let stream = this.videoEl.srcObject;
 
-        document.body.appendChild(this.progressEl);
-
-        this._uploadShow();
-        return this.progressEl.getElementsByClassName(this.options.uploadClass)[0];
+        if (typeof stream !== 'undefined') {
+            stream.getTracks().forEach((track) => {
+                track.stop();
+            });
+            this.videoEl.srcObject = null;
+        }
     }
 
     // 图片创建
-    _createIMG() {
+    _createIMG(videoTemplate) {
         let canvas = document.createElement("canvas");
         let canvasFill = canvas.getContext('2d');
-        canvas.width = this.videoEl.videoWidth;
-        canvas.height = this.videoEl.videoHeight;
-        canvasFill.drawImage(this.videoEl, 0, 0, canvas.width, canvas.height);
+        canvas.width = videoTemplate.videoWidth;
+        canvas.height = videoTemplate.videoHeight;
+        canvasFill.drawImage(videoTemplate, 0, 0, canvas.width, canvas.height);
 
         this.imgURL = canvas.toDataURL("image/jpeg");
 
@@ -371,14 +422,115 @@ export default class RecordVideo extends EventEmitter {
         }, 500);
     }
 
+    // 本地上传视频
+    _localImportVideo() {
+        let inputEl = document.createElement('input');
+        let userAgent = navigator.userAgent.toLowerCase();
+        //判断是否是苹果手机，是则是true
+        if ((userAgent.indexOf('iphone') != -1) || (userAgent.indexOf('ipad') != -1)) {
+            inputEl.setAttribute("capture", "camcorder");
+        };
+
+        inputEl.setAttribute("type", "file");
+        inputEl.setAttribute("accept", "video/*");
+        inputEl.click();
+
+        addEvent(inputEl, 'change', () => {
+            let previewVideoEl = document.createElement('video');
+            this.videoFile = inputEl.files[0];
+
+            previewVideoEl.src = URL.createObjectURL(this.videoFile);
+            previewVideoEl.play();
+
+            setTimeout(() => {
+                this._createIMG(previewVideoEl);
+                this.localImportVideo = true;
+                dispatchEvent(this.confirmEl, 'click');
+                previewVideoEl.pause();
+            }, 1000);
+        });
+    }
+
+    // 上传视频
+    _uploadVideo(_videoFile, _photosFile, _title, _tagId) {
+        let _uploadEl = this._uploadVideoDOM();
+        let _progress = new Progress(_uploadEl,{
+            width: _uploadEl.clientHeight,
+            height: _uploadEl.clientHeight,
+            background: '#fff',
+            itemBackground: '#1FC969',
+            lineWidth: 2,
+            showFont: true
+        });
+        let _type = this.newDayVideo ? 2 : 1;
+        uploadVideo([_videoFile, _photosFile], _type, (data) => {
+            this._uploadHide();
+            this.trigger('recordVideo.upload.success');
+        }, (progress) => {
+            _progress.show(progress);
+        });
+    }
+
+    // 上传视频
+    _uploadVideoDOM() {
+        this.progressEl = createDom(this._uploadTemplate());
+
+        document.body.appendChild(this.progressEl);
+
+        this._uploadShow();
+        return this.progressEl.getElementsByClassName(this.options.uploadClass)[0];
+    }
+
     // 下载视频
     _downLoadVideo() {
         var downloadButton = document.createElement("a");
         downloadButton.textContent = "保存到本地";
-        downloadButton.href = self.url;
-        downloadButton.download = self.url;
+        downloadButton.href = this.url;
+        downloadButton.download = this.url;
         document.body.appendChild(downloadButton);
-        document.body.removeChild(self.video);
+        document.body.removeChild(this.video);
+    }
+
+    // 编辑视频详细
+    _editVideoInfoDOM(_videoType) {
+
+        this.editVideoInfoEl = createDom(this._editVideoInfoTemplate(_videoType));
+
+        document.body.appendChild(this.editVideoInfoEl);
+
+        this.imageCropperEl = this.editVideoInfoEl.getElementsByClassName(this.options.clippingImageClass)[0];
+        this.btnEditCloseEl = this.editVideoInfoEl.getElementsByClassName(this.options.btnEditCloseClass)[0];
+        this.btnEditConfirmEl = this.editVideoInfoEl.getElementsByClassName(this.options.btnEditConfirmClass)[0];
+        this.btnEditSaveLocalEl = this.editVideoInfoEl.getElementsByClassName(this.options.btnEditSaveLocalClass)[0];
+
+        this._videoInfoShow();
+        // this._bindVideoInfoEvent();
+    }
+
+    /**
+     * RecordVideo.videoInfo.show()
+     * 显示编辑视频器，一般来说，编辑视频器内部已经实现了显示逻辑，不必主动调用。
+     * @return {[type]}        [description]
+     */
+    _videoInfoShow() {
+        window.setTimeout(() => {
+            this.trigger('RecordVideo.videoInfo.open');
+            addClass(this.editVideoInfoEl, this.options.inVideoInfoClass);
+        }, 0);
+    }
+
+    /**
+     * RecordVideo.videoInfo.hide()
+     * 隐藏编辑视频器，一般来说，编辑视频器内部已经实现了隐藏逻辑，不必主动调用。
+     * @return {[type]} [description]
+     */
+    _videoInfoHide() {
+        removeClass(this.editVideoInfoEl, this.options.inVideoInfoClass);
+        addClass(this.editVideoInfoEl, this.options.outVideoInfoClass);
+        window.setTimeout(() => {
+            this.trigger('RecordVideo.videoInfo.close');
+            document.body.removeChild(this.editVideoInfoEl);
+        }, 500);
     }
 
     /**
@@ -390,7 +542,7 @@ export default class RecordVideo extends EventEmitter {
     show(next) {
         window.setTimeout(() => {
             this.trigger('recordVideo.open');
-            addClass(this.boxEl, this.options.inRecordClass);
+            addClass(this.recordVideoEl, this.options.inRecordClass);
             next && next();
         }, 0);
     }
@@ -401,11 +553,11 @@ export default class RecordVideo extends EventEmitter {
      * @return {[type]} [description]
      */
     hide() {
-        removeClass(this.boxEl, this.options.inRecordClass);
-        addClass(this.boxEl, this.options.outRecordClass);
+        removeClass(this.recordVideoEl, this.options.inRecordClass);
+        addClass(this.recordVideoEl, this.options.outRecordClass);
         window.setTimeout(() => {
             this.trigger('recordVideo.close');
-            document.body.removeChild(this.boxEl);
+            document.body.removeChild(this.recordVideoEl);
         }, 500);
     }
 }

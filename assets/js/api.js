@@ -274,7 +274,8 @@ export function getUserInfo() {
 export function checkAuth() {
 	let _auth = getLocalStorage(UER_NAME);
 
-	return _auth.userIdentity === 2 ? true : false;
+	return _auth.userAuth === 2 ? true : false;
+	// return _auth.userIdentity === 2 ? true : false;
 }
 
 // 验证登录状态
@@ -464,7 +465,7 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 	return new Promise((resolve) => {
 		getPost('/personCenter', _params, function(response) {
 			_info.userAuth = response.data.user_authentication;
-			_info.userIdentity = response.data.user_identity;
+			// _info.userIdentity = response.data.user_identity;
 			_info.userName = response.data.user_name;
 			_info.userHead = response.data.user_head;
 			_info.userSex = response.data.user_sex;
@@ -1127,12 +1128,22 @@ export function liveAgain() {
 
 /**
  * 用户上传视频
- * @param  {[object]} params 	   [description]
- * @param  {[type]} callback     	回调事件
- * @param  {[type]} onProgress     	进度事件
- * @return {[type]} [description]
+ * @param  {[type]}   _file      视频文体
+ * @param  {[type]}   _type      类型 1.上传15秒视频     2.上传每日打招呼小视频
+ * @param  {[type]}   _title     标题/描述
+ * @param  {[type]}   _tagID     标签
+ * @param  {Function} callback   成功回调
+ * @param  {[type]}   onProgress 进度回调
+ * @return {[type]}              [description]
  */
-export function uploadVideo(_file, _type, callback, onProgress) {
+export function uploadVideo(_file, _type, _title, _tagID, callback, onProgress) {
+	if (typeof _title === 'function') {
+	    callback = arguments[2];
+	    onProgress = arguments[3];
+	    _title = false;
+	    _tagID = false;
+	}
+
 	let _info = getLocalStorage(UER_NAME);
 	let formData = new FormData();
 
@@ -1149,6 +1160,14 @@ export function uploadVideo(_file, _type, callback, onProgress) {
 		}
 	}else {
 		formData.append("file", _file);
+	}
+
+	if (_title) {
+		formData.append("description", _title);
+	}
+
+	if (_tagID) {
+		formData.append("tag_id", _tagID);
 	}
 
 	getPost(formData, function(response) {

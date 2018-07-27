@@ -588,6 +588,30 @@
 		    left: 50%;
 		    margin-left: -1.225rem;
 		}
+		>canvas{
+			@include size(3.85rem);
+		}
+	}
+
+	.btn-photo{
+		@include size(3.85rem);
+		border-radius: 50%;
+		background: transparent;
+		border: 0.1rem solid $color-text;
+		position: relative;
+
+		&:after {
+		    content: "";
+		    background: $color-text;
+		    @include size(3.4rem);
+		    display: block;
+		    border-radius: 50%;
+		    margin: 0.1rem auto;
+		    position: absolute;
+		    top: 0;
+		    left: 50%;
+		    margin-left: -1.7rem;
+		}
 	}
 
 	&.rtc-buttons {
@@ -637,6 +661,19 @@
 		left: 2.1rem;
 		width: auto;
 	}
+}
+p.lives-remark{
+	position: absolute;
+	top: 3.5rem;
+	left: 1.75rem;
+	right: 1.75rem;
+	z-index: 2;
+	background: rgba(0, 0, 0, 0.3);
+	border-radius: 0.1rem;
+	font-size: 0.5rem;
+	text-align: center;
+	padding: 0.7rem 0;
+	line-height: 1.5;
 }
 .lives-comments{
 	position: absolute;
@@ -1302,6 +1339,14 @@
 	+.clipping-content {
 		bottom: 4.9rem;
 		margin: 0;
+	}
+}
+
+.videoInfo-content {
+	padding: 0 0.7rem;
+
+	>.buttons{
+		min-width: 10.5rem;
 	}
 }
 

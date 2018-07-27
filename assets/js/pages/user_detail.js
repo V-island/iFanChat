@@ -100,7 +100,9 @@ export default class UserDetail extends EventEmitter {
 	_bindEvent() {
 		// 头像
 		addEvent(this.itemAvatarEl, 'click', () => {
-			let recordPhoto = new RecordPhoto();
+			let recordPhoto = new RecordPhoto({
+				clippingRound: true
+			});
 
 			recordPhoto.on('recordPhoto.clipping', (File, URL) => {
 				console.log(File);

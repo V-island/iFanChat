@@ -65,6 +65,16 @@ const Lang = {
 			},
 			Buttons: 'CONFIRM'
 		},
+		Prompt: 'The video will be checked ，<br/> and only high quality video can earn money',
+		EditVideoInfo: {
+			Title: 'Release',
+			Text: 'Video introduction...',
+			AddTag: 'Add tag',
+			Buttons: {
+				Release: 'RELEASE',
+				SaveLocal: 'Save the local'
+			}
+		},
 		Madal: {
 			DeleteVideo: {
 				Text: 'Are you sure delete the recorded video？'

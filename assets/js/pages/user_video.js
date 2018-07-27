@@ -58,12 +58,12 @@ export default class UserVideo extends EventEmitter {
 
 	_bindEvent() {
 
-		console.log(this.videoCloseEl);
 		// 删除视频
 		for (let i = 0; i < this.videoCloseEl.length; i++) {
 			addEvent(this.videoCloseEl[i], 'click', () => {
-				let getDeleteVideo = deleteVideo();
-				console.log('删除视频');
+				let videoId = getData(this.videoEl[i], 'id');
+				let getDeleteVideo = deleteVideo(videoId);
+
 				getDeleteVideo.then((data) => {
 					if (!data) return;
 
@@ -83,12 +83,10 @@ export default class UserVideo extends EventEmitter {
 		// 上传
 		addEvent(this.videoAddEl, 'click', () => {
 			let record = new RecordVideo({
-    		    notUpload: true
+    		    editVideoInfo: true
     		});
 
 			record.show();
-			record.on('recordVideo.success', (file, imgURL) => {
-			});
         });
 	}
 

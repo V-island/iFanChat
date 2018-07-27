@@ -24,6 +24,15 @@ export default class RecordPhoto extends EventEmitter {
         super();
 
         this.fileURL = '',
+        this.front = true;
+        this.constraints = {
+            audio: false,
+            video: {
+                width: { min: 776, ideal: 720, max: 1080},
+                height: { min: 1024, ideal: 1280, max: 1920},
+                facingMode: "user"
+            }
+        };
         this.options = {
             clippingRound: false,
             clippingWrapperClass: 'clipping-wrapper',
@@ -39,7 +48,7 @@ export default class RecordPhoto extends EventEmitter {
 
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
-            livesPhotoClass: 'lives-photo',
+            livesPhotoClass: 'btn-photo',
             recordBtnClass: 'btn-record',
             buttonsClass: 'photo-buttons',
             videoClass: 'video',
@@ -88,17 +97,8 @@ export default class RecordPhoto extends EventEmitter {
         this.cancelEl = this.recordPhotoEl.getElementsByClassName(this.options.cancelClass)[0];
         this.confirmEl = this.recordPhotoEl.getElementsByClassName(this.options.confirmClass)[0];
 
-        this.front = false;
-
         if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia){
-            this._mediaRecorder({
-                audio: false,
-                video: {
-                    width: { min: 776, ideal: 720, max: 1080},
-                    height: { min: 1024, ideal: 1280, max: 1920},
-                    facingMode: "user"
-                }
-            });
+            this._mediaRecorder();
         } else {
             console.log("你的浏览器不支持访问用户媒体设备");
         }
@@ -225,7 +225,7 @@ export default class RecordPhoto extends EventEmitter {
         addEvent(this.closeEl, 'click', () => {
             modal.confirm(RECORD_LANG.Madal.ExitRecord.Text, () => {
                 this._recordHide();
-                this._stopRecord();
+                this._stopStreamedVideo();
             }, () => {}, true);
         });
 
@@ -243,21 +243,20 @@ export default class RecordPhoto extends EventEmitter {
         // 确认保存的相片
         addEvent(this.confirmEl, 'click', () => {
             this._recordHide();
-            this._stopRecord();
+            this._stopStreamedVideo();
             this._initClipping();
         });
 
         // 切换摄像头
         addEvent(this.cutoverEl, 'click', () => {
             this.front = !this.front;
-            this._mediaRecorder({
-                audio: false,
+            extend(this.constraints, {
                 video: {
-                    width: { min: 776, ideal: 720, max: 1080},
-                    height: { min: 1024, ideal: 1280, max: 1920},
-                    facingMode: (this.front ? "user" : "environment")
+                    facingMode: this.front ? 'user' : 'environment'
                 }
             });
+            this._stopStreamedVideo();
+            this._mediaRecorder();
         });
     }
 
@@ -290,9 +289,8 @@ export default class RecordPhoto extends EventEmitter {
     }
 
     // 获取媒体设备的媒体流
-    _mediaRecorder(constraints){
-        this._getUserMedia(constraints, (stream) => {
-            this.mediaStream = stream;
+    _mediaRecorder(){
+        this._getUserMedia(this.constraints, (stream) => {
             this.videoEl.srcObject  = stream;
             this.videoEl.autoplay = true;
 
@@ -318,11 +316,15 @@ export default class RecordPhoto extends EventEmitter {
         }
     }
 
-    // 结束摄像头调用
-    _stopRecord() {
-        let tracks = this.mediaStream.getTracks();
-        for (let i = 0; i < tracks.length; i++) {
-            tracks[i].stop();
+    // 关闭向Video DOM 推流
+    _stopStreamedVideo() {
+        let stream = this.videoEl.srcObject;
+
+        if (typeof stream !== 'undefined') {
+            stream.getTracks().forEach((track) => {
+                track.stop();
+            });
+            this.videoEl.srcObject = null;
         }
     }
 
