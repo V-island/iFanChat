@@ -1,6 +1,6 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
-import Record from '../record';
+import RecordVideo from '../record-video';
 import {
     getLangConfig
 } from '../lang';
@@ -82,12 +82,12 @@ export default class UserVideo extends EventEmitter {
 
 		// 上传
 		addEvent(this.videoAddEl, 'click', () => {
-			let record = new Record({
+			let record = new RecordVideo({
     		    notUpload: true
     		});
 
 			record.show();
-			record.on('record.success', (file, imgURL) => {
+			record.on('recordVideo.success', (file, imgURL) => {
 			});
         });
 	}

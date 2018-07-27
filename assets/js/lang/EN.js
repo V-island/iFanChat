@@ -57,6 +57,14 @@ const Lang = {
 	},
 	LIVE_RECORD: {
 		UploadTitle: 'Video is uploading...',
+		Photo: {
+			Title: 'Clipping',
+			Madal: {
+				Take: 'Take a photo',
+				Select: 'Select from the photo  album'
+			},
+			Buttons: 'CONFIRM'
+		},
 		Madal: {
 			DeleteVideo: {
 				Text: 'Are you sure delete the recorded video？'
@@ -225,11 +233,7 @@ const Lang = {
 	PERSONAL_DETAIL: {
 		Title: 'Personal details',
 		Profile_photo: {
-			Title: 'Profile photo',
-			Madal: {
-				Take: 'Take a photo',
-				Select: 'Select from the photo  album'
-			}
+			Title: 'Profile photo'
 		},
 		Username: {
 			Title: 'Username',

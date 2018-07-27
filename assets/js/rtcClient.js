@@ -154,7 +154,7 @@ export default class RtcClient extends EventEmitter {
                     console.log("Leavel channel successfully");
                     modal.closeModal(this.clientModalEl);
                     this.localStream.close();
-                    this.trigger('rtcClient.leave', this.options.channel, this.info);
+                    this.trigger('rtcClient.leave', this.options.channel, this.info, true);
                 }, (err) => {
                     console.log("Leave channel failed");
                 });
@@ -499,7 +499,7 @@ export default class RtcClient extends EventEmitter {
                 console.log("Leavel channel successfully");
                 modal.closeModal(this.clientModalEl);
                 this.localStream.close();
-                this.trigger('rtcClient.leave', this.options.channel, this.info);
+                this.trigger('rtcClient.leave', this.options.channel, this.info, false);
             }, (err) => {
                 console.log("Leave channel failed");
             });
@@ -555,7 +555,7 @@ export default class RtcClient extends EventEmitter {
  */
 /**
  * rtcClient.leave
- * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel，用户/主播信息 info
+ * 当用户退出频道的时候，会派发 rtcClient.leave 事件，同时会传递频道ID channel，用户/主播信息 info, 关闭状态 主动/被动 type。
  */
 /**
  * rtcClient.onChatMsg

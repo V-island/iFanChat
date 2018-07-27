@@ -81,6 +81,9 @@ export default class Client extends EventEmitter {
                 console.log('收到礼物系统消息ID'+ _info.gift_id);
                 this._onGiftsCall(_info.gift_id);
             }
+            if (_info.status == 'settlement') {
+                console.log('用户退出')
+            }
         });
 
         // 收到呼叫邀请回调
@@ -233,7 +236,11 @@ export default class Client extends EventEmitter {
         this.IconGiftListData = this.retClient.IconGiftList;
 
     	// 退出直播间
-    	this.retClient.on('rtcClient.leave', (channel) => {
+    	this.retClient.on('rtcClient.leave', (channel, info, type) => {
+            if (type) {
+                return;
+            }
+
             let getRoomProfit = roomProfit(channel);
 
             getRoomProfit.then((data) => {
@@ -276,12 +283,18 @@ export default class Client extends EventEmitter {
         });
 
         // 退出直播间
-    	this.localRetClient.on('rtcClient.leave', (channel, info) => {
+    	this.localRetClient.on('rtcClient.leave', (channel, info, type) => {
 
             this.signal.leave().then(() => {
 
                 closeChannel(channel).then((data) => {
                     if (!data) return;
+
+                    if (!type) {
+                        this.signal.sendMessage(account, JSON.stringify({
+                            status: 'settlement'
+                        }));
+                    }
 
                     this._assessTemplate(channel, info);
                 });
@@ -423,10 +436,10 @@ export default class Client extends EventEmitter {
         this.data.TodayLive = data;
         this.data.IconGiftList = this.IconGiftListData;
 
-    	let endLiveAnchorEl = modal.popup(Template.render(this.tpl.end_live_anchor, this.data));
-        console.log(endLiveAnchorEl);
-	    let btnYesEl = endLiveAnchorEl.getElementsByClassName('btn-yes')[0];
-	    let btnLiveAgainEl = endLiveAnchorEl.getElementsByClassName('btn-live-again')[0];
+    	this.endLiveAnchorEl = modal.popup(Template.render(this.tpl.end_live_anchor, this.data));
+        console.log(this.endLiveAnchorEl);
+	    let btnYesEl = this.endLiveAnchorEl.getElementsByClassName('btn-yes')[0];
+	    let btnLiveAgainEl = this.endLiveAnchorEl.getElementsByClassName('btn-live-again')[0];
 
 	    addEvent(btnYesEl, 'click', () => {
             // 直播结束切换主播状态
@@ -435,12 +448,12 @@ export default class Client extends EventEmitter {
             getLiveAgain.then((data) => {
                 if (!data) return;
 
-                modal.closeModal(endLiveAnchorEl);
+                modal.closeModal(this.endLiveAnchorEl);
             });
 	    });
 
 	    addEvent(btnLiveAgainEl, 'click', () => {
-	        modal.closeModal(endLiveAnchorEl);
+	        modal.closeModal(this.endLiveAnchorEl);
             this.trigger('client.close');
 	    });
     }

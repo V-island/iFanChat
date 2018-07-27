@@ -179,12 +179,14 @@ function getPost(_url, param, callback, callbackCancel, onProgress, _type, _head
 		onProgress = arguments[2];
 	    callback = arguments[1];
 	    param = _url;
+	    async = true;
 	}
 
 	let token = localStorage.getItem('token');
 		_type = _type == undefined ? Type : _type;
 		// _baseURL = _url.indexOf('https')>-1 ? _url : baseURL;
-		_header = _header != undefined ? _header : {};
+		async = async != undefined ? async : '';
+		_header = _header != undefined ? _header : '';
 		param = param != undefined ? param : '';
 
 	if (!isObject(_url)) {
@@ -193,8 +195,6 @@ function getPost(_url, param, callback, callbackCancel, onProgress, _type, _head
 
 	let ajaxOpt ={
 		type: _type,
-		async: true,
-	  	crossDomain: true,
 		url: baseURL,
 		cache: false,
 	    statusCode: {
@@ -229,7 +229,9 @@ function getPost(_url, param, callback, callbackCancel, onProgress, _type, _head
 	if(param !== ''){
 		ajaxOpt.data = param;
 	}
-
+	if(async !== ''){
+		ajaxOpt.async = async;
+	}
 	console.log(ajaxOpt);
 	let post = Promise.resolve($.ajax(ajaxOpt)).then(function(response) {
 		console.log(response);
@@ -549,7 +551,8 @@ export function findAllCharacterType() {
 
 /**
  * 查询某个用户的性格类型
- * @return {[type]} [description]
+ * @param  {Number} id 属于关系(1.自身类型 2.喜欢类型)
+ * @return {[type]}    [description]
  */
 export function findCharacterTypeByUserId(id = 1) {
 	let _info = getLocalStorage(UER_NAME);
@@ -771,9 +774,7 @@ export function uploadHead(_file, callback, onProgress) {
 	getPost(formData, function(response) {
 		callback(response);
 	}, function(progress) {
-		if (typeof onProgress === 'function') {
-		  onProgress(progress);
-		}
+		onProgress(progress);
 	});
 };
 

@@ -1,6 +1,7 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
-import Record from '../record';
+import RecordVideo from '../record-video';
+import RecordPhoto from '../record-photo';
 
 import {
     getLangConfig
@@ -76,11 +77,22 @@ export default class LiveInformation extends EventEmitter {
 	    			return;
 	    		}
 
-	    		this._makeRecord(this.videoItemsEl, {
+    			let recordVideo = new RecordVideo({
 	    			maxTimes: 5,
 	    		    newDayVideo: true,
 	    		    notUpload: true
 	    		});
+
+    			recordVideo.show();
+    			recordVideo.on('recordVideo.success', (file, imgURL) => {
+    				this.file.push(file);
+    				this.videoItemsEl.style.backgroundImage = 'url(' + imgURL + ')';
+    				addClass(this.videoItemsEl, this.options.showClass);
+
+    		    	if (hasClass(this.videoItemsEl, this.options.showClass) && hasClass(this.photosItemsEl, this.options.showClass)) {
+    					removeClass(this.btnSubmitEl, this.options.disabledClass);
+    				}
+    			});
 	        });
 		}
 
@@ -91,15 +103,19 @@ export default class LiveInformation extends EventEmitter {
 	    			return;
 	    		}
 
-	    		this._makeRecord(this.photosItemsEl, {
-	    			config: {
-	    			    audio: false,
-	    			    video: true
-	    			},
-	    		    newDayVideo: true,
-	    		    notUpload: true,
-	    		    takePhotos: true
-	    		});
+				let recordPhoto = new RecordPhoto({
+					clippingRound: true
+				});
+
+				recordPhoto.on('recordPhoto.clipping', (File, URL) => {
+            		this.file.push(File);
+            		this.photosItemsEl.style.backgroundImage = 'url(' + URL + ')';
+            		addClass(this.photosItemsEl, this.options.showClass);
+
+                	if (hasClass(this.videoItemsEl, this.options.showClass) && hasClass(this.photosItemsEl, this.options.showClass)) {
+            			removeClass(this.btnSubmitEl, this.options.disabledClass);
+            		}
+	            });
 	        });
     	}
 
@@ -120,21 +136,6 @@ export default class LiveInformation extends EventEmitter {
 	        });
         }
 
-	}
-
-	_makeRecord(element, options) {
-		let record = new Record(options);
-
-		record.show();
-		record.on('record.success', (file, imgURL) => {
-			this.file.push(file);
-			element.style.backgroundImage = 'url(' + imgURL + ')';
-			addClass(element, this.options.showClass);
-
-	    	if (hasClass(this.videoItemsEl, this.options.showClass) && hasClass(this.photosItemsEl, this.options.showClass)) {
-				removeClass(this.btnSubmitEl, this.options.disabledClass);
-			}
-		});
 	}
 
 	static attachTo(element, options) {

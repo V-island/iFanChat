@@ -3,7 +3,7 @@ import EventEmitter from './eventEmitter';
 import SignalingClient from './signalingClient';
 import Client from './client';
 import Modal from './modal';
-import Record from './record';
+import RecordVideo from './record-video';
 import fcConfig from './intro';
 import {
     checkAuth,
@@ -121,12 +121,12 @@ export default class Tabs extends EventEmitter {
 
                 let _newDay = MADAL.NewDay;
                 modal.confirm(_newDay.Text, function() {
-                    let _record = new Record({
+                    let _record = new RecordVideo({
                         maxTimes: 5,
                         newDayVideo: true
                     });
                     _record.show();
-                    _record.on('record.upload.success', function() {
+                    _record.on('recordVideo.upload.success', function() {
                         self.startLiveWaiting();
                     });
                 }, function() {

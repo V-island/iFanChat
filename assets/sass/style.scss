@@ -443,7 +443,8 @@
     color: $color-text;
     background-color: $color-bg;
     box-sizing: border-box;
-    @include scrollable;
+    // @include scrollable;
+    overflow: hidden;
     transition-property: transform;
     transform: translate3d(0,100%,0);
     &.record-in, &.record-out {
@@ -472,12 +473,16 @@
         opacity: 1;
     }
 }
-.lives-video{
+
+.lives-video,
+.lives-photo {
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
+}
+.lives-video{
 
 	>.video{
 		width: 100%;
@@ -498,12 +503,19 @@
 		}
 	}
 }
+.lives-photo{
+	background: $color-bg;
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
 .lives-header{
 	@include  spindle-center(space-between);
 	position: absolute;
 	top: 0.75rem;
 	left: 0.75rem;
 	right: 0.75rem;
+	z-index: 2;
 
 	>.icon{
 		@include size(1.05rem);
@@ -552,6 +564,7 @@
 	bottom: 0.75rem;
 	left: 0.75rem;
 	width: 10rem;
+	z-index: 2;
 
 	>.icon{
 		@include size(2.1rem);
@@ -604,6 +617,19 @@
 		    border-radius: 0.1rem;
 		    margin: 1.23rem auto;
 		    margin-left: -0.7rem;
+		}
+	}
+
+	&.photo-buttons{
+		@include  spindle-center(center);
+		left: 3.5rem;
+	    right: 3.5rem;
+        bottom: 3.15rem;
+		width: auto;
+
+		&.active{
+			@include  spindle-center(space-between);
+			left: 3.5rem;
 		}
 	}
 
@@ -1224,5 +1250,83 @@
 		color: $color-text-gray-light;
 		font-size: 0.5rem;
 		line-height: 1.5rem;
+	}
+}
+
+// Clipping-wrapper
+//--------------------------------
+.clipping-wrapper{
+	overflow: hidden;
+	background: $color-gray;
+}
+.clipping-wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10400;
+    color: $color-text;
+    background-color: $color-bg;
+    box-sizing: border-box;
+    @include scrollable;
+    transition-property: transform;
+    transform: translate3d(100%, 0, 0);
+    &.clipping-in, &.clipping-out {
+        transition-duration: $live-duration;
+    }
+    &.clipping-in {
+        transform: translate3d(0, 0, 0);
+    }
+    &.clipping-out {
+        transform: translate3d(100%, 0, 0);
+    }
+}
+.clipping-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 10200;
+    visibility: hidden;
+    opacity: 0;
+    transition-duration: $live-duration;
+    &.clipping-overlay-visible {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+.clipping-header {
+	+.clipping-content {
+		bottom: 4.9rem;
+		margin: 0;
+	}
+}
+
+.clipping-content {
+	/* Limit image width to avoid overflow the container */
+	>img {
+	  max-width: 100%; /* This rule is very important, please do not ignore this! */
+	}
+
+	&.cropper-crop-round .cropper-crop-box {
+		overflow: hidden;
+	    border: 1px solid $color-text;
+	}
+}
+
+.clipping-footer {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+    height: 4.9rem;
+	background: $color-text-gray;
+	@include spindle-center(center);
+
+	>.button {
+	    min-width: 10.5rem;
 	}
 }

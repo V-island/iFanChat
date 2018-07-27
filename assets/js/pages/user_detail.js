@@ -1,5 +1,6 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
+import RecordPhoto from '../record-photo';
 import Modal from '../modal';
 
 import {
@@ -13,7 +14,9 @@ import {
     findAllUserHobby,
     findHobbyByUserId,
     findAllCharacterType,
-    findCharacterTypeByUserId
+    findCharacterTypeByUserId,
+    saveInterest,
+    saveMyType
 } from '../api';
 
 import {
@@ -97,33 +100,17 @@ export default class UserDetail extends EventEmitter {
 	_bindEvent() {
 		// 头像
 		addEvent(this.itemAvatarEl, 'click', () => {
-			modal.options({
-				buttons: [{
-					text: DETAIL.Gender.Madal.Take,
-					value: 1,
-					onClick: (text, value) => {
-					}
-				}, {
-					text: DETAIL.Gender.Madal.Select,
-					value: 2,
-					onClick: (text, value) => {
-					}
-				}]
-			});
+			let recordPhoto = new RecordPhoto();
 
-			let record = new Record({
-		    	config: {
-		    	    audio: false,
-		    	    video: true
-		    	},
-		        newDayVideo: true,
-		        notUpload: true,
-		        takePhotos: true
-    		});
-
-			record.show();
-			record.on('record.success', (file, imgURL) => {
-			});
+			recordPhoto.on('recordPhoto.clipping', (File, URL) => {
+				console.log(File);
+				console.log(URL);
+                uploadHead(File, (data) => {
+                	this.livesPhotoEl = document.getElementById("img");
+                	this.livesPhotoEl.src = URL;
+                	this.itemUserImgEl.appendChild(this.livesPhotoEl);
+                });
+            });
         });
 
 		// 用户名
@@ -235,9 +222,7 @@ export default class UserDetail extends EventEmitter {
 					closeBtn: true,
 					selected: 3,
 				}, (value, text) => {
-					console.log(value);
-					console.log(text);
-					console.log(value.join(','));
+					saveInterest(value.toString());
 				});
 			});
 		});
@@ -261,9 +246,7 @@ export default class UserDetail extends EventEmitter {
 					closeBtn: true,
 					selected: 3,
 				}, (value, text) => {
-					console.log(value);
-					console.log(text);
-					console.log(value.join(','));
+					saveMyType(value.toString(), 1);
 				});
 			});
 		});
@@ -287,19 +270,9 @@ export default class UserDetail extends EventEmitter {
 					closeBtn: true,
 					selected: 3,
 				}, (value, text) => {
-					console.log(value);
-					console.log(text);
-					console.log(value.join(','));
+					saveMyType(value.toString(), 2);
 				});
 			});
-		});
-	}
-
-	_saveAvatarImg(file, imgURL) {
-		let getUploadHead = uploadHead(file);
-
-		getUploadHead.then(() => {
-
 		});
 	}
 
