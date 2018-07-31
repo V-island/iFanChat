@@ -7,6 +7,7 @@ import fcConfig from './intro';
 import {
     liveStatus,
     getUserInfo,
+    setUserInfo,
     createChannel,
     loginChannel,
     closeChannel,
@@ -221,7 +222,7 @@ export default class Client extends EventEmitter {
      * @return {[type]} [description]
      */
     _createChannel(account, _info) {
-    	this.retClient = new RtcClient(_info);
+    	this.retClient = new RtcClient(_info, this.livePrice);
         this.clientModalEl = this.retClient.clientModalEl;
         this.livesCommentsEl = this.retClient.livesCommentsContentEl;
         this.livesGiftsEl = this.retClient.livesGiftsEl;
@@ -262,7 +263,7 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _onJoinChannel(account, _info) {
-		this.localRetClient = new RtcClient(_info);
+		this.localRetClient = new RtcClient(_info, this.livePrice);
         this.clientModalEl = this.localRetClient.clientModalEl;
         this.livesCommentsEl = this.localRetClient.livesCommentsContentEl;
         this.livesGiftsEl = this.localRetClient.livesGiftsEl;
@@ -273,7 +274,6 @@ export default class Client extends EventEmitter {
 
     	// 加入直播间
     	this.localRetClient.on('rtcClient.join', (channel) => {
-
             loginChannel(_info.channel).then((data) => {
                 if (!data) return;
 
@@ -285,7 +285,6 @@ export default class Client extends EventEmitter {
     	this.localRetClient.on('rtcClient.leave', (channel, info, type) => {
 
             this.signal.leave().then(() => {
-
                 closeChannel(channel).then((data) => {
                     if (!data) return;
 
@@ -316,6 +315,9 @@ export default class Client extends EventEmitter {
             getReward.then((data) => {
                 if (!data) return;
 
+                setUserInfo('userPackage', data);
+                this.localRetClient._onClearCountdown();
+                this.localRetClient._onCreateCountdown(parseInt(data / this.livePrice));
                 this._onGiftsCall(giftId);
                 this.signal.sendMessage(account, JSON.stringify({
                     status: 'gifts',

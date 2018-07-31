@@ -120,8 +120,6 @@ export default class LivePreview extends EventEmitter {
 
         addEvent(buttonCallEl, 'click', () => {
             let localInfo = getUserInfo();
-            console.log(this.info.live_price);
-            console.log(localInfo.userPackage);
 
             if (parseInt(localInfo.userPackage / this.info.live_price) < 1) {
                 return modal.alert(LANG.HOME.Madal.NotCoins.Text, LANG.HOME.Madal.NotCoins.Title, () => {

@@ -276,6 +276,14 @@ export function getUserInfo() {
 	return getLocalStorage(UER_NAME);
 }
 
+// 更新用户信息
+export function setUserInfo(name, value) {
+	let _info = getUserInfo();
+	_info[name] = value;
+
+	return setLocalStorage(UER_NAME, _info);
+}
+
 // 判断是否是主播
 export function checkAuth() {
 	let _auth = getLocalStorage(UER_NAME);

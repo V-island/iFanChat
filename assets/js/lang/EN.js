@@ -424,7 +424,7 @@ const Lang = {
 			},
 			InsufficientAmount: {
 				Title: 'Insufficient Amount',
-				Text: 'Your gold coins will be used <span> after 5 minutes</span> please recharge in'
+				Text: 'Your gold coins will be used <span> after 1 minutes</span> please recharge in'
 			}
 		}
 	},

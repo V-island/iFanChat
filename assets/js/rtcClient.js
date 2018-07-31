@@ -64,7 +64,7 @@ const MSG = {
 }
 
 export default class RtcClient extends EventEmitter {
-    constructor(options) {
+    constructor(options, livePrice) {
         super();
 
         this.data = {};
@@ -90,10 +90,11 @@ export default class RtcClient extends EventEmitter {
         this.uId = options.userId;
         this.info = options.info;
         this.localInfo = getUserInfo();
+        this.livePrice = livePrice;
 
         extend(this.data, LANG);
         extend(this.options, options);
-        console.log(this.options);
+
         this.rtcClientFile = fcConfig.publicFile.client_rtc;
 
         this.clientModalEl = modal.popup(this._clientRtcTemplate(this.info));
@@ -137,6 +138,7 @@ export default class RtcClient extends EventEmitter {
                     console.log("Leavel channel successfully");
                     modal.closeModal(this.clientModalEl);
                     this.localStream.close();
+                    this._onClearCountdown();
                     this.trigger('rtcClient.leave', this.options.channel, this.info, true);
                 }, (err) => {
                     console.log("Leave channel failed");
@@ -251,9 +253,11 @@ export default class RtcClient extends EventEmitter {
 
                 addEvent(btnSendEl, 'click', () => {
                     let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
-                    console.log(tagActiveEl);
                     let giftId = getData(tagActiveEl, 'id');
-                    console.log(giftId);
+
+                    if ((this.localInfo.userPackage - giftId) > 0 ) {
+                        return;
+                    }
 
                     this.trigger('rtcClient.onGift', this.info.userAccount, this.options.channel, giftId);
                     modal.closeModal(giftModalEl);
@@ -261,13 +265,18 @@ export default class RtcClient extends EventEmitter {
 
                 // 充值
                 addEvent(btnRechargeEl, 'click', () => {
-                    let rechargeModalEl = modal.actions(this.tpl.live_recharge, {
-                        title: LANG.LIVE_PREVIEW.Actions.Recharge,
-                        closeBtn: true
-                    });
+                    this._rechargeModalEl();
                 });
             });
         }
+    }
+
+    // 充值功能
+    _rechargeModalEl() {
+        let rechargeModalEl = modal.actions(this.tpl.live_recharge, {
+            title: LANG.LIVE_PREVIEW.Actions.Recharge,
+            closeBtn: true
+        });
     }
 
     // 创建 Client 对象
@@ -328,6 +337,8 @@ export default class RtcClient extends EventEmitter {
          */
         this.client.join(this.channelKey, this.channel, this.uId, (uid) => {
             console.log(MSG.successJoin.replace('%s', uid));
+            let initLiveTiming = parseInt(this.localInfo.userPackage / this.livePrice);
+            this._onCountdown(initLiveTiming);
             this.trigger('rtcClient.join', this.options.channel);
 
             // 创建本地流, 修改对应的参数可以指定启用/禁用特定功能
@@ -494,6 +505,7 @@ export default class RtcClient extends EventEmitter {
                 console.log("Leavel channel successfully");
                 modal.closeModal(this.clientModalEl);
                 this.localStream.close();
+                this._onClearCountdown();
                 this.trigger('rtcClient.leave', this.options.channel, this.info, false);
             }, (err) => {
                 console.log("Leave channel failed");
@@ -522,6 +534,54 @@ export default class RtcClient extends EventEmitter {
                 });
             }
         });
+    }
+
+    // 创建计时器
+    _onCreateCountdown(time) {
+        if (time < 1) {
+            this.client.leave(() => {
+                console.log("Leavel channel successfully");
+                this.localStream.close();
+                this.trigger('rtcClient.leave', this.options.channel, this.info, true);
+            }, (err) => {
+                console.log("Leave channel failed");
+            });
+        }
+
+        time = time - 1;
+
+        this.liveTiming = setTimeout(() => {
+            let amountModalEl = modal.actions(this.tpl.live_amount, {
+                title: LANG.LIVE_PREVIEW.Madal.InsufficientAmount.Title
+            });
+            let btnCancelEl = amountModalEl.getElementsByClassName('btn-cancel')[0];
+            let btnPassEl = amountModalEl.getElementsByClassName('btn-pass')[0];
+
+            addEvent(btnCancelEl, 'click', () => {
+                modal.closeModal(amountModalEl);
+            });
+
+            addEvent(btnPassEl, 'click', () => {
+                this._rechargeModalEl();
+                modal.closeModal(amountModalEl);
+            });
+
+            this.liveTiming = setTimeout(() => {
+                this.client.leave(() => {
+                    console.log("Leavel channel successfully");
+                    this.localStream.close();
+                    this.trigger('rtcClient.leave', this.options.channel, this.info, true);
+                }, (err) => {
+                    console.log("Leave channel failed");
+                });
+            }, 1000);
+
+        }, time*1000);
+    }
+
+    // 移除计时器
+    _onClearCountdown() {
+        clearTimeout(this.liveTiming);
     }
 
     _clientRtcTemplate(info) {
