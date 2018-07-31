@@ -9,6 +9,8 @@ import Favorite from './pages/favorite';
 import Message from './pages/message';
 import User from './pages/user';
 
+import FreeVideo from './pages/free_video';
+
 // 用户中心
 import UserDetail from './pages/user_detail';
 import UserVideo from './pages/user_video';
@@ -92,7 +94,13 @@ const fcConfig = {
         name: 'home',
         path: '../pages/home.html',
         component: Home,
-        navTabs: 1
+        navTabs: 1,
+        children: [{
+            name: 'freevideo',
+            path: '../pages/free_video.html',
+            component: FreeVideo,
+            init: 1
+        }]
     }, {
         name: 'favorite',
         path: '../pages/favorite.html',

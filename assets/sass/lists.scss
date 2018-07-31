@@ -125,6 +125,57 @@
         }
     }
 
+    &.list-comments{
+        margin-bottom: 0.35rem;
+
+        .list-item{
+            padding: 1rem 0 0.4rem;
+            box-sizing: content-box;
+            align-items: start;
+            height: auto;
+
+            &:first-of-type {
+                padding-top: 0.4rem;
+            }
+
+            &:after {
+                content: "";
+                height: 1px;
+                background: $actions-modal-color-split;
+                position: absolute;
+                left: 1.75rem;
+                right: 0;
+                bottom: 0;
+            }
+        }
+
+        .list-item-graphic{
+            @include size(1.4rem);
+            flex: 0 0 1.4rem;
+
+            &.image{
+                background-size: cover;
+                border-radius: 50%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-color: $color-text-gray-light;
+            }
+        }
+
+        .list-item-text{
+            color: $color-text-gray-light;
+            font-size: 0.4rem;
+            line-height: 1rem;
+            flex: 1 0 0;
+        }
+
+        .list-item-secondary{
+            font-size: 0.6rem;
+            color: $color-text-gray;
+            white-space: normal;
+        }
+    }
+
     &.list-user{
         background: $list-user-bg-color;
         margin-bottom: 0.35rem;

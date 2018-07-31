@@ -26,17 +26,22 @@
                             <div class="col-50 card card-video">
                                 <div class="card-content" data-id="{{$value.id}}" data-url="{{$value.video_url}}">
                                     <div class="card-video-header">
-                                        <span class="tag-label">10 {{PUBLIC.Billing}}</span>
-                                        <span class="status-label review">{{PUBLIC.Review}}</span>
-                                        <span class="status-label refuse">{{PUBLIC.Refuse}}</span>
-                                        <span class="status-label free">{{PUBLIC.Free}}</span>
-                                        <div class="btn-close-video">
-                                            <i class="icon user-close-video"></i>
-                                        </div>
+                                        {{if $value.status == 1}}
+                                            <span class="status-label review">{{PUBLIC.Review}}</span>
+                                        {{else if $value.status == 2}}
+                                            {{if $value.type == 1}}
+                                                <span class="status-label free">{{PUBLIC.Free}}</span>
+                                            {{else if $value.type == 2}}
+                                                <span class="tag-label">{{$value.price}} {{PUBLIC.Billing}}</span>
+                                            {{/if}}
+                                        {{else if $value.status == 3}}
+                                            <span class="status-label refuse">{{PUBLIC.Refuse}}</span>
+                                        {{/if}}
+                                        <i class="icon user-close-video btn-close-video"></i>
                                     </div>
-                                    <div class="media" style="background-image: url({{$value.video_img}});"></div>
+                                    <div class="media" style="background-image: url({{$value.img_url}});"></div>
                                     <div class="showdom">
-                                        <p class="summary-txt">{{$value.video_title}}</p>
+                                        <p class="summary-txt">{{$value.video_description}}</p>
                                         <div class="video-info">
                                             <p class="video-time">{{$value.create_time}}</p>
                                             <div class="user-follow">
@@ -60,8 +65,6 @@
                                 </div>
                             </div>
                         {{/each}}
-                    {{else}}
-                        <p class="no-more">{{USER_VIDEO.No_More}}</p>
                     {{/if}}
                 </div>
                 <!-- /.box-cards -->

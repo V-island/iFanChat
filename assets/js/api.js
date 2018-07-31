@@ -95,23 +95,29 @@ const HOT_List_DATA = [{
 const VIDEO_List_DATA = [{
 	user_id: 1,
 	id: 199,
-	video_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
-	video_title: "Do you like me",
+	img_url: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	video_url: "http://10.30.11.112:8080/file/14/videos/video.mp4",
+	video_description: "Do you like me",
 	create_time: "2018-8-19",
 	support: 9999,
 	watch_number: 999,
 	price: 10,
+	status: 2,
+	type: 1,
 	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
 	user_name: "LIVE"
 }, {
 	user_id: 2,
 	id: 456,
-	video_img: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
-	video_title: "Do you not come to see such",
+	img_url: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
+	video_description: "Do you not come to see such",
+	video_url: "http://10.30.11.112:8080/file/14/videos/video.mp4",
 	create_time: "2018-8-19",
 	support: 685,
 	watch_number: 9999,
 	price: 10,
+	status: 2,
+	type: 2,
 	user_head: "http://www.opixer.com/var/thumb/a4430993ef8cfca015e83a1e5680edc5-1280-900.jpg",
 	user_name: "COME"
 }];
@@ -184,7 +190,7 @@ function getPost(_url, param, callback, callbackCancel, onProgress, _type, _head
 	let token = localStorage.getItem('token');
 		_type = _type == undefined ? Type : _type;
 		// _baseURL = _url.indexOf('https')>-1 ? _url : baseURL;
-		_header = _header != undefined ? _header : {};
+		_header = _header != undefined ? _header : '';
 		param = param != undefined ? param : '';
 
 	if (!isObject(_url)) {
@@ -476,8 +482,7 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 			if (_checkLogin) {
 				return location.href = '#/home';
 			}
-			// resolve(response.data ? response.data : USER_INFO);
-			resolve(USER_INFO);
+			resolve(response.data ? response.data : USER_INFO);
 		});
 	});
 };
@@ -730,11 +735,15 @@ export function findWatchHistory() {
 
 /**
  * 关注
- * @return {[type]} [description]
+ * @param  {[type]} _id     关注（粉丝ID）的用户ID
+ * @param  {[type]} _status 状态 1. 关注 2.取消关注
+ * @return {[type]}         [description]
  */
-export function follow() {
+export function follow(_id, _status) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
+		fans_user_id: _id,
+		status: _status,
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
@@ -770,7 +779,7 @@ export function uploadHead(_file, callback, onProgress) {
 	formData.append("file", _file);
 
 	getPost(formData, function(response) {
-		callback(response);
+		callback(response.data);
 	}, function(progress) {
 		if (typeof onProgress === 'function') {
 		  onProgress(progress);
@@ -875,7 +884,7 @@ export function closeChannel(channel) {
 	return new Promise((resolve) => {
 
 		getPost('/closeChannel', _params, function(response) {
-			resolve(true);
+			resolve(response.data);
 		},function(response) {
 			resolve(false);
 		});
@@ -951,7 +960,7 @@ export function getAdvertisement() {
 export function playVideo(videoID) {
 	let _info = getLocalStorage(UER_NAME);
 	let _params = {
-		Id: videoID,
+		id: videoID,
 		userId: _info.userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
@@ -1143,7 +1152,6 @@ export function uploadVideo(_file, _type, _title, _tagID, callback, onProgress) 
 	    _title = false;
 	    _tagID = false;
 	}
-
 	let _info = getLocalStorage(UER_NAME);
 	let formData = new FormData();
 

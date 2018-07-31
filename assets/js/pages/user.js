@@ -39,6 +39,7 @@ export default class User extends EventEmitter {
 
 		Promise.all([getUserInfo]).then((data) => {
 			this.data.UserInfo = data[0] ? data[0] : false;
+			console.log(data);
 			this.UserEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.UserEl);
 			this._init();

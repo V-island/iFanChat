@@ -93,7 +93,7 @@
                     </div>
                     <p class="user-name">{{LiveInfo.userName}} {{if LiveInfo.userSex == 1}} <i class="icon icon-male"></i> {{else}} <i class="icon icon-female"></i> {{/if}}</p>
                 </div>
-                <p class="header-txt">{{LIVE_PREVIEW.End_Live_User.Chat_Length}} 60{{LIVE_PREVIEW.End_Live_User.Min}}</p>
+                <p class="header-txt">{{LIVE_PREVIEW.End_Live_User.Chat_Length}} {{LiveEndTime}}{{LIVE_PREVIEW.End_Live_User.Min}}</p>
             </div>
 
             <div class="popup-content">
@@ -146,11 +146,11 @@
 
             <div class="popup-content score-box">
                 <p>{{LIVE_PREVIEW.End_Live_Anchor.Text}}</p>
-                {{if TodayLive}}
+                {{if TodayLive.list}}
                     <div class="tag score-gift">
-                        {{each TodayLive}}
+                        {{each TodayLive.list}}
                             <div class="item">
-                                <span class="icon item-img {{IconGiftList[$index]}}"></span>
+                                <span class="item-img" style="{{if $value.gifts_url}} background-image: url({{$value.gifts_url}}); {{/if}}"></span>
                                 <span class="item-amount">X {{$value.amount}}</span>
                             </div>
                         {{/each}}
@@ -183,7 +183,7 @@
                             <p class="user-name">{{LiveInfo.userName}}</p>
                             <p class="user-txt">{{$value.gifts_name}}</p>
                         </div>
-                        <i class="icon {{IconGiftList[$index]}}"></i>
+                        <i class="icon" style="{{if $value.gifts_url}} background-image: url({{$value.gifts_url}}); {{/if}}"></i>
                         <p class="gift-amount">X1</p>
                     </div>
                 {{/if}}

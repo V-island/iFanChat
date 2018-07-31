@@ -48,8 +48,8 @@ export default class RecordPhoto extends EventEmitter {
 
             inRecordClass: 'record-in',
             outRecordClass: 'record-out',
-            livesPhotoClass: 'btn-photo',
-            recordBtnClass: 'btn-record',
+            livesPhotoClass: 'lives-photo',
+            recordBtnClass: 'btn-photo',
             buttonsClass: 'photo-buttons',
             videoClass: 'video',
             closeClass: 'live-close',
@@ -217,8 +217,6 @@ export default class RecordPhoto extends EventEmitter {
 
             this.livesPhotoEl = createDom('<div class="'+ this.options.livesPhotoClass +'"  style="background-image: url('+ this.fileURL +');"></div>');
             this.recordPhotoEl.appendChild(this.livesPhotoEl);
-            console.log(this.fileURL);
-            console.log(this.livesPhotoEl);
         });
 
         // 关闭录制器
@@ -275,9 +273,9 @@ export default class RecordPhoto extends EventEmitter {
     _clippingTemplate(options) {
         let html = '';
 
-        html = '<div class="'+ options.clippingWrapperClass + (options.clippingRound ? options.clippingRoundClass : '') +'">';
+        html = '<div class="'+ options.clippingWrapperClass +'">';
         html += '<header class="bar bar-flex '+ options.clippingHeaderClass +'"><div class="icon-btn '+ options.btnClippingCloseClass +'" data-ripple><i class="icon icon-arrow-back"></i></div><h1 class="title">'+ RECORD_LANG.Photo.Title +'</h1></header>';
-        html += '<div class="content block '+ options.clippingContentClass +'"><img class="'+ options.clippingImageClass +'" src="'+ this.fileURL +'"></div>';
+        html += '<div class="content block '+ options.clippingContentClass + ' ' + (options.clippingRound ? options.clippingRoundClass : '') +'"><img class="'+ options.clippingImageClass +'" src="'+ this.fileURL +'"></div>';
         html += '<div class="'+ options.clippingFooterClass +'"><div class="button button-primary '+ options.btnClippingConfirmClass +'" data-ripple>'+ RECORD_LANG.Photo.Buttons +'</div></div>';
         html += '</div>';
 

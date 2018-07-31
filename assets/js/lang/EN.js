@@ -16,6 +16,9 @@ const Lang = {
 				Title: 'Exciting',
 			}
 		},
+		FreeVideo: {
+			Title: 'Free video'
+		},
 		VideoType: [{
 			Id: 1,
 			Title: 'Dance'
@@ -111,13 +114,11 @@ const Lang = {
 	},
 	USER_VIDEO: {
 		Title: 'Your video clips',
-		No_More: 'No more~',
 		Add_Title: 'Add',
 		Add_Text: '(To earn money)'
 	},
 	USER_WATCH: {
-		Title: 'Watch history',
-		No_More: 'No more~'
+		Title: 'Watch history'
 	},
 	USER_PRICE: {
 		Title: 'Chatting price',
@@ -361,6 +362,7 @@ const Lang = {
 			Account: 'account:',
 			Coins: 'coins',
 			ShareTo: 'Share to',
+			Comment: 'Comment',
 			Gift: 'Gift',
 			Recharge: 'Recharge',
 			Send: 'Send'
@@ -444,6 +446,7 @@ const Lang = {
 		Free: 'Free',
 		Heat: 'heat',
 		Country: 'Country',
+		No_More: 'No more~',
 		Status: {
 			Busy: 'Busy',
 			Waiting: 'waiting'

@@ -8,7 +8,8 @@ import fcConfig from './intro';
 
 import {
     getUserInfo,
-    findAllgifts
+    findAllgifts,
+    follow
 } from './api';
 
 import {
@@ -29,22 +30,6 @@ import {
 
 const LANG = getLangConfig();
 const modal = new Modal();
-const IconGiftList = [
-    'gift-lollipop',
-    'gift-flowers',
-    'gift-kiss',
-    'gift-baby-bear',
-    'gift-love',
-    'gift-chocolate',
-    'gift-bunch-love',
-    'gift-perfume',
-    'gift-cake',
-    'gift-ring',
-    'gift-crown',
-    'gift-sports-car',
-    'gift-aircraft',
-    'gift-castle'
-];
 
 const LoginMode = 'web';
 const MSG = {
@@ -105,7 +90,6 @@ export default class RtcClient extends EventEmitter {
         this.uId = options.userId;
         this.info = options.info;
         this.localInfo = getUserInfo();
-        this.IconGiftList = IconGiftList;
 
         extend(this.data, LANG);
         extend(this.options, options);
@@ -133,7 +117,6 @@ export default class RtcClient extends EventEmitter {
         let getAllgifts = findAllgifts();
         getAllgifts.then((data) => {
             this.data.GiftList = data;
-            this.data.IconGiftList = IconGiftList;
             this.data.UserInfoList = this.localInfo;
 
             importTemplate(this.rtcClientFile, (id, _template) => {
@@ -165,8 +148,19 @@ export default class RtcClient extends EventEmitter {
 
         // 加关注
         addEvent(this.btnAddAttentionEl, 'click', () => {
-            removeClass(this.btnAddAttentionEl, this.options.iconAttentionClass);
-            addClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
+            let index = getData(this.btnAddAttentionEl, 'id'),
+                status;
+
+            if (hasClass(this.btnAddAttentionEl, this.options.iconAttentionClass)) {
+                removeClass(this.btnAddAttentionEl, this.options.iconAttentionClass);
+                addClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
+                status = 1;
+            }else {
+                removeClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
+                addClass(this.btnAddAttentionEl, this.options.iconAttentionClass);
+                status = 2;
+            }
+            follow(index, status);
         });
 
         // 聊天
@@ -195,7 +189,8 @@ export default class RtcClient extends EventEmitter {
         addEvent(this.btnShareEl, 'click', () => {
             let shareModalEl = modal.actions(this.tpl.live_share, {
                 title: LANG.LIVE_PREVIEW.Actions.ShareTo,
-                closeBtn: true
+                closeBtn: true,
+                cancelBtn: true
             });
             let shareLabelEl = shareModalEl.getElementsByClassName('share-label');
 
@@ -538,7 +533,7 @@ export default class RtcClient extends EventEmitter {
         html += info.userSex == 1 ? '<div class="user-img avatar-male">' : '<div class="user-img avatar-female">';
         html += info.userHead ? '<img src="'+ info.userHead +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ info.userName +'</p><p class="user-txt">'+ info.userHeat + ' ' + LANG.PUBLIC.Heat +'</p></div></div>';
-        html += '<i class="icon live-attention '+ this.options.btnAddAttentionClass +'"></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div>';
+        html += '<i class="icon live-attention '+ this.options.btnAddAttentionClass +'" data-id="'+ info.userAccount +'></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div>';
         html += '<div class="'+ this.options.livesGiftsClass +'"></div>';
         html += '<div class="lives-footer"><div class="lives-comments"><div class="'+ this.options.livesCommentsContentClass +'"></div></div>';
         html += '<div class="lives-buttons rtc-buttons"><div class="icon live-news '+ this.options.btnNewsClass +'"></div><div class="icon live-share '+ this.options.btnShareClass +'"></div>';

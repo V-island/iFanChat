@@ -13,7 +13,8 @@
 }
 
 .tag {
-	@include flex-center;
+	// @include flex-center;
+	@include flex-spindle(start);
 	@include flex-werp(wrap);
 
 	&.tag-avatar {
@@ -33,9 +34,17 @@
 		color: $tag-txt-color;
 		min-width: 2.5rem;
 		padding: 0 0.6rem;
-		margin: 0.25rem;
+		margin: 0.35rem;
 		text-align: center;
 		line-height: 1.3rem;
+
+		&:first-of-type {
+			margin-left: 0;
+		}
+
+		&:last-of-type {
+			margin-right: 0;
+		}
 
 		>span {
 			margin-right: 0.25rem;
@@ -57,6 +66,7 @@
 		border: 1px solid transparent;
 		text-align: center;
 		padding: 0.35rem 0;
+	    // margin: 0 0.3rem;
 
 		>p {
 			font-size: 0.5rem;

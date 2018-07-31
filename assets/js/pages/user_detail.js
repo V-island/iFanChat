@@ -105,12 +105,8 @@ export default class UserDetail extends EventEmitter {
 			});
 
 			recordPhoto.on('recordPhoto.clipping', (File, URL) => {
-				console.log(File);
-				console.log(URL);
                 uploadHead(File, (data) => {
-                	this.livesPhotoEl = document.getElementById("img");
-                	this.livesPhotoEl.src = URL;
-                	this.itemUserImgEl.appendChild(this.livesPhotoEl);
+                	this.itemUserImgEl.style.backgroundImage = 'url('+ data +')';
                 });
             });
         });

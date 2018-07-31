@@ -145,6 +145,15 @@ a {
 .no-bg {
     background: none !important;
 }
+
+p.no-more {
+    text-align: center;
+    font-size: 0.6rem;
+    color: $color-text-gray-light;
+    line-height: 2;
+    margin: 0.35rem 0;
+}
+
 //color
 .color-price{
     color: #FCC635 !important;

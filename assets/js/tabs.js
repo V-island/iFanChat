@@ -159,8 +159,8 @@ export default class Tabs extends EventEmitter {
     }
 
     _liveWaitingTemplate(options) {
-        let img = options.head ? 'background-image: url('+ options.head +');' : '';
-        let html = '<div class="tab-live-box"><div class="user-img '+ (options.sex == 1 ? 'avatar-male' : 'avatar-female') +'" style="'+ img +'"></div></div>';
+        let img = options.userHead ? 'background-image: url('+ options.userHead +');' : '';
+        let html = '<div class="tab-live-box"><div class="user-img '+ (options.userSex == 1 ? 'avatar-male' : 'avatar-female') +'" style="'+ img +'"></div></div>';
 
         return html;
     }

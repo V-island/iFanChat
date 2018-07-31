@@ -7,10 +7,48 @@
     </div>
 </script>
 
+<!-- 留言 Comment -->
+<script id="live_comments" type="text/html">
+    <div class="actions-modal-group comments-group">
+        <ul class="list list-comments">
+            <li class="list-item">
+                <span class="list-item-graphic image"></span>
+                <span class="list-item-text">Evangeline
+                    <span class="list-item-secondary">Are you so beautiful that you can meet you?</span>
+                </span>
+            </li>
+            <li class="list-item">
+                <span class="list-item-graphic image"></span>
+                <span class="list-item-text">Otter
+                    <span class="list-item-secondary">Hello, what can I do for you?</span>
+                </span>
+            </li>
+            <li class="list-item">
+                <span class="list-item-graphic image"></span>
+                <span class="list-item-text">Carrie
+                    <span class="list-item-secondary">Nice!</span>
+                </span>
+            </li>
+            <li class="list-item">
+                <span class="list-item-graphic image"></span>
+                <span class="list-item-text">One
+                    <span class="list-item-secondary">HI like you! Are you so beautiful that you can meet you?</span>
+                </span>
+            </li>
+        </ul>
+        <p class="no-more">{{PUBLIC.No_More}}</p>
+    </div>
+    <div class="actions-modal-group news-group comments-forms">
+        <textarea class="news-input" rows="1"></textarea>
+        <div class="news-phiz"><i class="icon modals-phiz"></i></div>
+        <div class="button fill-gray btn-send">{{LIVE_PREVIEW.Actions.Send}}</div>
+    </div>
+</script>
+
 <!-- 分享 Share to closeBtn-->
 <script id="live_share" type="text/html">
     <div class="actions-modal-group share-group">
-        <div class="tag">
+        <div class="tag tag-share">
             <label class="share-label" data-ripple>
                 <i class="icon modals-fecebook"></i>
                 <span>{{LIVE_PREVIEW.Share.Facebook}}</span>
@@ -36,7 +74,7 @@
                 {{each GiftList}}
                     {{if ($index > 7) && (($index % 8) == 0) }} <div class="tag gift-item"> {{/if}}
                     <label class="gift-label {{if $value.gifts_price == 0 }} active {{/if}}" data-id="{{$value.id}}" data-ripple>
-                        <i class="icon {{IconGiftList[$index]}}"></i>
+                        <i class="icon" style="{{if $value.gifts_url}} background-image: url({{$value.gifts_url}}); {{/if}}"></i>
                         <p class="name">{{$value.gifts_name}}</p>
                         <p>{{$value.gifts_price}} {{LIVE_PREVIEW.Actions.Coins}}</p>
                     </label>

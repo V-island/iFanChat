@@ -11,11 +11,7 @@
         <div class="content block user-cover-wrapper">
             <div class="cover-header price-header">
                 <div class="user-info">
-                    <div class="user-img {{if UserInfo.user_sex == 1}} avatar-male {{else}} avatar-female {{/if}}">
-                        {{if UserInfo.user_head}}
-                            <img src="{{UserInfo.user_head}}">
-                        {{/if}}
-                    </div>
+                    <div class="user-img {{if UserInfo.user_sex == 1}} avatar-male {{else}} avatar-female {{/if}}" style="{{if UserInfo.user_head}} background-image: url({{UserInfo.user_head}}); {{/if}}"></div>
                 </div>
                 <!-- /.user-info -->
 
@@ -40,14 +36,14 @@
                     </div>
                     <!-- /.star-content -->
 
-                    <p class="star-text">{{if UserInfo.user_identity == 2}}{{USER_PRICE.Certified}}{{else}}{{USER_PRICE.Non_Certified}}{{/if}}</p>
+                    <p class="star-text">{{if UserInfo.user_authentication == 2}}{{USER_PRICE.Certified}}{{else}}{{USER_PRICE.Non_Certified}}{{/if}}</p>
                 </div>
                 <!-- /.star-box -->
             </div>
             <!-- /.cover-header price-headerr -->
 
             <div class="cover-content price-content">
-                {{if UserInfo.user_identity == 2}}
+                {{if UserInfo.user_authentication == 2}}
                     <div class="price-remarks-header">
                         <p>{{USER_PRICE.Certified_Remarks.Title}}</p>
                     </div>

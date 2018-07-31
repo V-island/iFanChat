@@ -4,6 +4,7 @@ import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
 import LivePreview from '../livePreview';
+import VideoPreview from '../videoPreview';
 import fcConfig from '../intro';
 
 import {
@@ -15,7 +16,8 @@ import {
     hotVideo,
     videoClips,
     getAdvertisement,
-    videoType
+    videoType,
+    playVideo
 } from '../api';
 
 import {
@@ -67,7 +69,7 @@ export default class Home extends EventEmitter {
 	    extend(this.options, options);
 	    extend(this.data, LANG);
 
-	    this.tabFile = fcConfig.publicFile.home_items;
+	    this.homeFile = fcConfig.publicFile.home_items;
 	    this.init(element);
 	}
 
@@ -97,7 +99,7 @@ export default class Home extends EventEmitter {
 
 		this.tpl = {};
 
-		importTemplate(this.tabFile, (id, _template) => {
+		importTemplate(this.homeFile, (id, _template) => {
 		    this.tpl[id] = _template;
 		});
 	}
@@ -162,7 +164,13 @@ export default class Home extends EventEmitter {
 		// video list
 		for (let i = 0; i < this.cardVideoEl.length; i++) {
 		    addEvent(this.cardVideoEl[i], 'click', function() {
-		    	console.log('查看视频');
+		    	let info = JSON.parse(getData(this, 'userInfo'));
+
+		    	playVideo(info.id).then((data) => {
+		    		if (!data) return;
+
+		    		let _videoPreview = new VideoPreview(data);
+		    	});
 		    });
 		}
 	}

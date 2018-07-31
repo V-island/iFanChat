@@ -10,7 +10,9 @@ import {
 } from './lang';
 import {
     extend,
+    getData,
     addEvent,
+    replaceNote,
     dispatchEvent,
     createDom,
     hasClass,
@@ -74,10 +76,13 @@ export default class RecordVideo extends EventEmitter {
             inVideoInfoClass: 'clipping-in',
             outVideoInfoClass: 'clipping-out',
             videoInfoContentClass: 'videoInfo-content',
+            editVideoClass: 'edit-video',
+            editTextareaClass: 'edit-textarea',
+            tagsBoxClass: 'tags-box',
+            tagsBoxItemClass: 'tags-item',
             btnEditCloseClass: 'btn-close',
             btnEditConfirmClass: 'btn-confirm',
             btnEditSaveLocalClass: 'btn-save-local',
-
             showClass: 'active'
         };
 
@@ -207,7 +212,7 @@ export default class RecordVideo extends EventEmitter {
                 });
             }
 
-            this._uploadVideo(this.photosFile, this.photosFile);
+            this._uploadVideo(this.videoFile, this.photosFile);
         });
 
         // 本地导入视频
@@ -261,14 +266,15 @@ export default class RecordVideo extends EventEmitter {
 
         if(videoType) {
             for (let i = 0; i < videoType.length; i++) {
-                tagHTML += '<label class="tag-label" data-id="'+ videoType[i].id +'" ><span>#</span>'+ videoType[i].video_type +'</label>';
+                tagHTML += '<label class="tag-label '+ this.options.tagsBoxItemClass +'" data-id="'+ videoType[i].id +'" ><span>#</span>'+ videoType[i].video_type +'</label>';
             }
         }
 
         html = '<div class="'+ this.options.videoInfoWrapperClass+'">';
         html += '<header class="bar bar-flex"><div class="icon-btn '+ this.options.btnEditCloseClass +'" data-ripple><i class="icon icon-arrow-back"></i></div><h1 class="title">'+ RECORD_LANG.EditVideoInfo.Title +'</h1></header>';
         html += '<div class="content block '+ this.options.videoInfoContentClass +'">';
-        html += '<div class="cards-header"><p>'+ RECORD_LANG.EditVideoInfo.AddTag +'</p></div><div class="tag">'+ tagHTML + '</div>';
+        html += '<div class="edit-box"><div class="'+ this.options.editVideoClass +'"  style="background-image: url('+ this.imgURL +');"><i class="icon user-video-play"></i></div><textarea class="form-control '+ this.options.editTextareaClass +'" rows="3"></textarea></div>';
+        html += '<p class="tags-title">'+ RECORD_LANG.EditVideoInfo.AddTag +'</p><div class="tag '+ this.options.tagsBoxClass +'">'+ tagHTML + '</div>';
         html += '<div class="buttons  buttons-vertical"><div class="button button-primary '+ this.options.btnEditConfirmClass +'" data-ripple>'+ RECORD_LANG.EditVideoInfo.Buttons.Release +'</div><div class="button button-link '+ this.options.btnEditSaveLocalClass +'" data-ripple>'+ RECORD_LANG.EditVideoInfo.Buttons.SaveLocal +'</div></div>';
         html += '</div></div>';
 
@@ -463,7 +469,7 @@ export default class RecordVideo extends EventEmitter {
             showFont: true
         });
         let _type = this.newDayVideo ? 2 : 1;
-        uploadVideo([_videoFile, _photosFile], _type, (data) => {
+        uploadVideo([_videoFile, _photosFile], _type, _title, _tagId, (data) => {
             this._uploadHide();
             this.trigger('recordVideo.upload.success');
         }, (progress) => {
@@ -498,13 +504,60 @@ export default class RecordVideo extends EventEmitter {
 
         document.body.appendChild(this.editVideoInfoEl);
 
-        this.imageCropperEl = this.editVideoInfoEl.getElementsByClassName(this.options.clippingImageClass)[0];
+        this.editVideoEl = this.editVideoInfoEl.getElementsByClassName(this.options.editVideoClass)[0];
+        this.editTextareaEl = this.editVideoInfoEl.getElementsByClassName(this.options.editTextareaClass)[0];
         this.btnEditCloseEl = this.editVideoInfoEl.getElementsByClassName(this.options.btnEditCloseClass)[0];
         this.btnEditConfirmEl = this.editVideoInfoEl.getElementsByClassName(this.options.btnEditConfirmClass)[0];
         this.btnEditSaveLocalEl = this.editVideoInfoEl.getElementsByClassName(this.options.btnEditSaveLocalClass)[0];
+        this.tagsBoxEl = this.editVideoInfoEl.getElementsByClassName(this.options.tagsBoxClass)[0];
+        this.tagsBoxItemEl = this.editVideoInfoEl.getElementsByClassName(this.options.tagsBoxItemClass);
 
         this._videoInfoShow();
-        // this._bindVideoInfoEvent();
+        this._bindVideoInfoEvent();
+    }
+
+    // 编辑视频详细事件
+    _bindVideoInfoEvent() {
+
+        // 播放视频
+        addEvent(this.editVideoEl, 'click', () => {
+            // this._videoInfoHide();
+        });
+
+        // 关闭编辑视频详细
+        addEvent(this.btnEditCloseEl, 'click', () => {
+            this._videoInfoHide();
+        });
+
+        // 选择Tag
+        for (let i = 0; i < this.tagsBoxItemEl.length; i++) {
+            addEvent(this.tagsBoxItemEl[i], 'click', () => {
+                if (hasClass(this.tagsBoxItemEl[i], this.options.showClass)) return;
+
+                let activeEl = this.tagsBoxEl.getElementsByClassName(this.options.showClass)[0];
+
+                if (activeEl) removeClass(activeEl, this.options.showClass);
+
+                addClass(this.tagsBoxItemEl[i], this.options.showClass);
+            });
+        }
+
+        // 确认上传
+        addEvent(this.btnEditConfirmEl, 'click', () => {
+            let _title = replaceNote(this.editTextareaEl.value);
+            let activeEl = this.tagsBoxEl.getElementsByClassName(this.options.showClass)[0];
+
+            if (_title == '' || !activeEl) return false;
+
+            let _id = getData(activeEl, 'id');
+            this._videoInfoHide();
+            this._uploadVideo(this.videoFile, this.photosFile, _title, _id);
+        });
+
+        // 本地保存
+        addEvent(this.btnEditSaveLocalEl, 'click', () => {
+
+        });
     }
 
     /**

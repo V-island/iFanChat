@@ -13,10 +13,7 @@
                 <li class="list-item user-avatar item-avatar" data-ripple>
                     <span class="list-item-text">{{PERSONAL_DETAIL.Profile_photo.Title}}</span>
                     <div class="list-item-graphic user-info">
-                        <div class="user-img {{if UserDetail.user_sex == 1}} avatar-male {{else}} avatar-female {{/if}}">
-                            {{if UserDetail.user_head}}
-                                <img src="{{UserDetail.user_head}}">
-                            {{/if}}
+                        <div class="user-img {{if UserDetail.user_sex == 1}} avatar-male {{else}} avatar-female {{/if}}" style="{{if UserDetail.user_head}} background-image: url({{UserDetail.user_head}}); {{/if}}">
                         </div>
                     </div>
                 </li>

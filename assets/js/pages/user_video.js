@@ -1,6 +1,7 @@
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
 import RecordVideo from '../record-video';
+import VideoPreview from '../videoPreview';
 import {
     getLangConfig
 } from '../lang';
@@ -72,14 +73,6 @@ export default class UserVideo extends EventEmitter {
 	        });
 		}
 
-		// 浏览视频
-		for (let i = 0; i < this.videoEl.length; i++) {
-			addEvent(this.videoEl[i], 'click', () => {
-				let videoUrl = getData(this.videoEl[i], 'url');
-				console.log(videoUrl);
-	        });
-		}
-
 		// 上传
 		addEvent(this.videoAddEl, 'click', () => {
 			let record = new RecordVideo({
@@ -88,6 +81,17 @@ export default class UserVideo extends EventEmitter {
 
 			record.show();
         });
+
+		// 浏览视频
+		for (let i = 0; i < this.videoEl.length; i++) {
+			if (!this.videoEl[0]) {
+				addEvent(this.videoEl[i], 'click', () => {
+					let videoUrl = getData(this.videoEl[i], 'url');
+					console.log(videoUrl);
+					let _videoPreview = new VideoPreview(info);
+		        });
+			}
+		}
 	}
 
 	static attachTo(element, options) {

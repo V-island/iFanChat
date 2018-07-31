@@ -5,7 +5,8 @@ import Client from './client';
 import Modal from './modal';
 import fcConfig from './intro';
 import {
-    getUserInfo
+    getUserInfo,
+    follow
 } from './api';
 import {
     getLangConfig
@@ -14,7 +15,9 @@ import {
     extend,
     addEvent,
     importTemplate,
+    getData,
     addClass,
+    hasClass,
     removeClass
 } from './util';
 
@@ -69,8 +72,19 @@ export default class LivePreview extends EventEmitter {
 
         // 加关注
         addEvent(this.btnAddAttentionEl, 'click', () => {
-            removeClass(this.btnAddAttentionEl, this.options.iconAttentionClass);
-            addClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
+            let index = getData(this.btnAddAttentionEl, 'id'),
+                status;
+
+            if (hasClass(this.btnAddAttentionEl, this.options.iconAttentionClass)) {
+                removeClass(this.btnAddAttentionEl, this.options.iconAttentionClass);
+                addClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
+                status = 1;
+            }else {
+                removeClass(this.btnAddAttentionEl, this.options.iconAddAttentionClass);
+                addClass(this.btnAddAttentionEl, this.options.iconAttentionClass);
+                status = 2;
+            }
+            follow(index, status);
         });
 
         // 视频结束
@@ -91,7 +105,7 @@ export default class LivePreview extends EventEmitter {
         html += '</div><div class="lives-header"><div class="lives-attention"><div class="user-info across"><div class="user-img avatar-female">';
         html += info.user_head ? '<img src="'+ info.user_head +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ info.user_name +'</p><p class="user-txt">'+ info.heat + ' ' + LANG.PUBLIC.Heat +'</p></div>';
-        html += '</div><i class="icon live-attention '+ this.options.btnAddAttentionClass +'"></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div></div>';
+        html += '</div><i class="icon live-attention '+ this.options.btnAddAttentionClass +'" data-id="'+ info.id +'"></i></div><div class="icon live-close '+ this.options.btnLiveCloseClass +'"></div></div></div>';
 
         return html;
     }
@@ -106,8 +120,10 @@ export default class LivePreview extends EventEmitter {
 
         addEvent(buttonCallEl, 'click', () => {
             let localInfo = getUserInfo();
+            console.log(this.info.live_price);
+            console.log(localInfo.userPackage);
 
-            if (parseInt(this.info.live_price / localInfo.userPackage) < 1) {
+            if (parseInt(localInfo.userPackage / this.info.live_price) < 1) {
                 return modal.alert(LANG.HOME.Madal.NotCoins.Text, LANG.HOME.Madal.NotCoins.Title, () => {
                     location.href = '#/user';
                 }, LANG.HOME.Madal.NotCoins.ButtonsText);
@@ -116,7 +132,7 @@ export default class LivePreview extends EventEmitter {
             this.signal = new SignalingClient(Appid, Appcert);
 
             this.signal.login(localInfo.userId).then((uid) => {
-                let client = new Client(this.signal, localInfo);
+                let client = new Client(this.signal, localInfo, this.info.live_price);
                 client.invite({
                     userAccount: this.info.user_id,
                     userName: this.info.user_name,

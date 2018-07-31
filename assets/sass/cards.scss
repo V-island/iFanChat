@@ -157,6 +157,9 @@ span.status-label {
     color: $color-text;
     padding: 0 0.35rem;
     border-radius: 0.7rem;
+    // margin-left: 0.3rem;
+    min-width: 2.1rem;
+    text-align: center;
 
     $status: review, refuse, free;
     @each $stat in $status {
@@ -168,7 +171,7 @@ span.status-label {
                 background: $color-danger;
             }
             @else if $stat == free {
-               background: $color-text-gray;
+               background: rgba(0, 0, 0, 0.5);
             }
         }
     }
@@ -238,9 +241,9 @@ span.status-label {
         .card-video-header{
             @include spindle-center(space-between);
             position: absolute;
-            top: 0;
-            right: 0;
-            left: 0;
+            top: 0.3rem;
+            right: 0.3rem;
+            left: 0.3rem;
             z-index: 2;
 
             span.tag-label {
@@ -260,16 +263,16 @@ span.status-label {
             color: $color-text;
             padding-right: 0.35rem;
             line-height: 2;
+            height: 1.1rem;
             margin: 0.35rem 0 0.4rem 0;
         }
 
         .btn-close-video {
-            text-align: center;
-            @include size(1.4rem);
+            @include size(0.7rem);
 
-            >i.icon{
-                @include size(0.7rem);
-            }
+            // >i.icon{
+            //     @include size(0.7rem);
+            // }
         }
 
     }

@@ -101,7 +101,7 @@
 
 }
 
-$themes: primary, danger, warning, success, recharge, white;
+$themes: primary, danger, warning, success, recharge, gray, white;
 
 .button {
     @each $theme in $themes {
@@ -155,6 +155,9 @@ $themes: primary, danger, warning, success, recharge, white;
             }
             @else if $theme == recharge {
                 @include button-themes($color-gift-txt);
+            }
+            @else if $theme == gray {
+                @include button-themes($color-text-gray-light);
             }
             @else if $theme == white {
                 @include button-themes($color-text);

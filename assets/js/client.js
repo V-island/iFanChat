@@ -37,13 +37,14 @@ const LANG = getLangConfig();
 const modal = new Modal();
 
 export default class Client extends EventEmitter {
-    constructor(sclient, localInfo) {
+    constructor(sclient, localInfo, livePrice) {
         super();
 
         this.data = {};
         this.signal = sclient;
         this.localInfo = localInfo; // 本地用户信息
         this.localAccount = localInfo.userId;
+        this.livePrice = livePrice;
 
         extend(this.data, LANG);
 
@@ -228,7 +229,6 @@ export default class Client extends EventEmitter {
         this.anchorClientInfo = this.retClient.localInfo;
         this.userClientInfo = this.retClient.info;
         this.livesCommentsScroll = this.retClient.livesCommentsScroll;
-        this.IconGiftListData = this.retClient.IconGiftList;
 
     	// 退出直播间
     	this.retClient.on('rtcClient.leave', (channel, info, type) => {
@@ -270,7 +270,6 @@ export default class Client extends EventEmitter {
         this.anchorClientInfo = this.localRetClient.info;
         this.userClientInfo = this.localRetClient.localInfo;
         this.livesCommentsScroll = this.localRetClient.livesCommentsScroll;
-        this.IconGiftListData = this.localRetClient.IconGiftList;
 
     	// 加入直播间
     	this.localRetClient.on('rtcClient.join', (channel) => {
@@ -296,7 +295,7 @@ export default class Client extends EventEmitter {
                         }));
                     }
 
-                    this._assessTemplate(channel, info);
+                    this._assessTemplate(channel, info, data);
                 });
             });
         });
@@ -312,7 +311,6 @@ export default class Client extends EventEmitter {
 
         // 发送礼物消息
         this.localRetClient.on('rtcClient.onGift', (liveID, channelID, giftId) => {
-            console.log('发送礼物系统消息ID'+ giftId);
             let getReward = reward(liveID, channelID, giftId);
 
             getReward.then((data) => {
@@ -356,14 +354,12 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _onGiftsCall(giftId) {
-        console.log(giftId);
         let _data = {};
         let getAllgifts = findAllgifts();
 
         getAllgifts.then((data) => {
             _data.GiftsId = giftId;
             _data.GiftList = data;
-            _data.IconGiftList = this.IconGiftListData;
             _data.LiveInfo = this.userClientInfo;
 
             let giftsEl = createDom(Template.render(this.tpl.gifts_bullet_box, _data));
@@ -381,8 +377,9 @@ export default class Client extends EventEmitter {
      * @param  {[type]} channel [description]
      * @return {[type]}         [description]
      */
-    _assessTemplate(channel, info) {
+    _assessTemplate(channel, info, time) {
     	this.data.LiveInfo = info;
+        this.data.LiveEndTime = time;
 
     	let endLiveUserEl = modal.popup(Template.render(this.tpl.end_live_user, this.data));
 	    let btnSubmitEl = endLiveUserEl.getElementsByClassName('btn-submit')[0];
@@ -397,14 +394,14 @@ export default class Client extends EventEmitter {
                 if (hasClass(starsItemEl[i], 'active')) {
                     return;
                 }
-                let starsActiveEl = starsBoxEl.getElementsByClassName('active');
+                let starsActiveEl = starsBoxEl.getElementsByClassName('active')[0];
                 let index = getData(starsItemEl[i], 'index');
 
                 if (starsActiveEl) {
-                    removeClass(starsActiveEl[a], 'active');
+                    removeClass(starsActiveEl, 'active');
                 }
 
-                addClass(starsItemEl[j], 'active');
+                addClass(starsItemEl[i], 'active');
                 setData(starsLabelEl, 'index', index);
                 starsLabelEl.innerHTML = index + '.0';
             });
@@ -432,12 +429,9 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _anchorTemplate(data) {
-        console.log(data);
         this.data.TodayLive = data;
-        this.data.IconGiftList = this.IconGiftListData;
 
     	this.endLiveAnchorEl = modal.popup(Template.render(this.tpl.end_live_anchor, this.data));
-        console.log(this.endLiveAnchorEl);
 	    let btnYesEl = this.endLiveAnchorEl.getElementsByClassName('btn-yes')[0];
 	    let btnLiveAgainEl = this.endLiveAnchorEl.getElementsByClassName('btn-live-again')[0];
 
