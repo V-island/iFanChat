@@ -170,7 +170,7 @@
 <!-- 礼物弹框 -->
 <script id="gifts_bullet_box" type="text/html">
     {{if GiftList}}
-        <div class="lives-attention gifts-items">
+        <div class="lives-attention gifts-items {{ 'gifts-items' + GiftsId }}" data-amount="1">
             {{each GiftList}}
                 {{if $value.id == GiftsId}}
                     <div class="user-info across">

@@ -260,7 +260,6 @@ export default class RtcClient extends EventEmitter {
                     }
 
                     this.trigger('rtcClient.onGift', this.info.userAccount, this.options.channel, giftId);
-                    modal.closeModal(giftModalEl);
                 });
 
                 // 充值

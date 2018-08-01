@@ -356,6 +356,19 @@ export default class Client extends EventEmitter {
      * @return {[type]}         [description]
      */
     _onGiftsCall(giftId) {
+        // 礼物累加
+        let giftsItemsEl = this.livesGiftsEl.querySelector('.gifts-items' + giftId);
+
+        if (giftsItemsEl) {
+            let giftsAmountEl = giftsItemsEl.getElementsByClassName('gift-amount')[0];
+            let amountIndex = getData(giftsItemsEl, 'amount');
+            amountIndex += 1;
+
+            setData(giftsItemsEl, 'amount', amountIndex);
+            return giftsItemsEl.innerHTML = 'X' + amountIndex;
+        }
+
+        // 礼物发布
         let _data = {};
         let getAllgifts = findAllgifts();
 
@@ -370,7 +383,7 @@ export default class Client extends EventEmitter {
 
             setTimeout(() => {
                 this.livesGiftsEl.removeChild(giftsEl);
-            }, 4000);
+            }, 5000);
         });
     }
 
