@@ -5,8 +5,9 @@ import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
 import LivePreview from '../livePreview';
 import VideoPreview from '../videoPreview';
-import fcConfig from '../intro';
-
+import {
+	fcConfig
+} from '../intro';
 import {
     getLangConfig
 } from '../lang';

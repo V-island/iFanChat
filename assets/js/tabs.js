@@ -4,7 +4,10 @@ import SignalingClient from './signalingClient';
 import Client from './client';
 import Modal from './modal';
 import RecordVideo from './record-video';
-import fcConfig from './intro';
+import {
+    fcConfig,
+    agoraConfig
+} from './intro';
 import {
     checkAuth,
     newDayRecord,
@@ -181,7 +184,7 @@ export default class Tabs extends EventEmitter {
             if (!_status) return;
 
             let info = getUserInfo();
-            this.signal = new SignalingClient(fcConfig.agoraAppId);
+            this.signal = new SignalingClient(agoraConfig.agoraAppId);
 
             this.signal.login(info.userId).then((uid) => {
                 let client = new Client(this.signal, info.userId);

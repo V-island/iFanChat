@@ -3,7 +3,10 @@ import EventEmitter from './eventEmitter';
 import SignalingClient from './signalingClient';
 import Client from './client';
 import Modal from './modal';
-import fcConfig from './intro';
+import {
+    fcConfig,
+    agoraConfig
+} from './intro';
 import {
     getUserInfo,
     follow
@@ -112,7 +115,7 @@ export default class LivePreview extends EventEmitter {
 
     // 在线状态
     _livePreviewOnline() {
-        const Appid = fcConfig.agoraAppId || '', Appcert = fcConfig.agoraCertificateId || '';
+        const Appid = agoraConfig.agoraAppId || '', Appcert = agoraConfig.agoraCertificateId || '';
 
         let videoModalEl = modal.actions(this.tpl.live_preview_online_modal);
         let buttonCallEl = videoModalEl.getElementsByClassName(this.options.btnCallClass)[0];

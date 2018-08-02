@@ -2,7 +2,9 @@ import Template from 'art-template/lib/template-web';
 import BScroll from 'better-scroll';
 import EventEmitter from '../eventEmitter';
 import VideoPreview from '../videoPreview';
-import fcConfig from '../intro';
+import {
+	fcConfig
+} from '../intro';
 import {
     getLangConfig
 } from '../lang';

@@ -4,7 +4,9 @@ import EventEmitter from './eventEmitter';
 import SignalingClient from './signalingClient';
 import Client from './client';
 import Modal from './modal';
-import fcConfig from './intro';
+import {
+    fcConfig
+} from './intro';
 import {
     getUserInfo,
     findAllgifts,

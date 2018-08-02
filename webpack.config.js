@@ -23,7 +23,7 @@ module.exports = {
 			'./assets/js/router',
 			'./assets/js/last-position',
 			'./assets/js/navigator',
-			'./assets/sass/fc.scss'
+			'./assets/scss/fc.scss'
 		],
 		'fc-extend': [
 			'jquery-ripple'

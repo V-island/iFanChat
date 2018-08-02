@@ -55,6 +55,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "pickerjs": "^0.2.0",
+    "sendbird": "^3.0.69",
     "swiper": "^4.2.6",
     "wolfy87-eventemitter": "^5.2.5"
   }

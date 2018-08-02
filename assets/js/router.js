@@ -1,7 +1,8 @@
 import Template from 'art-template/lib/template-web';
-import fcConfig from './intro';
 import Tabs from './tabs';
-
+import {
+    fcConfig
+} from './intro';
 import {
     getLangConfig
 } from './lang';

@@ -31,7 +31,7 @@ import UserSettingSuggestion from './pages/user_setting_suggestion';
 import UserSettingAbout from './pages/user_setting_about';
 
 // 全局变量
-const fcConfig = {
+export const fcConfig = {
     autoInit: false, //自动初始化页面
     showPageLoadingIndicator: true, //push.js加载页面的时候显示一个加载提示
     router: true, //默认使用router
@@ -177,4 +177,19 @@ const fcConfig = {
     }]
 };
 
-export default fcConfig;
+// 直播配置
+export const agoraConfig = {
+    agora: true, //默认使用Agora DSK
+    agoraAppId: '130106827c954803a398814859761e19',
+    agoraCertificateId: '',
+    adminChannel: 'douliao',
+};
+
+// IM配置
+export const sendBirdConfig = {
+    sendBird: true, //默认使用SendBird DSK
+    sendBirdAppID: '07F10EB7-6318-4B3C-887B-F69758A7C257',
+    sendBirdAppURL: 'https://api.sendbird.com'
+};
+
+export const body = document.querySelector('body');

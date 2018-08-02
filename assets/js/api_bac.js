@@ -1,5 +1,7 @@
 import Modal from './modal';
-import fcConfig from './intro';
+import {
+	fcConfig
+} from './intro';
 import {
 	getLangConfig
 } from './lang';

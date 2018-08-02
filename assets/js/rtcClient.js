@@ -4,8 +4,10 @@ import BScroll from 'better-scroll';
 import EventEmitter from './eventEmitter';
 import AgoraRTC from './components/AgoraRTCSDK-2.3.1';
 import Modal from './modal';
-import fcConfig from './intro';
-
+import {
+    fcConfig,
+    agoraConfig
+} from './intro';
 import {
     getUserInfo,
     findAllgifts,
@@ -280,10 +282,10 @@ export default class RtcClient extends EventEmitter {
 
     // 创建 Client 对象
     _createClient() {
-        const Appid = fcConfig.agoraAppId || '';
+        const Appid = agoraConfig.agoraAppId || '';
 
         // 用户可选关闭Agora DSK功能
-        if (!fcConfig.agora) {
+        if (!agoraConfig.agora) {
             return;
         }
 

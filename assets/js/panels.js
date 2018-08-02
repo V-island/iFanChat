@@ -1,4 +1,6 @@
-import fcConfig from './intro';
+import {
+    fcConfig
+} from './intro';
 import {
     getCurrentPage
 } from './util';

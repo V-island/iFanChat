@@ -2,8 +2,10 @@ import Template from 'art-template/lib/template-web';
 import EventEmitter from './eventEmitter';
 import RtcClient from './rtcClient'
 import Modal from './modal';
-import fcConfig from './intro';
-
+import {
+    fcConfig,
+    agoraConfig
+} from './intro';
 import {
     liveStatus,
     getUserInfo,
@@ -277,7 +279,7 @@ export default class Client extends EventEmitter {
             loginChannel(_info.channel).then((data) => {
                 if (!data) return;
 
-                this.signal.join(fcConfig.adminChannel);
+                this.signal.join(agoraConfig.adminChannel);
             });
         });
 
