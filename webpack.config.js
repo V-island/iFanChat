@@ -7,6 +7,8 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 
+const PRODUCTION = 'production';
+
 module.exports = {
 	entry: {
 		fc: [
@@ -40,7 +42,17 @@ module.exports = {
 			test: /\.scss$/,
 			use: ExtractTextPlugin.extract({
 				fallback: 'style-loader',
-				use: ['css-loader', 'sass-loader']
+				use: [{
+					loader: 'css-loader',
+					options: {
+						module: true,
+						minimize: process.env.WEBPACK_MODE === PRODUCTION,
+						// sourceMap: true,
+						localIdentName: '[local]'
+					}
+				}, {
+					loader: 'sass-loader'
+				}]
 			})
 		}, {
 			test: /\.(png|svg|jpg|gif)$/,
