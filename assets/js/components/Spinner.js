@@ -16,10 +16,10 @@ class Spinner {
 
     _createSpinner() {
         const item = createDivEl({
-            className: styles['sb-spinner']
+            className: styles['spinner-wapper']
         });
         const bubble = createDivEl({
-            className: styles['sb-spinner-bubble']
+            className: styles['spinner-bubble']
         });
         item.appendChild(bubble);
         return item;

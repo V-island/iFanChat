@@ -1,7 +1,8 @@
 import Template from 'art-template/lib/template-web';
+import { Spinner } from '../components/Spinner';
+import { MessageItem } from '../components/MessageItem';
 import EventEmitter from '../eventEmitter';
 import SendBirdAction from '../SendBirdAction';
-import { Spinner } from '../components/Spinner';
 import {
 	getLangConfig
 } from '../lang';
@@ -15,6 +16,7 @@ import {
 	extend,
 	addEvent,
 	createDom,
+	appendToFirst,
 	isScrollBottom,
 	createDivEl,
 	errorAlert
@@ -36,16 +38,21 @@ export default class Message extends EventEmitter {
 
 	init(element) {
 		const SendBird = new SendBirdAction();
-		const userInfo = getUserInfo();
+		const {userId, userName} = getUserInfo();
 
-		SendBird.connect(userInfo.userId, userInfo.userName).then(user => {
-			this.MessageEl = createDom(Template.render(element, LANG));
+		this.MessageEl = createDom(Template.render(element, LANG));
+
+		setTimeout(() => {
 			this.trigger('pageLoadStart', this.MessageEl);
+		}, 0);
 
-			this._getUserList();
-			// this._createChannel();
+		// SendBird SDK 初始化
+		Spinner.start(body);
+		SendBird.connect(userId, userName).then(user => {
+			// this.getOpenChannelList(true);
 			this.getGroupChannelList(true);
-
+			this.createChannelWithUserIds(14);
+			Spinner.remove();
 			this._init();
 		}).catch(() => {
 			redirectToIndex('SendBird connection failed.');
@@ -66,51 +73,67 @@ export default class Message extends EventEmitter {
 		});
 	}
 
-	_getUserList(isInit = false) {
+	createChannelWithUserIds(userId) {
 		SendBirdAction.getInstance()
-			.getUserList(isInit)
-			.then(userList => {
-				console.log(userList);
-			})
-			.catch(error => {
-				errorAlert(error.message);
-			});
-	}
-
-	_createChannel() {
-		SendBirdAction.getInstance()
-			.createGroupChannel('15')
+			.createChannelWithUserIds(userId)
 			.then(channel => {
 				console.log(channel);
+				const handler = () => {
+					console.log(channel.url);
+				};
+				const Delete = () => {
+					console.log('删除');
+				};
+				const item = new MessageItem({
+					channel,
+					handler,
+					Delete
+				});
+				appendToFirst(this.listMessageEl, item.element);
 			})
 			.catch(error => {
 				errorAlert(error.message);
 			});
 	}
 
-	/**
-	 * Group Channel
-	 */
+	// 获取开放频道列表
+	getOpenChannelList(isInit = false) {
+		SendBirdAction.getInstance()
+			.getOpenChannelList(isInit)
+			.then(openChannelList => {
+				console.log(openChannelList);
+				openChannelList.forEach(channel => {
+					console.log(channel);
+					const handler = () => {
+						console.log(channel.url);
+					};
+					const item = new MessageItem({
+						channel,
+						handler
+					});
+					this.listMessageEl.appendChild(item.element);
+				});
+			})
+			.catch(error => {
+				errorAlert(error.message);
+			});
+	}
+
+	// 获取我的频道列表
 	getGroupChannelList(isInit = false) {
-		Spinner.start(body);
 		SendBirdAction.getInstance()
 			.getGroupChannelList(isInit)
 			.then(groupChannelList => {
-				console.log(groupChannelList);
-				// this.toggleGroupChannelDefaultItem(groupChannelList);
-				// groupChannelList.forEach(channel => {
-				// 	const handler = () => {
-				// 		Chat.getInstance().render(channel.url, false);
-				// 		ChatLeftMenu.getInstance().activeChannelItem(channel.url);
-				// 	};
-				// 	const item = new LeftListItem({
-				// 		channel,
-				// 		handler
-				// 	});
-				// 	this.groupChannelList.appendChild(item.element);
-				// 	LeftListItem.updateUnreadCount();
-				// });
-				Spinner.remove();
+				groupChannelList.forEach(channel => {
+					const handler = () => {
+						console.log(channel.url);
+					};
+					const item = new MessageItem({
+						channel,
+						handler
+					});
+					this.listMessageEl.appendChild(item.element);
+				});
 			})
 			.catch(error => {
 				errorAlert(error.message);

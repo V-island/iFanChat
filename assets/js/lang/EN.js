@@ -96,7 +96,8 @@ const Lang = {
 		Comment: 'Comment',
 		System_Message: 'System  message',
 		Customer_Service: 'Customer service',
-		Friends: 'Friends'
+		Friends: 'Friends',
+		Delete: 'Delete'
 	},
 	USER: {
 		Detail: 'Detail',

@@ -288,10 +288,10 @@ export function setUserInfo(name, value) {
 
 // 判断是否是主播
 export function checkAuth() {
-	let _auth = getLocalStorage(UER_NAME);
+	let {userAuth} = getLocalStorage(UER_NAME);
 
-	return _auth.userAuth === 2 ? true : false;
-	// return _auth.userIdentity === 2 ? true : false;
+	return userAuth === 2 ? true : false;
+	// return userIdentity === 2 ? true : false;
 }
 
 // 验证登录状态
@@ -410,11 +410,11 @@ export function getLogin(params, callback) {
  * @return {[type]} [description]
  */
 export function getFindPassword(params, callback) {
-	let _params = isObject(params) ? params : urlParse(params);
+	let {phoneCode, userPhone} = isObject(params) ? params : urlParse(params);
 	getPost('/findPassword', _params, function(response) {
 		setLocalStorage(UER_NAME, {
-			phoneCode: _params.phoneCode,
-			userPhone: _params.userPhone
+			phoneCode: phoneCode,
+			userPhone: userPhone
 		});
 		callback();
 	});
@@ -428,9 +428,9 @@ export function getFindPassword(params, callback) {
  */
 export function getUpdatePassword(params, callback) {
 	let _params = isObject(params) ? params : urlParse(params);
-	let _info = getLocalStorage(UER_NAME);
-	_params.phoneCode = _info.phoneCode;
-	_params.userPhone = _info.userPhone;
+	let {phoneCode, userPhone} = getLocalStorage(UER_NAME);
+	_params.phoneCode = phoneCode;
+	_params.userPhone = userPhone;
 	getPost('/updatePassword', _params, function(response) {
 		modal.toast(response.message);
 		callback();
@@ -442,10 +442,10 @@ export function getUpdatePassword(params, callback) {
  * @return {[type]} [description]
  */
 export function appLoginOut() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		status: 2,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -502,9 +502,9 @@ export function personCenter(params, token, mac, _checkLogin = false) {
  * @return {[type]} [description]
  */
 export function findAllUserHobby() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -524,9 +524,9 @@ export function findAllUserHobby() {
  * @return {[type]} [description]
  */
 export function findHobbyByUserId() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -546,9 +546,9 @@ export function findHobbyByUserId() {
  * @return {[type]} [description]
  */
 export function findAllCharacterType() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -568,10 +568,10 @@ export function findAllCharacterType() {
  * @return {[type]} [description]
  */
 export function findCharacterTypeByUserId(id = 1) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		belongId: id,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -592,10 +592,10 @@ export function findCharacterTypeByUserId(id = 1) {
  * @return {[type]}    [description]
  */
 export function saveInterest(id) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		hobby_id: id,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -617,11 +617,11 @@ export function saveInterest(id) {
  * @return {[type]}        [description]
  */
 export function saveMyType(typeId, id = 1) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		type_id: typeId,
 		belong_id: id,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -641,9 +641,9 @@ export function saveMyType(typeId, id = 1) {
  * @return {[type]} [description]
  */
 export function personInfo() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -664,9 +664,9 @@ export function personInfo() {
  * @return {[type]}        [description]
  */
 export function updateUserInfo(params) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -704,9 +704,9 @@ export function updateUserInfo(params) {
  * @return {[type]} [description]
  */
 export function findMyVideo() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -726,9 +726,9 @@ export function findMyVideo() {
  * @return {[type]} [description]
  */
 export function findWatchHistory() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -750,11 +750,11 @@ export function findWatchHistory() {
  * @return {[type]}         [description]
  */
 export function follow(_id, _status) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		fans_user_id: _id,
 		status: _status,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -778,11 +778,11 @@ export function follow(_id, _status) {
  * @return {[type]}              [description]
  */
 export function uploadHead(_file, callback, onProgress) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let formData = new FormData();
 
 	formData.append("keyword", 'uploadHead');
-	formData.append("userId", _info.userId);
+	formData.append("userId", userId);
 	formData.append("token", getLocalStorage(TOKEN_NAME));
 	formData.append("loginMode", LoginMode);
 	formData.append("mac", getMac());
@@ -822,9 +822,9 @@ export function findAllgifts() {
  * @return {[type]} [description]
  */
 export function createChannel() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -846,9 +846,9 @@ export function createChannel() {
  * @return {[type]} [description]
  */
 export function liveStatus(_status) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		status: _status
 	}
 	return new Promise((resolve) => {
@@ -867,9 +867,9 @@ export function liveStatus(_status) {
  * @return {[type]}           [description]
  */
 export function loginChannel(channel) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		channel: channel
 	}
 	return new Promise((resolve) => {
@@ -909,9 +909,9 @@ export function closeChannel(channel) {
  * @return {[type]}            [description]
  */
 export function userEvaluate(channel, liveUserId, stars) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		channel: channel,
 		liveUserId: liveUserId,
 		stars: stars,
@@ -935,9 +935,9 @@ export function userEvaluate(channel, liveUserId, stars) {
  * @return {[type]} [description]
  */
 export function newDayRecord(callbackOk) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -968,10 +968,10 @@ export function getAdvertisement() {
  * @return {[type]}         [description]
  */
 export function playVideo(videoID) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		id: videoID,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -1073,9 +1073,9 @@ export function videoType() {
  * @return {[type]}           [description]
  */
 export function reward(liveID, channelID, giftsID, amount = 1) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac(),
@@ -1100,9 +1100,9 @@ export function reward(liveID, channelID, giftsID, amount = 1) {
  * @return {[type]}           [description]
  */
 export function roomProfit(channelID) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac(),
@@ -1123,9 +1123,9 @@ export function roomProfit(channelID) {
  * @return {[type]} [description]
  */
 export function liveAgain() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -1162,10 +1162,10 @@ export function uploadVideo(_file, _type, _title, _tagID, callback, onProgress) 
 	    _title = false;
 	    _tagID = false;
 	}
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let formData = new FormData();
 
-	formData.append("userId", _info.userId);
+	formData.append("userId", userId);
 	formData.append("type", _type);
 	formData.append("token", getLocalStorage(TOKEN_NAME));
 	formData.append("loginMode", LoginMode);
@@ -1200,9 +1200,9 @@ export function uploadVideo(_file, _type, _title, _tagID, callback, onProgress) 
  * @return {[type]} [description]
  */
 export function hasAudit() {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
@@ -1223,10 +1223,10 @@ export function hasAudit() {
  * @return {[type]}     [description]
  */
 export function deleteVideo(_id) {
-	let _info = getLocalStorage(UER_NAME);
+	let {userId} = getLocalStorage(UER_NAME);
 	let _params = {
 		id: _id,
-		userId: _info.userId,
+		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()

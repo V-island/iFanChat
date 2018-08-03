@@ -54,10 +54,29 @@
     &.list-message{
         background: $list-user-bg-color;
         margin-bottom: 0.35rem;
+        overflow: hidden;
+
+        .list-item-box{
+            position: relative;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            &.active{
+                .list-item{
+                    transform: translateX(-4.9rem);
+                }
+                .btn-delete{
+                    transform: translateX(0);
+                }
+            }
+        }
 
         .list-item{
             padding: 0.4rem 0.8rem;
             box-sizing: content-box;
+            @include transition(all .5s);
 
             &:after {
                 content: "";
@@ -92,6 +111,7 @@
             color: $list-message-text;
             font-size: 0.6rem;
             line-height: 1rem;
+            height: 2rem;
             flex-grow: 1;
         }
 
@@ -121,7 +141,22 @@
             line-height: 0.7rem;
             text-align: center;
             padding: 0 0.2rem;
+        }
 
+        .btn-delete{
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 4.9rem;
+            text-align: center;
+            color: $color-text;
+            background: $list-message-meta-color;
+            box-shadow: 0.1rem 0 0.3rem rgba(0, 0, 0, 0.2) inset;
+            font-size: 0.75rem;
+            line-height: 3.3rem;
+            transform: translateX(4.9rem);
+            @include transition(all .5s);
         }
     }
 

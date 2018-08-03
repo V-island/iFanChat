@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
     getLangConfig
 } from './lang';
@@ -220,6 +221,28 @@ export const getCurrentPage = () => {
     return document.querySelector('.page-current') || document.querySelector('.page') || document.body;
 };
 
+export const timestampToTime = timestamp => {
+    const now = new Date().getTime();
+    const nowDate = moment.unix(now.toString().length === 13 ? now / 1000 : now).format('MM/DD');
+
+    let date = moment.unix(timestamp.toString().length === 13 ? timestamp / 1000 : timestamp).format('MM/DD');
+    if (date === 'Invalid date') {
+        date = '';
+    }
+
+    return nowDate === date ?
+        moment.unix(timestamp.toString().length === 13 ? timestamp / 1000 : timestamp).format('HH:mm') :
+        date;
+};
+
+export const timestampToDateString = timestamp => {
+    return moment.unix(timestamp.toString().length === 13 ? timestamp / 1000 : timestamp).format('LL');
+};
+
+export const timestampFromNow = timestamp => {
+    return moment(timestamp).fromNow();
+};
+
 // 比对操作
 export const typeOf = obj => {
     return toString.call(obj).slice(8, -1).toLowerCase();
@@ -294,8 +317,8 @@ export const createDom = element => {
 };
 
 // 创建DIV Element
-export const createDivEl = ({ id, className, content, background }) => {
-    const el = document.createElement('div');
+export const createDivEl = ({ element, id, className, content, background }) => {
+    const el = document.createElement( element ? element : 'div');
     if (id) {
         el.id = id;
     }

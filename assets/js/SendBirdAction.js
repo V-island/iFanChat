@@ -3,7 +3,8 @@ import {
     sendBirdConfig
 } from './intro';
 import {
-    isNull
+    isNull,
+    isNumber
 } from './util';
 
 let instance = null;
@@ -25,9 +26,7 @@ export default class SendBirdAction {
         instance = this;
     }
 
-    /**
-     * Connect
-     */
+    // 连接
     connect(userId, nickname) {
         return new Promise((resolve, reject) => {
             const sb = SendBird.getInstance();
@@ -43,6 +42,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 断开连接
     disconnect() {
         return new Promise((resolve, reject) => {
             this.sb.disconnect((response, error) => {
@@ -51,13 +51,12 @@ export default class SendBirdAction {
         });
     }
 
-    /**
-     * User
-     */
+    // 获取用户列表
     getCurrentUser() {
         return this.sb.currentUser;
     }
 
+    // 获得当前用户
     getUserList(isInit = false) {
         if (isInit || isNull(this.userQuery)) {
             this.userQuery = new this.sb.createUserListQuery();
@@ -74,10 +73,12 @@ export default class SendBirdAction {
         });
     }
 
+    // 是否为当前用户
     isCurrentUser(user) {
         return user.userId === this.sb.currentUser.userId;
     }
 
+    // 获取黑名单
     getBlockedList(isInit = false) {
         if (isInit || isNull(this.blockedQuery)) {
             this.blockedQuery = this.sb.createBlockedUserListQuery();
@@ -94,6 +95,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 拉黑用户
     blockUser(user, isBlock = true) {
         return new Promise((resolve, reject) => {
             if (isBlock) {
@@ -108,9 +110,7 @@ export default class SendBirdAction {
         });
     }
 
-    /**
-     * Channel
-     */
+    // 获取频道
     getChannel(channelUrl, isOpenChannel = true) {
         return new Promise((resolve, reject) => {
             if (isOpenChannel) {
@@ -125,9 +125,7 @@ export default class SendBirdAction {
         });
     }
 
-    /**
-     * Open Channel
-     */
+    // 获取开放频道列表
     getOpenChannelList(isInit = false) {
         if (isInit || isNull(this.openChannelQuery)) {
             this.openChannelQuery = new this.sb.OpenChannel.createOpenChannelListQuery();
@@ -144,19 +142,18 @@ export default class SendBirdAction {
         });
     }
 
+    // 创建开放频道
     createOpenChannel(channelName) {
         return new Promise((resolve, reject) => {
-            channelName
-                ?
-                this.sb.OpenChannel.createChannel(channelName, null, null, (openChannel, error) => {
+            channelName ? this.sb.OpenChannel.createChannel(channelName, null, null, (openChannel, error) => {
                     error ? reject(error) : resolve(openChannel);
-                }) :
-                this.sb.OpenChannel.createChannel((openChannel, error) => {
+                }) : this.sb.OpenChannel.createChannel((openChannel, error) => {
                     error ? reject(error) : resolve(openChannel);
                 });
         });
     }
 
+    // 输入状态
     enter(channelUrl) {
         return new Promise((resolve, reject) => {
             this.sb.OpenChannel.getChannel(channelUrl, (openChannel, error) => {
@@ -171,6 +168,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 退出频道
     exit(channelUrl) {
         return new Promise((resolve, reject) => {
             this.sb.OpenChannel.getChannel(channelUrl, (openChannel, error) => {
@@ -185,6 +183,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 获得频道中参与者名单
     getParticipantList(channelUrl, isInit = false) {
         return new Promise((resolve, reject) => {
             this.sb.OpenChannel.getChannel(channelUrl, (openChannel, error) => {
@@ -231,6 +230,20 @@ export default class SendBirdAction {
     }
 
     /**
+     * 创建一对一聊天
+     * @param  {[type]} userIds [description]
+     * @return {[type]}         [description]
+     */
+    createChannelWithUserIds(userIds) {
+        userIds = isNumber(userIds) ? userIds + '' : userIds;
+        return new Promise((resolve, reject) => {
+            this.sb.GroupChannel.createChannelWithUserIds([userIds], true, (createdChannel, error) => {
+                error ? reject(error) : resolve(createdChannel);
+            });
+        });
+    }
+
+    /**
      * 创建群组频道
      * @param  {[type]} userIds [description]
      * @return {[type]}         [description]
@@ -265,6 +278,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 频道离开状态
     leave(channelUrl) {
         return new Promise((resolve, reject) => {
             this.sb.GroupChannel.getChannel(channelUrl, (groupChannel, error) => {
@@ -279,6 +293,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 频道隐身状态
     hide(channelUrl) {
         return new Promise((resolve, reject) => {
             this.sb.GroupChannel.getChannel(channelUrl, (groupChannel, error) => {
@@ -293,13 +308,12 @@ export default class SendBirdAction {
         });
     }
 
+    // 频道消息标记为已读
     markAsRead(channel) {
         channel.markAsRead();
     }
 
-    /**
-     * Message
-     */
+    // 获取频道消息列表
     getMessageList(channel, isInit = false) {
         if (isInit || isNull(this.previousMessageQuery)) {
             this.previousMessageQuery = channel.createPreviousMessageListQuery();
@@ -315,6 +329,7 @@ export default class SendBirdAction {
         });
     }
 
+    // 获得频道消息阅读回调
     getReadReceipt(channel, message) {
         if (this.isCurrentUser(message.sender)) {
             return channel.getReadReceipt(message);
@@ -323,30 +338,22 @@ export default class SendBirdAction {
         }
     }
 
-    sendUserMessage({
-        channel,
-        message,
-        handler
-    }) {
+    // 发送用户消息
+    sendUserMessage({channel, message, handler}) {
         return channel.sendUserMessage(message, (message, error) => {
             if (handler) handler(message, error);
         });
     }
 
-    sendFileMessage({
-        channel,
-        file,
-        handler
-    }) {
+    // 发送用户文件消息
+    sendFileMessage({channel, file, handler}) {
         return channel.sendFileMessage(file, (message, error) => {
             if (handler) handler(message, error);
         });
     }
 
-    deleteMessage({
-        channel,
-        message
-    }) {
+    // 删除消息
+    deleteMessage({channel, message}) {
         return new Promise((resolve, reject) => {
             if (!this.isCurrentUser(message.sender)) {
                 reject({
