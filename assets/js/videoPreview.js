@@ -226,7 +226,7 @@ export default class VideoPreview extends EventEmitter {
         html += '</div><div class="lives-header"><div class="lives-attention"><div class="user-info across"><div class="user-img avatar-female">';
         html += options.user_head ? '<img src="'+ options.user_head +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ options.user_name +'</p><p class="user-txt">'+ options.support + ' ' + LANG.PUBLIC.Heat +'</p></div>';
-        html += '</div><i class="icon live-attention '+ options.btnAddAttentionClass +'" data-id="'+ info.id +'"></i></div><div class="icon live-close '+ options.btnLiveCloseClass +'"></div></div>';
+        html += '</div><i class="icon live-attention '+ options.btnAddAttentionClass +'" data-id="'+ options.id +'"></i></div><div class="icon live-close '+ options.btnLiveCloseClass +'"></div></div>';
         html += '<div class="video-preview-content"><p class="preview-text">'+ options.video_description +'</p></div>';
         html += '<div class="video-preview-footer"><div class="lives-buttons">';
         html += '<div class="video-preview-item '+ options.btnNewsClass +'"><i class="icon live-news"></i><span>'+ options.support +'</span></div>';

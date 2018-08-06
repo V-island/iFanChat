@@ -8,7 +8,7 @@
             <h1 class="title">{{HOME.FreeVideo.Title}}</h1>
         </header>
         <!-- 这里是页面内容区 -->
-        <div class="content block pages-video">
+        <div class="content content-block no-padding pages-video">
             <div class="user-wrapper">
                 {{if VideoType}}
                     <div class="tag">
@@ -22,11 +22,8 @@
                 {{if VideoList}}
                     <div class="row box-cards">
                     {{each VideoList}}
-                        <div class="col-50 card card-video" data-id="{{$value.id}}">
+                        <div class="col-50 card card-video" data-user-info="{{$value}}">
                             <div class="card-content">
-                                <div class="card-video-header">
-                                    <span class="status-label free">{{PUBLIC.Free}}</span>
-                                </div>
                                 <div class="media" style="background-image: url({{$value.video_img}});"></div>
                                 <div class="showdom">
                                     <p class="summary-txt">{{$value.video_title}}</p>

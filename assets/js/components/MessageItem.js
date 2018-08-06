@@ -1,4 +1,3 @@
-// import BScroll from 'better-scroll';
 import {
     getLangConfig
 } from '../lang';

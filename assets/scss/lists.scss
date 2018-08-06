@@ -52,15 +52,34 @@
     }
 
     &.list-message{
-        background: $list-user-bg-color;
-        margin-bottom: 0.35rem;
+        // background: $list-user-bg-color;
+        // margin-bottom: 0.35rem;
         overflow: hidden;
 
         .list-item-box{
             position: relative;
+            background: $list-user-bg-color;
+            margin-bottom: 0.35rem;
 
             &::-webkit-scrollbar {
                 display: none;
+            }
+
+            // &:after {
+            //     content: "";
+            //     height: 1px;
+            //     background: $list-message-border-color;
+            //     position: absolute;
+            //     left: 3.25rem;
+            //     right: 0.8rem;
+            //     bottom: 0;
+            // }
+
+            &:last-of-type{
+                margin-bottom: 0.35rem;
+                // &:after {
+                //     height: 0;
+                // }
             }
 
             &.active{
@@ -76,23 +95,7 @@
         .list-item{
             padding: 0.4rem 0.8rem;
             box-sizing: content-box;
-            @include transition(all .5s);
-
-            &:after {
-                content: "";
-                height: 1px;
-                background: $list-message-border-color;
-                position: absolute;
-                left: 3.25rem;
-                right: 0.8rem;
-                bottom: 0;
-            }
-
-            &:last-of-type{
-                &:after {
-                    height: 0;
-                }
-            }
+            @include transition(all .3s);
         }
 
         .list-item-graphic{
@@ -156,7 +159,7 @@
             font-size: 0.75rem;
             line-height: 3.3rem;
             transform: translateX(4.9rem);
-            @include transition(all .5s);
+            @include transition(all .3s);
         }
     }
 

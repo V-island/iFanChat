@@ -29,6 +29,7 @@ export default class Message extends EventEmitter {
 		super();
 
 		this.options = {
+			contentClass: '.content',
 			listMessageClass: 'list-message',
 			listItemClass: 'list-item'
 		};
@@ -41,13 +42,14 @@ export default class Message extends EventEmitter {
 		const {userId, userName} = getUserInfo();
 
 		this.MessageEl = createDom(Template.render(element, LANG));
+		this.contentEl = this.MessageEl.querySelector(this.options.contentClass);
 
 		setTimeout(() => {
 			this.trigger('pageLoadStart', this.MessageEl);
 		}, 0);
 
 		// SendBird SDK 初始化
-		Spinner.start(body);
+		Spinner.start(this.contentEl);
 		SendBird.connect(userId, userName).then(user => {
 			// this.getOpenChannelList(true);
 			this.getGroupChannelList(true);

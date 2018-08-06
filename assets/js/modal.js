@@ -633,7 +633,7 @@ export default class Modal extends EventEmitter {
             }
             listHTML += '<li class="list-item '+ (_active ? 'active' : '') +'" data-val="'+ _data[params.nameValue] +'" data-ripple><span class="list-item-text">'+ _data[params.nameText] +'</span><span class="icon user-checkbox list-item-meta"></span></li>';
         });
-        modalHTML = '<div class="popup"><header class="bar bar-flex">'+ (closeHTML + titleHTML) +'</header><div class="content block">'+ textHTML + '<ul class="list list-user list-info popup-list">'+ listHTML +'</ul></div></div>';
+        modalHTML = '<div class="popup remove-on-close"><header class="bar bar-flex">'+ (closeHTML + titleHTML) +'</header><div class="content block">'+ textHTML + '<ul class="list list-user list-info popup-list">'+ listHTML +'</ul></div></div>';
         return self.popup(modalHTML, function(modal) {
             modal.find('.list-item').on('click', function() {
                 let _self = $(this);

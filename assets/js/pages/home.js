@@ -457,9 +457,10 @@ export default class Home extends EventEmitter {
 					// free
 					if (data) {
 						this.cardsVideoEl.append(createDom(Template.render(this.tpl.free_videos_header, this.data)));
-
+						data = data.length > 2 ? data.slice(0, 2) : data;
 						data.forEach((itemData, index) => {
 							this.data.VideosList = itemData;
+							this.data.NotFreeVideos = false;
 							this.cardsVideoEl.append(createDom(Template.render(this.tpl.list_videos, this.data)));
 						});
 					}
@@ -469,6 +470,7 @@ export default class Home extends EventEmitter {
 
 						_data.forEach((itemData, index) => {
 							this.data.VideosList = itemData;
+							this.data.NotFreeVideos = true;
 							this.cardsVideoEl.append(createDom(Template.render(this.tpl.list_videos, this.data)));
 						});
 					}

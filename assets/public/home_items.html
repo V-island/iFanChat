@@ -28,11 +28,16 @@
 
 <!-- small video list -->
 <script id="list_videos" type="text/html">
-    <div class="col-50 card card-video">
-        <div class="card-content" data-id="{{VideosList.id}}">
-            <div class="media" style="background-image: url({{VideosList.video_img}});"></div>
+    <div class="col-50 card card-video" data-user-info="{{VideosList}}">
+        <div class="card-content">
+            {{if NotFreeVideos}}
+            <div class="card-video-header">
+                <span class="tag-label">{{VideosList.price}} {{PUBLIC.Billing}}</span>
+            </div>
+            {{/if}}
+            <div class="media" style="background-image: url({{VideosList.img_url}});"></div>
             <div class="showdom">
-                <p class="summary-txt">{{VideosList.video_new_name}}</p>
+                <p class="summary-txt">{{VideosList.video_description}}</p>
                 <div class="video-info">
                     <div class="user-info">
                         <div class="user-img avatar-female">
@@ -66,7 +71,7 @@
 <script id="free_videos_header" type="text/html">
     <div class="col-100 cards-header video-header">
         <p>{{HOME.Video.Free.Title}}</p>
-        <p class="refresh">{{HOME.Video.Free.More}}</p>
+        <a class="refresh" href="#/home/freevideo">{{HOME.Video.Free.More}}</a>
     </div>
 </script>
 

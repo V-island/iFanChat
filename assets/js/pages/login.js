@@ -34,7 +34,6 @@ export default class Login extends EventEmitter {
 	}
 
 	_init(element) {
-		console.log('这里是登录js');
 		this.LoginEl = createDom(Template.render(element, LANG));
 		setTimeout(() => {
 			this.trigger('pageLoadStart', this.LoginEl);
