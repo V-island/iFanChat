@@ -440,6 +440,10 @@ const Lang = {
 			Video: 'Video'
 		}
 	},
+	OTHER_DETAILS: {
+		Private_Letter: 'Private letter',
+		Video_Chat:'Video chat'
+	},
 	PUBLIC: {
 		Billing: 'Gold/Min',
 		Review: 'Review',

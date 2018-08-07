@@ -157,7 +157,7 @@ export default class LivePreview extends EventEmitter {
         let btnLiveCloseEl = videoModalEl.getElementsByClassName(this.options.btnLiveCloseClass)[0];
 
         addEvent(buttonDetailsEl, 'click', () => {
-            return location.href = '#/details';
+            return location.href = `#/details?userid=${encodeURIComponent(this.info.user_id)}`;
         });
 
         addEvent(btnLiveCloseEl, 'click', () => {

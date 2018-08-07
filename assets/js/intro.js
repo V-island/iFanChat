@@ -10,6 +10,7 @@ import Message from './pages/message';
 import User from './pages/user';
 
 import FreeVideo from './pages/free_video';
+import OtherDetails from './pages/other_details';
 
 // 用户中心
 import UserDetail from './pages/user_detail';
@@ -94,6 +95,7 @@ export const fcConfig = {
         name: 'home',
         path: '../pages/home.html',
         component: Home,
+        init: 1,
         navTabs: 1,
         children: [{
             name: 'freevideo',
@@ -111,6 +113,10 @@ export const fcConfig = {
         path: '../pages/message.html',
         component: Message,
         navTabs: 1
+    }, {
+        name: 'details',
+        path: '../pages/other_details.html',
+        component: OtherDetails
     }, {
         name: 'user',
         path: '../pages/user.html',

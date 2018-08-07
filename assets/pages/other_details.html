@@ -1,0 +1,48 @@
+<div class="page-group">
+    <div class="page">
+    	<!-- 标题栏 -->
+    	<header class="bar bar-flex bar-user bar-details">
+    		<div class="bar-image"></div>
+
+            <div class="bar-flex nav-header">
+                <a class="icon-btn back" data-ripple>
+                    <i class="icon icon-arrow-back"></i>
+                </a>
+            </div>
+
+            <div class="nav-content">
+                <div class="user-info across">
+                    <div class="user-img avatar-male" style="{{if UserInfo.user_head}} background-image: url({{UserInfo.user_head}}); {{/if}}"></div>
+                    <div class="across-body">
+                        <div class="across-title">
+                            <p class="user-name">{{UserInfo.user_name}}</p>
+                            <i class="icon user-stars">{{UserInfo.live_level}}</i>
+                        </div>
+                        <p class="user-txt">
+                            {{if UserInfo.user_sex == 1}} <i class="icon icon-male"></i> {{else if UserInfo.user_sex == 2}} <i class="icon icon-female"></i> {{/if}}
+                            ID:{{UserInfo.user_id}}
+                            <span class="price-title color-price">{{UserInfo.live_price}} {{PUBLIC.Billing}}</span>
+                        </p>
+                    </div>
+                </div>
+                <i class="icon live-attention btn-add-attention" data-id="{{UserInfo.user_id}}"></i>
+            </div>
+    	</header>
+
+        <nav class="bar nav-details">
+            <div class="bar-item" data-ripple>
+                <i class="icon icon-private-letter"></i>
+                <span class="tab-label">{{OTHER_DETAILS.Private_Letter}}</span>
+            </div>
+            <div class="bar-item active" data-ripple>
+                <i class="icon icon-video-chat"></i>
+                <span class="tab-label color-primary">{{OTHER_DETAILS.Video_Chat}}</span>
+            </div>
+        </nav>
+
+        <!-- 这里是页面内容区 -->
+        <div class="content">
+            
+        </div>
+    </div>
+</div>

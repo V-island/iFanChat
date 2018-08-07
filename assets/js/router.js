@@ -136,6 +136,11 @@ import {
          */
         getHashpage: function(str) {
             let hash = str === undefined ? location.hash : str;
+
+            if (hash.indexOf('?') > -1) {
+                hash = hash.split('?')[0];
+            }
+
             let _hash = hash.split('#')[1];
             let hashIndex = _hash.indexOf('/');
             return hashIndex === -1 ? '' : _hash.slice(hashIndex + 1);
@@ -600,6 +605,7 @@ import {
             if (!Util.getHashpage(newURL)) {
                 return;
             }
+
             this._switchToDocument(newURL);
         }
 

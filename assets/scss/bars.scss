@@ -267,21 +267,6 @@
     padding: 0 0.7rem;
     @include spindle-center(space-between);
 
-    .user-image{
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-position: center;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-image: url('#{$imgBaseUrl}/users/user-bg.png');
-        background: image-set(url('#{$imgBaseUrl}/users/user-bg.png') 1x, url('#{$imgBaseUrl}/users/user-bg@2x.png') 2x) center;
-        opacity: 0.3;
-        z-index: -1;
-    }
-
     .user-info.across{
         justify-content: start !important;
         flex-grow: 1;
@@ -335,6 +320,85 @@
             margin-right: 0.35rem;
         }
     }
+}
+
+// OtherDetails bar
+// --------------------------------------------------
+.bar-details{
+    height: $bar-details-height;
+    padding: 0;
+    @include flex-spindle-center(start, column);
+    align-items: normal;
+
+    >.nav-header{
+        @include flex-spindle(start);
+        align-items: start;
+        background: none;
+        padding: 0.1rem 0.35rem;
+    }
+
+    >.nav-content{
+        @include flex-center();
+        padding: 0 0.7rem;
+
+        .price-title{
+            margin-left: 0.35rem;
+        }
+        .btn-add-attention{
+            @include size(1.4rem);
+        }
+    }
+}
+
+// OtherDetails nav
+// --------------------------------------------------
+.nav-details{
+    @include spindle-center(start);
+    background: $bar-gradient-color-right;
+    box-shadow: 0 0 0.7rem rgba(0 ,0 ,0, 0.5);
+    bottom: 0;
+    width: 100%;
+    height: $bar-nav-height;
+    padding: 0;
+    z-index: 2002;
+
+    >.bar-item{
+        @include spindle-center(center);
+        flex: 1 0 0;
+        height: 3.15rem;
+
+        .tab-label{
+            font-size: 0.6rem;
+        }
+
+        i.icon{
+            @include size(1.4rem);
+            margin-right: 0.35rem;
+        }
+
+        &:after {
+            content: "";
+            width: 1px;
+            background: $bar-color-split;
+        }
+    }
+}
+
+// Image background
+// --------------------------------------------------
+.bar .bar-image{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: url('#{$imgBaseUrl}/users/user-bg.png');
+    background: image-set(url('#{$imgBaseUrl}/users/user-bg.png') 1x, url('#{$imgBaseUrl}/users/user-bg@2x.png') 2x) center;
+    opacity: 0.3;
+    z-index: -1;
 }
 
 // Bars with buttons

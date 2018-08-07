@@ -1155,12 +1155,11 @@ export function liveAgain() {
  * @param  {[type]}   onProgress 进度回调
  * @return {[type]}              [description]
  */
-export function uploadVideo(_file, _type, _title, _tagID, callback, onProgress) {
+export function uploadVideo(_file, _type, _title, callback, onProgress) {
 	if (typeof _title === 'function') {
 	    callback = arguments[2];
 	    onProgress = arguments[3];
 	    _title = false;
-	    _tagID = false;
 	}
 	let {userId} = getLocalStorage(UER_NAME);
 	let formData = new FormData();
@@ -1182,10 +1181,6 @@ export function uploadVideo(_file, _type, _title, _tagID, callback, onProgress) 
 
 	if (_title) {
 		formData.append("description", _title);
-	}
-
-	if (_tagID) {
-		formData.append("tag_id", _tagID);
 	}
 
 	getPost(formData, function(response) {

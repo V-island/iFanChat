@@ -91,6 +91,10 @@ a {
     margin-top: 0.7rem;
 }
 
+.bar-details~.content {
+    top: $bar-details-height;
+}
+
 .bar-header-secondary~.content {
     top: ($bar-base-height*2);
 }
@@ -105,6 +109,9 @@ a {
 }
 
 // Tab bar margin
+.nav-details~.content {
+    bottom: $bar-nav-height;
+}
 .bar-tab~.content {
     bottom: $bar-tab-height;
 }
