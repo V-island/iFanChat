@@ -64,6 +64,7 @@ export default class UserDetail extends EventEmitter {
 
 		getPersonInfo.then((data) => {
 			this.data.UserDetail = data;
+			this.UserId = data.user_id;
 
 			this.UserDetailEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.UserDetailEl);
@@ -207,7 +208,7 @@ export default class UserDetail extends EventEmitter {
 		// 兴趣
 		addEvent(this.itemInterestEl, 'click', () => {
 			let getAllUserHobby = findAllUserHobby();
-			let getHobby = findHobbyByUserId()
+			let getHobby = findHobbyByUserId(this.UserId)
 
 			Promise.all([getAllUserHobby, getHobby]).then((data) => {
 				modal.checkboxModal({
@@ -229,7 +230,7 @@ export default class UserDetail extends EventEmitter {
 		addEvent(this.itemTypeEl, 'click', () => {
 			let sexIndex = getData(this.itemGenderTxtEl, this.options.dataSexIndex);
 			let getAllCharacterType = findAllCharacterType();
-			let getCharacterType = findCharacterTypeByUserId(1);
+			let getCharacterType = findCharacterTypeByUserId(this.UserId, 1);
 
 			Promise.all([getAllCharacterType, getCharacterType]).then((data) => {
 				modal.checkboxModal({
@@ -253,7 +254,7 @@ export default class UserDetail extends EventEmitter {
 		addEvent(this.itemLoveEl, 'click', () => {
 			let sexIndex = getData(this.itemGenderTxtEl, this.options.dataSexIndex);
 			let getAllCharacterType = findAllCharacterType();
-			let getCharacterType = findCharacterTypeByUserId(2);
+			let getCharacterType = findCharacterTypeByUserId(this.UserId, 2);
 
 			Promise.all([getAllCharacterType, getCharacterType]).then((data) => {
 				modal.checkboxModal({

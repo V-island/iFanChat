@@ -380,6 +380,10 @@
             content: "";
             width: 1px;
             background: $bar-color-split;
+            position: absolute;
+            top: 0.35rem;
+            right: 0;
+            bottom: 0.35rem;
         }
     }
 }

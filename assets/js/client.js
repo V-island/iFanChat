@@ -157,10 +157,11 @@ export default class Client extends EventEmitter {
      */
     _onRefuseCall(account) {
     	this.data.LiveInfo = this.info;
-    	console.log(this.info);
+
     	let refuseEl = createDom(Template.render(this.tpl.refuse_call, this.data));
     	let contentBlockEl = this.callerModalEl.querySelector('.content-block');
-    	contentBlockEl.innerHTML = refuseEl;
+    	contentBlockEl.innerHTML = '';
+        contentBlockEl.append(refuseEl);
 
     	let btnCallAgainEl = this.callerModalEl.getElementsByClassName('btn-call-again')[0];
     	let btnMaybeEl = this.callerModalEl.getElementsByClassName('btn-maybe')[0];

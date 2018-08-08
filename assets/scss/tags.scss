@@ -26,6 +26,28 @@
 	&.tag-share{
 		@include flex-spindle(space-around);
 	}
+	&.tag-anchor {
+		@include flex-spindle(center);
+	}
+	&.tags-label {
+	    margin: 0 -0.35rem;
+
+		>label.tag-label {
+			margin: 0.2rem;
+			border-width: 0;
+			background: $color-text-gray;
+		    line-height: 1.05rem;
+	        padding: 0 0.4rem;
+
+			&:first-of-type {
+				margin-left: 0.2rem;
+			}
+
+			&:last-of-type {
+				margin-right: 0.2rem;
+			}
+		}
+	}
 	label.tag-label {
 		background: $tag-bg-color;
 		border-radius: $tag-border-radius;
@@ -126,7 +148,23 @@
 			margin-top: 0.35rem;
 		}
 	}
-	label.user-info {
+	label.anchor-label {
+		@include size(3.15rem);
+		border: $tag-border-default;
+		background: $tag-bg-color;
+		background-size: 100% auto;
+		background-position: center;
+		background-repeat: no-repeat;
+		margin: 0.2rem 0.5rem;
+		border-radius: 50%;
+		overflow: hidden;
+
+		>img{
+			width: 100%;
+			height: 100%;
+		}
+	}
+	.user-info {
 		@include flex-spindle-center(center, column);
 		padding: 0 0.5rem;
 
@@ -147,19 +185,34 @@
 			line-height: 1.35rem;
 		}
 	}
-	.tag-anchor {
-		width: 3.15rem;
-		height: 3.15rem;
-		border: $tag-border-default;
-		background: $tag-bg-color;
-		margin: 0.2rem 0.5rem;
-		border-radius: 50%;
-		overflow: hidden;
+}
 
-		>img{
-			width: 100%;
-			height: 100%;
+.tab {
+	@include flex-spindle(start);
+    margin-bottom: 0.35rem;
+
+	>.tab-item {
+		flex: 1 0 0;
+		color: $color-text-gray-light;
+		text-align: center;
+		height: 1.8rem;
+		line-height: 1.8rem;
+
+		&:after {
+			content: "";
+			height: 0.1rem;
+			background: none;
+			width: 1.75rem;
+			display: block;
+			margin: -0.1rem auto 0;
+		}
+
+		&.active{
+			color: $color-primary;
+
+			&:after {
+				background: $color-primary;
+			}
 		}
 	}
-
 }

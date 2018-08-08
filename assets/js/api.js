@@ -458,6 +458,29 @@ export function appLoginOut() {
 	});
 };
 
+/**
+ * 创建IM频道
+ * @param {[type]} praiseId  点赞频道
+ * @param {[type]} commentId 评论频道
+ * @param {[type]} giftsID   礼物频道
+ */
+export function CreateIMChannel(praiseId, commentId, giftsID) {
+	let {userId} = getLocalStorage(UER_NAME);
+	let _params = {
+		userId: userId,
+		praise_channel: praiseId,
+		comment_channel: commentId,
+		gift_channel: giftsID
+	}
+
+	return new Promise((resolve) => {
+		getPost('/CreateIMChannel', _params, function(response) {
+			resolve(true);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
 
 //------------------------------------------------------------------------------------------------------
 //-----个人中心模块
@@ -521,15 +544,12 @@ export function findAllUserHobby() {
 
 /**
  * 查询某个用户的兴趣爱好
- * @return {[type]} [description]
+ * @param  {[type]} Id 用户ID
+ * @return {[type]}    [description]
  */
-export function findHobbyByUserId() {
-	let {userId} = getLocalStorage(UER_NAME);
+export function findHobbyByUserId(userID) {
 	let _params = {
-		userId: userId,
-		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LoginMode,
-		mac: getMac()
+		userId: userID
 	}
 
 	return new Promise((resolve) => {
@@ -567,14 +587,10 @@ export function findAllCharacterType() {
  * 查询某个用户的性格类型
  * @return {[type]} [description]
  */
-export function findCharacterTypeByUserId(id = 1) {
-	let {userId} = getLocalStorage(UER_NAME);
+export function findCharacterTypeByUserId(userID, id = 1) {
 	let _params = {
 		belongId: id,
-		userId: userId,
-		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LoginMode,
-		mac: getMac()
+		userId: userID
 	}
 
 	return new Promise((resolve) => {
@@ -765,6 +781,109 @@ export function follow(_id, _status) {
 		getPost('/follow', _params, function(response) {
 			resolve(true);
 		},function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 根据用户ID查找用户上传视频
+ * @param  {[type]} userId  用户ID
+ * @param  {Number} _page   当前页
+ * @param  {Number} _number 数量
+ * @return {[type]}         [description]
+ */
+export function selVideoByUserId(userId, _page = 1, _number = 10) {
+	let _params = {
+		userId: userId,
+		page: _page,
+		number: _number
+	}
+
+	return new Promise((resolve) => {
+		getPost('/selVideoByUserId', _params, function(response) {
+			resolve(response.data ? response.data : VIDEO_List_DATA);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 查询某个视频的评论信息
+ * @param  {[type]} videoId 视频ID
+ * @param  {Number} _page   当前页
+ * @param  {Number} _number 条数
+ * @return {[type]}         [description]
+ */
+export function selCommentById(videoId, _page = 1, _number = 10) {
+	let {userId} = getLocalStorage(UER_NAME);
+	let _params = {
+		videoId: videoId,
+		page: _page,
+		number: _number,
+		userId: userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/selCommentById', _params, function(response) {
+			resolve(response.data ? response.data : VIDEO_List_DATA);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 评论视频接口
+ * @param  {[type]} videoId 视频ID
+ * @param  {[type]} content 评论内容
+ * @return {[type]}         [description]
+ */
+export function commentVideo(videoId, content) {
+	let {userId} = getLocalStorage(UER_NAME);
+	let _params = {
+		videoId: videoId,
+		content: content,
+		userId: userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/commentVideo', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 点赞接口
+ * @param  {[type]} videoId 视频ID
+ * @param  {[type]} status  状态
+ * @return {[type]}         [description]
+ */
+export function praiseVideo(videoId, status = 1) {
+	let {userId} = getLocalStorage(UER_NAME);
+	let _params = {
+		videoId: videoId,
+		status: status,
+		userId: userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/praiseVideo', _params, function(response) {
+			resolve(response.data ? response.data : false);
+		}, function(response) {
 			resolve(false);
 		});
 	});

@@ -53,7 +53,7 @@ export default class Message extends EventEmitter {
 		SendBird.connect(userId, userName).then(user => {
 			// this.getOpenChannelList(true);
 			this.getGroupChannelList(true);
-			this.createChannelWithUserIds(17);
+			this.createChannelWithUserIds(13);
 			Spinner.remove();
 			this._init();
 		}).catch(() => {

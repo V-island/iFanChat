@@ -192,14 +192,32 @@ const Lang = {
 			Title: "Security of mobile phone registration",
 			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
 		}, {
-			Title: "How to be the network anchor",
-			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
+			Title: "How to get the camera permissions",
+			Text: [
+				"The first time you use the camera, you will be reminded if you need to open the permission. if not open,you can find in your phone:",
+				"Settings---Applications---Application Name---Permissions---Open Camera, Microphone,etc."
+			]
+		},
+		// {
+		// 	Title: "How to be a anchor",
+		// 	Text: "You must improve your live information, upload a beautiful picture or upload a charming video, so that you can become a anchor immediately."
+		// }, {
+		// 	Title: "How can the anchors get more invitations",
+		// 	Text: [
+		// 		"1) Update live information's video every day, with new faces appearing in front of users",
+		// 		"2）more online time ",
+		// 		"3) Higher host star"
+		// 	]
+		// },
+		{
+			Title: "What's the use of short video.",
+			Text: [
+				"1) users watching your short video will bring you benefits.",
+				"2) short video allows users to get to know you better and offer you an opportunity to be invited."
+			]
 		}, {
-			Title: "How can the anchors get more invitations",
-			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
-		}, {
-			Title: "What's the use of short video",
-			Text: "Mobile phones can be used to get passwords back at any time to ensure account safety."
+			Title: "How do I get the benefits ?",
+			Text: "Users need paying gold coins to watch your video. These coins will be converted into scores and entered into your account.  Finally you can withdraw your money."
 		}]
 	},
 	USER_SETTING_SUGGESTION: {
@@ -263,6 +281,7 @@ const Lang = {
 		},
 		Age: {
 			Title: 'Age',
+			Unit: 'years old',
 			Madal: {
 				Title: 'Modify birthday',
 			}
@@ -277,6 +296,7 @@ const Lang = {
 		},
 		Body_Weight: {
 			Title: 'Body weight',
+			Shorthand: 'Weight',
 			Unit: 'kg',
 			Madal: {
 				Title: 'Modify  body weight',
@@ -292,6 +312,7 @@ const Lang = {
 		},
 		Your_Type: {
 			Title: 'Your type',
+			Shorthand: 'Type',
 			Madal: {
 				Title: 'Your type',
 				Text: 'Up to %S items can be selected'
@@ -306,6 +327,7 @@ const Lang = {
 		},
 		Why_Make_Friends: {
 			Title: 'Why make friends',
+			Shorthand: 'Purpose',
 			Madal: {
 				Title: 'Why make friends',
 				Lists: [{

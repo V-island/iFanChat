@@ -1487,3 +1487,24 @@ p.lives-remark{
 	    min-width: 10.5rem;
 	}
 }
+
+// Other-Details-wrapper
+//--------------------------------
+.other-details-wrapper {
+	background: $card-bg;
+	overflow: hidden;
+
+	.slide-wrapper {
+		height: calc(100% - 2.15rem);
+
+		.slide-item {
+			padding: 0 0.7rem;
+			position: relative;
+		}
+	}
+
+	.box-cards {
+		margin-bottom: 0;
+		margin-top: 0;
+	}
+}

@@ -47,6 +47,10 @@ export const fcConfig = {
             name: 'home_items',
             path: '../public/home_items.html'
         },
+        other_details_item: {
+            name: 'other_details_item',
+            path: '../public/other_details_item.html'
+        },
         bar_tabs: {
             name: 'bar_tabs',
             path: '../public/bar_tabs.html'
