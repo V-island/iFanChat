@@ -5,24 +5,43 @@
             <h1 class="title primary">{{BAR.Favorite}}</h1>
         </header>
         <!-- 这里是页面内容区 -->
-        <div class="content block">
-            <ul class="list list-user no-bg">
-                <li class="list-favorite">
-                    <a href="#/details?userid=13" class="list-item favorite-item" data-id="13" data-ripple>
-                        <span class="list-item-graphic image"></span>
-                        <span class="list-item-text">Carrie</span>
-                    </a>
-                    <span class="btn-follow" data-ripple>Follow +</span>
-                </li>
-                <li class="list-favorite">
-                    <a href="#/details?userid=17" class="list-item favorite-item" data-id="17" data-ripple>
-                        <span class="list-item-graphic image"></span>
-                        <span class="list-item-text">Otter</span>
-                    </a>
-                    <span class="btn-follow active" data-ripple>Followed</span>
-                </li>
-            </ul>
-            <!-- /.list list-user -->
+        <div class="content block favorite-wrapper">
+            <div class="favorite-content">
+                {{if FollowList}}
+                    <ul class="list list-user list-favorite" data-page="1">
+                        {{each FollowList}}
+                            <li>
+                                <a href="#/details?userid={{$value.user_id}}" class="list-item" data-ripple>
+                                    <span class="list-item-graphic image" style="{{if $value.user_head}} background-image: url({{$value.user_head}}); {{/if}}"></span>
+                                    <span class="list-item-text">{{$value.user_name}}</span>
+                                </a>
+                                <span class="btn-follow" data-id="{{$value.user_id}}" data-ripple>{{FAVORITE.Follow}}</span>
+                            </li>
+                        {{/each}}
+                    </ul>
+                    <!-- /.list list-user -->
+                {{/if}}
+            </div>
+            <div class="pulldown-wrapper">
+                <div class="loading-down">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <!-- /.pulldown-wrapper -->
+            <div class="pullup-wrapper">
+                <div class="loading-down">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <!-- /.pullup-wrapper -->
         </div>
     </div>
 </div>

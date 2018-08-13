@@ -259,6 +259,7 @@ span.status-label {
         }
 
         .summary-txt {
+            @include wrap-space;
             font-size: 0.525rem;
             color: $color-text;
             padding-right: 0.35rem;
@@ -283,6 +284,10 @@ span.status-label {
         align-items: center;
         font-size: 0.4rem;
         padding-right: 0.35rem;
+
+        .video-time {
+            @include wrap-space;
+        }
     }
 
     .user-info {

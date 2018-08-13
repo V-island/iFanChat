@@ -1,6 +1,8 @@
 import Template from 'art-template/lib/template-web';
+import { Spinner } from '../components/Spinner';
 import EventEmitter from '../eventEmitter';
 import RecordPhoto from '../record-photo';
+import SendBirdAction from '../SendBirdAction';
 import Modal from '../modal';
 
 import {
@@ -8,8 +10,13 @@ import {
 } from '../lang';
 
 import {
+    body
+} from '../intro';
+
+import {
 	personInfo,
     uploadHead,
+    getUserInfo,
     updateUserInfo,
     findAllUserHobby,
     findHobbyByUserId,
@@ -60,15 +67,21 @@ export default class UserDetail extends EventEmitter {
 	}
 
 	init(element) {
-		let getPersonInfo = personInfo();
+		const SendBird = new SendBirdAction();
+		const {userId} = getUserInfo();
 
-		getPersonInfo.then((data) => {
-			this.data.UserDetail = data;
-			this.UserId = data.user_id;
+		let getPersonInfo = personInfo();
+		let connectSendBird = SendBird.connect(userId);
+
+		Spinner.start(body);
+		Promise.all([getPersonInfo, connectSendBird]).then((data) => {
+			this.data.UserDetail = data[0];
+			this.UserId = userId;
 
 			this.UserDetailEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.UserDetailEl);
 			this._init();
+			Spinner.remove();
 		});
 	}
 
@@ -107,7 +120,9 @@ export default class UserDetail extends EventEmitter {
 
 			recordPhoto.on('recordPhoto.clipping', (File, URL) => {
                 uploadHead(File, (data) => {
-                	this.itemUserImgEl.style.backgroundImage = 'url('+ data +')';
+					SendBirdAction.getInstance().updateCurrentUserInfo(null, data).then((user) => {
+						this.itemUserImgEl.style.backgroundImage = 'url('+ data +')';
+					});
                 });
             });
         });
@@ -117,8 +132,10 @@ export default class UserDetail extends EventEmitter {
 			modal.prompt(DETAIL.Username.Madal.Placeholder, DETAIL.Username.Madal.Title,
 				(value) => {
 					this.itemUsernameTxtEl.innerText = value;
-					updateUserInfo({
-						name: value
+					updateUserInfo({ name: value }).then((data) => {
+						if (!data) return;
+
+						SendBirdAction.getInstance().updateCurrentUserInfo(value, null);
 					});
 				}
 			);

@@ -74,8 +74,8 @@ export default class SetPassWord extends EventEmitter {
 			let $self = $(this);
 			// let $input = $(this).find('input.form-control');
 			let _params = $self.serialize();
-			console.log(_params);
-			getUpdatePassword(_params, function() {
+
+			getUpdatePassword(_params).then(() => {
 				location.href = '#/login';
 			});
 			e.preventDefault();

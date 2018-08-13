@@ -5,8 +5,19 @@
 
 @mixin wrap-space {
     white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+}
+
+@mixin multi-wrap-space($num) {
+    text-overflow: -o-ellipsis-lastline;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: $num;
+    line-clamp: $num;
+    -webkit-box-orient: vertical;
 }
 
 @mixin scrollable {

@@ -578,6 +578,7 @@
 	z-index: 2;
 
 	p.preview-text{
+		@include  multi-wrap-space(2);
 		font-size: 0.75rem;
 		color: $color-text;
 	}

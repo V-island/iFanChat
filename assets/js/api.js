@@ -1,3 +1,4 @@
+import SendBirdAction from './SendBirdAction';
 import Modal from './modal';
 import {
 	fcConfig
@@ -275,7 +276,14 @@ function getMac() {
 
 // 获取用户信息
 export function getUserInfo() {
-	return getLocalStorage(UER_NAME);
+	let _info = getLocalStorage(UER_NAME);
+	console.log(_info);
+	if (_info === null) {
+		clearLocalStorage();
+		return location.href = '#/login';
+	}
+
+	return _info;
 }
 
 // 更新用户信息
@@ -288,7 +296,7 @@ export function setUserInfo(name, value) {
 
 // 判断是否是主播
 export function checkAuth() {
-	let {userAuth} = getLocalStorage(UER_NAME);
+	let {userAuth} = getUserInfo();
 
 	return userAuth === 2 ? true : false;
 	// return userIdentity === 2 ? true : false;
@@ -321,6 +329,54 @@ export function checkCountry() {
 	});
 }
 
+export function createGroupChannel(SendBird, userID, URL, Type) {
+	return new Promise((resolve) => {
+		if (URL != null) resolve(URL);
+
+		SendBird.createGroupChannel(userID, Type).then((data) => {
+			resolve(data.url);
+		});
+	});
+}
+
+/**
+ * 验证IM频道
+ * @param  {[type]} userID     用户ID
+ * @param  {[type]} praiseURL  点赞频道
+ * @param  {[type]} commentURL 评论频道
+ * @param  {[type]} giftURL    礼物频道
+ * @return {[type]}            [description]
+ */
+export function checkIMChannel(userID, praiseURL, commentURL, giftURL) {
+
+	return new Promise((resolve, reject) => {
+		if (praiseURL != null && commentURL != null && giftURL != null) {
+			return reject(false);
+		}
+
+		const SendBird = new SendBirdAction();
+
+		SendBird.connect(userID).then(user => {
+			let createComment = createGroupChannel(SendBird, userID, commentURL, 'Comment');
+			let createLike =createGroupChannel(SendBird, userID, commentURL, 'Like');
+			let createGift = createGroupChannel(SendBird, userID, commentURL, 'Gift');
+
+			Promise.all([createComment, createLike, createGift]).then((data) => {
+				console.log(data);
+
+			    resolve({
+			    	commentURL: data[0],
+			    	praiseURL: data[1],
+			    	giftURL: data[2]
+			    });
+			});
+		}).catch(() => {
+			redirectToIndex('SendBird connection failed.');
+			reject('SendBird connection failed.');
+		});
+	});
+}
+
 //------------------------------------------------------------------------------------------------------
 //-----注册、登入模块
 //------------------------------------------------------------------------------------------------------
@@ -335,7 +391,7 @@ export function findAllCountry(id = 2, langId = 2) {
 
 		getPost('/findAllCountry', {
 			language_id: langId
-		}, function(response) {
+		}, (response) => {
 			setLocalStorage(COUNTRY_ID_NAME, {
 				id: id,
 				langId: langId,
@@ -350,14 +406,17 @@ export function findAllCountry(id = 2, langId = 2) {
 /**
  * 发送验证码
  * @param  {[string]} _phone 	   手机号
- * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function sendVerificationCode(_phone, callback) {
-	getPost('/sendAuthCode', {
-		phone: _phone
-	}, function(response) {
-		callback();
+export function sendVerificationCode(_phone) {
+
+	return new Promise((resolve) => {
+
+		getPost('/sendAuthCode', {
+			phone: _phone
+		}, (response) => {
+			resolve(true);
+		});
 	});
 };
 
@@ -369,11 +428,16 @@ export function sendVerificationCode(_phone, callback) {
  */
 export function getRegister(params, callback) {
 	let _params = isObject(params) ? params : urlParse(params);
-	getPost('/insRegister', _params, function(response) {
-		getLogin({
-			phoneCode: _params.phoneCode,
-			userPhone: _params.userPhone,
-			userPassword: _params.userPassword
+
+	return new Promise((resolve) => {
+
+		getPost('/insRegister', _params, (response) => {
+			getLogin({
+				phoneCode: _params.phoneCode,
+				userPhone: _params.userPhone,
+				userPassword: _params.userPassword
+			});
+			resolve(true);
 		});
 	});
 };
@@ -392,48 +456,68 @@ export function getLogin(params, callback) {
 	_params.phoneType = PhoneType;
 	_params.loginMode = LoginMode;
 	_params.status = 1;
-	getPost('/appLogin', _params, function(response) {
+	getPost('/appLogin', _params, (response) => {
 		modal.toast(response.message);
-		setLocalStorage(TOKEN_NAME, response.data.token);
-		personCenter({
-			userId: response.data.userId,
-			phoneCode: response.data.phoneCode,
-			userPhone: response.data.userPhone
-		}, response.data.token, _mac, true);
+		const {token, userId, phoneCode, userPhone, praise_channel, comment_channel, gift_channel} = response.data;
+
+		setLocalStorage(TOKEN_NAME, token);
+
+		checkIMChannel(userId, praise_channel, comment_channel, gift_channel).then(({praiseURL, commentURL, giftURL}) => {
+			SendBirdAction.getInstance().disconnect();
+			CreateIMChannel(userId, praiseURL, commentURL, giftURL).then((data) => {
+				if (!data) getLogin(_params);
+
+				personCenter({
+					userId: userId,
+					phoneCode: phoneCode,
+					userPhone: userPhone
+				}, token, _mac, true);
+			});
+		}).catch(() => {
+			personCenter({
+				userId: userId,
+				phoneCode: phoneCode,
+				userPhone: userPhone
+			}, token, _mac, true);
+		});
 	});
 };
 
 /**
  * 找回密码
  * @param  {[object]} params 	   [description]
- * @param  {[type]} callback     回调事件
  * @return {[type]} [description]
  */
-export function getFindPassword(params, callback) {
+export function getFindPassword(params) {
 	let {phoneCode, userPhone} = isObject(params) ? params : urlParse(params);
-	getPost('/findPassword', _params, function(response) {
-		setLocalStorage(UER_NAME, {
-			phoneCode: phoneCode,
-			userPhone: userPhone
+
+	return new Promise((resolve) => {
+		getPost('/findPassword', _params, (response) => {
+			setLocalStorage(UER_NAME, {
+				phoneCode: phoneCode,
+				userPhone: userPhone
+			});
+			resolve(true);
 		});
-		callback();
 	});
 };
 
 /**
  * 更新密码
  * @param  {[object]} params 	   [description]
- * @param  {[type]} callback       回调事件
  * @return {[type]} [description]
  */
-export function getUpdatePassword(params, callback) {
+export function getUpdatePassword(params) {
 	let _params = isObject(params) ? params : urlParse(params);
-	let {phoneCode, userPhone} = getLocalStorage(UER_NAME);
+	let {phoneCode, userPhone} = getUserInfo();
 	_params.phoneCode = phoneCode;
 	_params.userPhone = userPhone;
-	getPost('/updatePassword', _params, function(response) {
-		modal.toast(response.message);
-		callback();
+
+	return new Promise((resolve) => {
+		getPost('/updatePassword', _params, (response) => {
+			modal.toast(response.message);
+			resolve(true);
+		});
 	});
 };
 
@@ -442,7 +526,7 @@ export function getUpdatePassword(params, callback) {
  * @return {[type]} [description]
  */
 export function appLoginOut() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		status: 2,
 		userId: userId,
@@ -451,21 +535,24 @@ export function appLoginOut() {
 		mac: getMac()
 	}
 
-	getPost('/appLoginOut', _params, function(response) {
-		modal.toast(response.message);
-		clearLocalStorage();
-		location.href = '#/login';
+	return new Promise((resolve) => {
+		getPost('/appLoginOut', _params, (response) => {
+			modal.toast(response.message);
+			clearLocalStorage();
+			location.href = '#/login';
+			resolve(true);
+		});
 	});
 };
 
 /**
  * 创建IM频道
+ * @param {[type]} userId    用户ID
  * @param {[type]} praiseId  点赞频道
  * @param {[type]} commentId 评论频道
  * @param {[type]} giftsID   礼物频道
  */
-export function CreateIMChannel(praiseId, commentId, giftsID) {
-	let {userId} = getLocalStorage(UER_NAME);
+export function CreateIMChannel(userId, praiseId, commentId, giftsID) {
 	let _params = {
 		userId: userId,
 		praise_channel: praiseId,
@@ -474,9 +561,9 @@ export function CreateIMChannel(praiseId, commentId, giftsID) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/CreateIMChannel', _params, function(response) {
+		getPost('/CreateIMChannel', _params, (response) => {
 			resolve(true);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -491,7 +578,7 @@ export function CreateIMChannel(praiseId, commentId, giftsID) {
  * @return {[type]} [description]
  */
 export function personCenter(params, token, mac, _checkLogin = false) {
-	let _info = isObject(params) ? params : getLocalStorage(UER_NAME);
+	let _info = isObject(params) ? params : getUserInfo();
 		token = typeof token !== 'undefined' ? token : getLocalStorage(TOKEN_NAME);
 		mac = typeof mac !== 'undefined' ? mac : getMac();;
 	let _params = {
@@ -502,7 +589,7 @@ export function personCenter(params, token, mac, _checkLogin = false) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/personCenter', _params, function(response) {
+		getPost('/personCenter', _params, (response) => {
 			_info.userAuth = response.data.user_authentication;
 			// _info.userIdentity = response.data.user_identity;
 			_info.userName = response.data.user_name;
@@ -525,7 +612,7 @@ export function personCenter(params, token, mac, _checkLogin = false) {
  * @return {[type]} [description]
  */
 export function findAllUserHobby() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -534,9 +621,9 @@ export function findAllUserHobby() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/findAllUserHobby', _params, function(response) {
+		getPost('/findAllUserHobby', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -553,9 +640,9 @@ export function findHobbyByUserId(userID) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/findHobbyByUserId', _params, function(response) {
+		getPost('/findHobbyByUserId', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -566,7 +653,7 @@ export function findHobbyByUserId(userID) {
  * @return {[type]} [description]
  */
 export function findAllCharacterType() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -575,9 +662,9 @@ export function findAllCharacterType() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/findAllCharacterType', _params, function(response) {
+		getPost('/findAllCharacterType', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -594,9 +681,9 @@ export function findCharacterTypeByUserId(userID, id = 1) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/findCharacterTypeByUserId', _params, function(response) {
+		getPost('/findCharacterTypeByUserId', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -608,7 +695,7 @@ export function findCharacterTypeByUserId(userID, id = 1) {
  * @return {[type]}    [description]
  */
 export function saveInterest(id) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		hobby_id: id,
 		userId: userId,
@@ -618,9 +705,9 @@ export function saveInterest(id) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/saveInterest', _params, function(response) {
+		getPost('/saveInterest', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -633,7 +720,7 @@ export function saveInterest(id) {
  * @return {[type]}        [description]
  */
 export function saveMyType(typeId, id = 1) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		type_id: typeId,
 		belong_id: id,
@@ -644,9 +731,9 @@ export function saveMyType(typeId, id = 1) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/saveMyType', _params, function(response) {
+		getPost('/saveMyType', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -657,7 +744,7 @@ export function saveMyType(typeId, id = 1) {
  * @return {[type]} [description]
  */
 export function personInfo() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -666,9 +753,9 @@ export function personInfo() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/personInfo', _params, function(response) {
+		getPost('/personInfo', _params, (response) => {
 			resolve(response.data ? response.data : VIDEO_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -680,7 +767,7 @@ export function personInfo() {
  * @return {[type]}        [description]
  */
 export function updateUserInfo(params) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -707,9 +794,9 @@ export function updateUserInfo(params) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/updateUserInfo', _params, function(response) {
+		getPost('/updateUserInfo', _params, (response) => {
 			resolve(true);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -717,11 +804,15 @@ export function updateUserInfo(params) {
 
 /**
  * 我上传的视频
- * @return {[type]} [description]
+ * @param  {Number} _page   当前页
+ * @param  {Number} _number 每页条数
+ * @return {[type]}         [description]
  */
-export function findMyVideo() {
-	let {userId} = getLocalStorage(UER_NAME);
+export function findMyVideo(_page = 1, _number = 10) {
+	let {userId} = getUserInfo();
 	let _params = {
+		page: _page,
+		number: _number,
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
@@ -729,9 +820,9 @@ export function findMyVideo() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/findMyVideo', _params, function(response) {
+		getPost('/findMyVideo', _params, (response) => {
 			resolve(response.data ? response.data : VIDEO_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -739,11 +830,15 @@ export function findMyVideo() {
 
 /**
  * 查看我的历史观看视频
- * @return {[type]} [description]
+ * @param  {Number} _page   当前页
+ * @param  {Number} _number 每页条数
+ * @return {[type]}         [description]
  */
-export function findWatchHistory() {
-	let {userId} = getLocalStorage(UER_NAME);
+export function findWatchHistory(_page = 1, _number = 10) {
+	let {userId} = getUserInfo();
 	let _params = {
+		page: _page,
+		number: _number,
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
@@ -751,9 +846,9 @@ export function findWatchHistory() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/findWatchHistory', _params, function(response) {
+		getPost('/findWatchHistory', _params, (response) => {
 			resolve(response.data ? response.data : VIDEO_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -766,21 +861,18 @@ export function findWatchHistory() {
  * @return {[type]}         [description]
  */
 export function follow(_id, _status) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
-		fans_user_id: _id,
+		fans_user_id: userId,
 		status: _status,
-		userId: userId,
-		token: getLocalStorage(TOKEN_NAME),
-		loginMode: LoginMode,
-		mac: getMac()
+		userId: _id
 	}
 
 	return new Promise((resolve) => {
 
-		getPost('/follow', _params, function(response) {
+		getPost('/follow', _params, (response) => {
 			resolve(true);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -801,9 +893,9 @@ export function selVideoByUserId(userId, _page = 1, _number = 10) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/selVideoByUserId', _params, function(response) {
+		getPost('/selVideoByUserId', _params, (response) => {
 			resolve(response.data ? response.data : VIDEO_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -817,7 +909,7 @@ export function selVideoByUserId(userId, _page = 1, _number = 10) {
  * @return {[type]}         [description]
  */
 export function selCommentById(videoId, _page = 1, _number = 10) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		videoId: videoId,
 		page: _page,
@@ -829,9 +921,9 @@ export function selCommentById(videoId, _page = 1, _number = 10) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/selCommentById', _params, function(response) {
+		getPost('/selCommentById', _params, (response) => {
 			resolve(response.data ? response.data : VIDEO_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -844,7 +936,7 @@ export function selCommentById(videoId, _page = 1, _number = 10) {
  * @return {[type]}         [description]
  */
 export function commentVideo(videoId, content) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		videoId: videoId,
 		content: content,
@@ -855,9 +947,9 @@ export function commentVideo(videoId, content) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/commentVideo', _params, function(response) {
-			resolve(response.data ? response.data : false);
-		}, function(response) {
+		getPost('/commentVideo', _params, (response) => {
+			resolve(true);
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -870,7 +962,7 @@ export function commentVideo(videoId, content) {
  * @return {[type]}         [description]
  */
 export function praiseVideo(videoId, status = 1) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		videoId: videoId,
 		status: status,
@@ -881,13 +973,91 @@ export function praiseVideo(videoId, status = 1) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/praiseVideo', _params, function(response) {
-			resolve(response.data ? response.data : false);
-		}, function(response) {
+		getPost('/praiseVideo', _params, (response) => {
+			resolve(true);
+		}, (response) => {
 			resolve(false);
 		});
 	});
 };
+
+/**
+ * 查看别人的详细信息接口
+ * @param  {[type]} userId 	用户ID
+ * @return {[type]}         [description]
+ */
+export function searchUserInfo(userId) {
+	let _params = {
+		userId: userId
+	}
+
+	return new Promise((resolve) => {
+		getPost('/searchUserInfo', _params, (response) => {
+			resolve(response.data ? response.data : false);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 关注和被关注用户列表
+ * @param  {Number} _page   当前页
+ * @param  {Number} _number 数量
+ * @param  {[type]} _type   类型：1.我关注的人  2.关注我的人
+ * @return {[type]}         [description]
+ */
+export function followList(_page = 1, _number = 10, _type) {
+	let {userId} = getUserInfo();
+	let _params = {
+		type: _type,
+		page: _page,
+		number: _number,
+		userId: userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/followList', _params, (response) => {
+			resolve(response.data ? response.data : false);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 观看视频赠送礼物
+ * @param  {[type]} videoUserId 视频拥有者
+ * @param  {[type]} videoId     视频ID
+ * @param  {[type]} giftsId     礼物ID
+ * @param  {[type]} amount      礼物数量
+ * @return {[type]}             [description]
+ */
+export function videlGifts(videoUserId, videoId, giftsId, amount = 1) {
+	let {userId} = getUserInfo();
+	let _params = {
+		gifts_id: giftsId,
+		videoId: videoId,
+		amount: amount,
+		videoUserId: videoUserId,
+		userId: userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/videlGifts', _params, (response) => {
+			resolve(response.data ? response.data : false);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
 
 /**
  * 头像上传
@@ -897,7 +1067,7 @@ export function praiseVideo(videoId, status = 1) {
  * @return {[type]}              [description]
  */
 export function uploadHead(_file, callback, onProgress) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let formData = new FormData();
 
 	formData.append("keyword", 'uploadHead');
@@ -907,9 +1077,9 @@ export function uploadHead(_file, callback, onProgress) {
 	formData.append("mac", getMac());
 	formData.append("file", _file);
 
-	getPost(formData, function(response) {
+	getPost(formData, (response) => {
 		callback(response.data);
-	}, function(progress) {
+	}, (progress) => {
 		if (typeof onProgress === 'function') {
 		  onProgress(progress);
 		}
@@ -928,9 +1098,9 @@ export function findAllgifts() {
 
 	return new Promise((resolve) => {
 
-		getPost('/findAllgifts', {}, function(response) {
+		getPost('/findAllgifts', {}, (response) => {
 			resolve(response.data);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -941,7 +1111,7 @@ export function findAllgifts() {
  * @return {[type]} [description]
  */
 export function createChannel() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -951,9 +1121,9 @@ export function createChannel() {
 
 	return new Promise((resolve) => {
 
-		getPost('/createChannel', _params, function(response) {
+		getPost('/createChannel', _params, (response) => {
 			resolve(response.data);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -965,16 +1135,16 @@ export function createChannel() {
  * @return {[type]} [description]
  */
 export function liveStatus(_status) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		status: _status
 	}
 	return new Promise((resolve) => {
 
-		getPost('/liveStatus', _params, function(response) {
+		getPost('/liveStatus', _params, (response) => {
 			resolve(true);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -986,16 +1156,16 @@ export function liveStatus(_status) {
  * @return {[type]}           [description]
  */
 export function loginChannel(channel) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		channel: channel
 	}
 	return new Promise((resolve) => {
 
-		getPost('/loginChannel', _params, function(response) {
+		getPost('/loginChannel', _params, (response) => {
 			resolve(true);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -1012,9 +1182,9 @@ export function closeChannel(channel) {
 	}
 	return new Promise((resolve) => {
 
-		getPost('/closeChannel', _params, function(response) {
+		getPost('/closeChannel', _params, (response) => {
 			resolve(response.data);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -1028,7 +1198,7 @@ export function closeChannel(channel) {
  * @return {[type]}            [description]
  */
 export function userEvaluate(channel, liveUserId, stars) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		channel: channel,
@@ -1040,9 +1210,9 @@ export function userEvaluate(channel, liveUserId, stars) {
 	}
 	return new Promise((resolve) => {
 
-		getPost('/userEvaluate', _params, function(response) {
+		getPost('/userEvaluate', _params, (response) => {
 			resolve(true);
-		},function(response) {
+		},(response) => {
 			resolve(false);
 		});
 	});
@@ -1050,19 +1220,23 @@ export function userEvaluate(channel, liveUserId, stars) {
 
 /**
  * 每日一录--开播前查询是否需要重新录制小视频
- * @param  {[type]} callbackOk     通过事件
  * @return {[type]} [description]
  */
-export function newDayRecord(callbackOk) {
-	let {userId} = getLocalStorage(UER_NAME);
+export function newDayRecord() {
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
 		loginMode: LoginMode,
 		mac: getMac()
 	}
-	getPost('/selEverdayVideo', _params, function(response) {
-		callbackOk(response.data ? true : false);
+
+	return new Promise((resolve) => {
+		getPost('/selEverdayVideo', _params, (response) => {
+			resolve(response.data ? true : false);
+		}, (response) => {
+			resolve(false);
+		});
 	});
 };
 
@@ -1073,9 +1247,9 @@ export function newDayRecord(callbackOk) {
 export function getAdvertisement() {
 
 	return new Promise((resolve) => {
-		getPost('/getAdvertisement', {}, function(response) {
+		getPost('/getAdvertisement', {}, (response) => {
 			resolve(response.data ? response.data : ADVERTISEMENT_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1087,7 +1261,7 @@ export function getAdvertisement() {
  * @return {[type]}         [description]
  */
 export function playVideo(videoID) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		id: videoID,
 		userId: userId,
@@ -1097,9 +1271,9 @@ export function playVideo(videoID) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/playVideo', _params, function(response) {
+		getPost('/playVideo', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1118,9 +1292,9 @@ export function newVideo(_page = 1, _number = 10) {
 		getPost('/newVideo', {
 			page: _page,
 			number: _number
-		}, function(response) {
+		}, (response) => {
 			resolve(response.data ? response.data : NEW_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1138,9 +1312,9 @@ export function hotVideo(_page = 1, _number = 10) {
 		getPost('/hotVideo', {
 			page: _page,
 			number: _number
-		}, function(response) {
+		}, (response) => {
 			resolve(response.data ? response.data : HOT_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1153,16 +1327,17 @@ export function hotVideo(_page = 1, _number = 10) {
  * @param  {[String]} _type 	   类别 1.免费 2.收费
  * @return {[type]} [description]
  */
-export function videoClips(_page, _number, _type) {
+export function videoClips(_page = 1, _number = 10, _tag = 0, _type) {
 
 	return new Promise((resolve) => {
 		getPost('/videoClips', {
 			page: _page,
 			number: _number,
-			type: _type
-		}, function(response) {
+			type: _type,
+			video_tag: _tag
+		}, (response) => {
 			resolve(response.data ? response.data : VIDEO_List_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1175,16 +1350,16 @@ export function videoClips(_page, _number, _type) {
 export function videoType() {
 
 	return new Promise((resolve) => {
-		getPost('/getVideoType', {}, function(response) {
+		getPost('/getVideoType', {}, (response) => {
 			resolve(response.data ? response.data : VIDEO_TYPE_DATA);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
 };
 
 /**
- * 赠送礼物接口
+ * 直播赠送礼物接口
  * @param  {[type]} liveID    主播ID
  * @param  {[type]} channelID 直播间ID
  * @param  {[type]} giftsID   礼物ID
@@ -1192,7 +1367,7 @@ export function videoType() {
  * @return {[type]}           [description]
  */
 export function reward(liveID, channelID, giftsID, amount = 1) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -1205,9 +1380,9 @@ export function reward(liveID, channelID, giftsID, amount = 1) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/reward', _params, function(response) {
+		getPost('/reward', _params, (response) => {
 			resolve(true);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1219,7 +1394,7 @@ export function reward(liveID, channelID, giftsID, amount = 1) {
  * @return {[type]}           [description]
  */
 export function roomProfit(channelID) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -1229,9 +1404,9 @@ export function roomProfit(channelID) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/roomProfit', _params, function(response) {
+		getPost('/roomProfit', _params, (response) => {
 			resolve(response.data ? response.data : false);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1242,7 +1417,7 @@ export function roomProfit(channelID) {
  * @return {[type]} [description]
  */
 export function liveAgain() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -1251,9 +1426,9 @@ export function liveAgain() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/liveAgain', _params, function(response) {
+		getPost('/liveAgain', _params, (response) => {
 			resolve(true);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1280,7 +1455,7 @@ export function uploadVideo(_file, _type, _title, callback, onProgress) {
 	    onProgress = arguments[3];
 	    _title = false;
 	}
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let formData = new FormData();
 
 	formData.append("userId", userId);
@@ -1302,9 +1477,9 @@ export function uploadVideo(_file, _type, _title, callback, onProgress) {
 		formData.append("description", _title);
 	}
 
-	getPost(formData, function(response) {
+	getPost(formData, (response) => {
 		callback(response);
-	}, function(progress) {
+	}, (progress) => {
 		onProgress(progress);
 	});
 };
@@ -1314,7 +1489,7 @@ export function uploadVideo(_file, _type, _title, callback, onProgress) {
  * @return {[type]} [description]
  */
 export function hasAudit() {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		userId: userId,
 		token: getLocalStorage(TOKEN_NAME),
@@ -1323,9 +1498,9 @@ export function hasAudit() {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/hasAudit', _params, function(response) {
+		getPost('/hasAudit', _params, (response) => {
 			resolve(response.data);
-		}, function(response) {
+		}, (response) => {
 			resolve(false);
 		});
 	});
@@ -1337,7 +1512,7 @@ export function hasAudit() {
  * @return {[type]}     [description]
  */
 export function deleteVideo(_id) {
-	let {userId} = getLocalStorage(UER_NAME);
+	let {userId} = getUserInfo();
 	let _params = {
 		id: _id,
 		userId: userId,
@@ -1347,9 +1522,9 @@ export function deleteVideo(_id) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/deleteVideo', _params, function(response) {
-			resolve(response.data);
-		}, function(response) {
+		getPost('/deleteVideo', _params, (response) => {
+			resolve(true);
+		}, (response) => {
 			resolve(false);
 		});
 	});

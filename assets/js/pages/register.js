@@ -90,7 +90,7 @@ export default class Register extends EventEmitter {
 			let _value = $input.val();
 			// isPoneAvailable(_value)；
 			if (true) {
-				sendVerificationCode(_value, function() {
+				sendVerificationCode(_value).then(() => {
 					$self.addClass('disabled');
 					addCountdown($self, 60);
 				});

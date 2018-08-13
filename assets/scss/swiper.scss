@@ -81,6 +81,16 @@
     @include flex-center;
 }
 
+.favorite-wrapper {
+    margin: 0 !important;
+    padding: 0.75rem 0;
+    overflow: hidden;
+
+    .favorite-content {
+        min-height: 100%;
+    }
+}
+
 /*
 <div class="loading-down">
     <span></span>

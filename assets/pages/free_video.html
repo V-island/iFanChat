@@ -8,8 +8,8 @@
             <h1 class="title">{{HOME.FreeVideo.Title}}</h1>
         </header>
         <!-- 这里是页面内容区 -->
-        <div class="content content-block no-padding pages-video">
-            <div class="user-wrapper">
+        <div class="content block user-wrapper">
+            <div class="user-content" data-page="1" style="min-height: 100%;">
                 {{if VideoType}}
                     <div class="tag">
                         {{each VideoType}}
@@ -60,17 +60,27 @@
                 {{else}}
                     <p class="no-more">{{USER_WATCH.No_More}}</p>
                 {{/if}}
-                <div class="pulldown-wrapper">
-                    <div class="loading-down">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-                <!-- /.pulldown-wrapper -->
             </div>
+            <div class="pulldown-wrapper">
+                <div class="loading-down">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <!-- /.pulldown-wrapper -->
+            <div class="pullup-wrapper">
+                <div class="loading-down">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <!-- /.pullup-wrapper -->
         </div>
     </div>
 </div>

@@ -68,9 +68,9 @@
                             <div class="item line">
                                 <div class="item-label">{{PERSONAL_DETAIL.Your_Type.Shorthand}}</div>
                                 <div class="item-control">
-                                    {{if HobbyList}}
+                                    {{if UserDetail.hobbyList}}
                                         <div class="tag tags-label">
-                                            {{each HobbyList}}
+                                            {{each UserDetail.hobbyList}}
                                                 <label class="tag-label bg-success">{{$value.hobby_name}}</label>
                                             {{/each}}
                                         </div>
@@ -80,9 +80,9 @@
                             <div class="item line">
                                 <div class="item-label">{{PERSONAL_DETAIL.Interest.Title}}</div>
                                 <div class="item-control">
-                                    {{if UserTypeList}}
+                                    {{if UserDetail.myTypeList}}
                                         <div class="tag tags-label">
-                                            {{each UserTypeList}}
+                                            {{each UserDetail.myTypeList}}
                                                 <label class="tag-label bg-primary">{{$value.type_name}}</label>
                                             {{/each}}
                                         </div>
@@ -92,9 +92,9 @@
                             <div class="item line">
                                 <div class="item-label">{{PERSONAL_DETAIL.Love.Title}}</div>
                                 <div class="item-control">
-                                    {{if TypeList}}
+                                    {{if UserDetail.otherTypeList}}
                                         <div class="tag tags-label">
-                                            {{each TypeList}}
+                                            {{each UserDetail.otherTypeList}}
                                                 <label class="tag-label bg-danger">{{$value.type_name}}</label>
                                             {{/each}}
                                         </div>

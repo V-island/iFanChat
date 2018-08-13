@@ -1,6 +1,7 @@
 import Template from 'art-template/lib/template-web';
 import BScroll from 'better-scroll';
 import EventEmitter from './eventEmitter';
+import SendBirdAction from './SendBirdAction';
 import SignalingClient from './signalingClient';
 import Client from './client';
 import Modal from './modal';
@@ -9,8 +10,13 @@ import {
 } from './intro';
 import {
     getUserInfo,
+    setUserInfo,
     findAllgifts,
-    follow
+    selCommentById,
+    follow,
+    praiseVideo,
+    commentVideo,
+    videlGifts
 } from './api';
 import {
     getLangConfig
@@ -24,6 +30,7 @@ import {
     getData,
     hasClass,
     addClass,
+    toggleClass,
     removeClass
 } from './util';
 
@@ -69,10 +76,16 @@ export default class VideoPreview extends EventEmitter {
 
     _init() {
         this.tpl = {};
+        this._page = 1;
+        this._number = 10;
 
         let getAllgifts = findAllgifts();
-        getAllgifts.then((data) => {
-            this.data.GiftList = data;
+        let getComment = selCommentById(this.options.id, this._page, this._number);
+
+        Promise.all([getAllgifts, getComment]).then((data) => {
+            console.log(data);
+            this.data.GiftList = data[0] ? data[0] : false;
+            this.data.CommentList = data[1] ? data[1] : false;
             this.data.UserInfoList = this.localInfo;
 
             importTemplate(this.videoPreviewFile, (id, _template) => {
@@ -81,12 +94,22 @@ export default class VideoPreview extends EventEmitter {
 
             this._bindEvent();
         });
+
+        this.SendBird = new SendBirdAction();
+
+        this.SendBird.connect(this.localInfo.userId).then(user => {
+            console.log(user);
+        }).catch(() => {
+            redirectToIndex('SendBird connection failed.');
+        });
     }
 
     _bindEvent() {
         // 关闭
         addEvent(this.btnLiveCloseEl, 'click', () => {
-            modal.closeModal(this.previewModalEl);
+            this.SendBird.disconnect(() => {
+                modal.closeModal(this.previewModalEl);
+            });
         });
 
         // 加关注
@@ -124,15 +147,25 @@ export default class VideoPreview extends EventEmitter {
                     return;
                 }
 
-                let itemEl = createDom(this._itemCommentsTemplate(_val));
-                listCommentsEl.append(itemEl);
+                let getJoinGroupChannel = this._joinGroupChannel(this.options.comment_channel, _val);
+                let getCommentVideo = commentVideo(this.options.id, _val);
+
+                Promise.all([getJoinGroupChannel, getCommentVideo]).then((data) => {
+                    let itemEl = createDom(this._itemCommentsTemplate(_val));
+                    listCommentsEl.append(itemEl);
+                });
             });
         });
 
         // 点赞
         addEvent(this.btnThumbsEl, 'click', () => {
-            removeClass(this.btnThumbsEl, this.options.showClass);
-            addClass(this.btnThumbsEl, this.options.showClass);
+
+            let getJoinGroupChannel = this._joinGroupChannel(this.options.praise_channel, LANG.MESSAGE.Like.Text);
+            let getPraiseVideo = praiseVideo(this.options.id, 1);
+
+            Promise.all([getJoinGroupChannel, getPraiseVideo]).then((data) => {
+                toggleClass(this.btnThumbsEl, this.options.showClass);
+            });
         });
 
         // 分享
@@ -202,9 +235,19 @@ export default class VideoPreview extends EventEmitter {
                 let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
                 console.log(tagActiveEl);
                 let giftId = getData(tagActiveEl, 'id');
+                let giftUrl = getData(tagActiveEl, 'giftUrl');
+                let giftPrice = getData(tagActiveEl, 'price');
                 console.log(giftId);
+                console.log(giftPrice);
 
-                modal.closeModal(giftModalEl);
+                const {id, vuser_id} = this.options;
+
+                videlGifts(vuser_id, id, giftId, 1).then((data) =>{
+                    if (!data) return;
+
+                    setUserInfo('userPackage', data);
+                    this._joinGroupChannel(this.options.gift_channel, LANG.MESSAGE.Gift.Text.replace('%S', giftPrice));
+                });
             });
 
             // 充值
@@ -218,6 +261,35 @@ export default class VideoPreview extends EventEmitter {
 
     }
 
+    /**
+     * 加入频道并发送消息
+     * @param  {[type]} channelURL 频道URL
+     * @param  {[type]} message    消息
+     * @return {[type]}            [description]
+     */
+    _joinGroupChannel(channelURL, message, giftUrl) {
+        const {img_url, id} = this.options;
+        return new Promise((resolve, reject) => {
+            this.SendBird.getChannel(channelURL, false).then((groupChannel) => {
+                console.log(groupChannel);
+
+                groupChannel.join(() => {
+
+                    SendBird.sendChannelMessage({
+                        channel: groupChannel,
+                        message: message
+                    }).then((error) => {
+                        if (error) reject(false);
+
+                        groupChannel.leave(() => {
+                            resolve(true);
+                        });
+                    });
+                });
+            });
+        });
+    }
+
     _videoPreviewTemplate(options) {
         let html = '';
 
@@ -226,10 +298,10 @@ export default class VideoPreview extends EventEmitter {
         html += '</div><div class="lives-header"><div class="lives-attention"><div class="user-info across"><div class="user-img avatar-female">';
         html += options.user_head ? '<img src="'+ options.user_head +'">' : '';
         html += '</div><div class="across-body"><p class="user-name">'+ options.user_name +'</p><p class="user-txt">'+ options.support + ' ' + LANG.PUBLIC.Heat +'</p></div>';
-        html += '</div><i class="icon live-attention '+ options.btnAddAttentionClass +'" data-id="'+ options.id +'"></i></div><div class="icon live-close '+ options.btnLiveCloseClass +'"></div></div>';
+        html += '</div><i class="icon '+ options.btnAddAttentionClass + ' ' + (options.followStatus == 1 ? options.iconAddAttentionClass : options.iconAttentionClass) +'" data-id="'+ options.id +'"></i></div><div class="icon live-close '+ options.btnLiveCloseClass +'"></div></div>';
         html += '<div class="video-preview-content"><p class="preview-text">'+ options.video_description +'</p></div>';
         html += '<div class="video-preview-footer"><div class="lives-buttons">';
-        html += '<div class="video-preview-item '+ options.btnNewsClass +'"><i class="icon live-news"></i><span>'+ options.support +'</span></div>';
+        html += '<div class="video-preview-item '+ options.btnNewsClass +'"><i class="icon live-news"></i><span>'+ options.countComment +'</span></div>';
         html += '<div class="video-preview-item '+ options.btnThumbsClass +'"><i class="icon live-thumbs-upion"></i><span>'+ options.watch_number +'</span></div>';
         html += '<div class="video-preview-item '+ options.btnShareClass +'"><i class="icon live-share"></i></div></div>';
         html += '<div class="'+ options.btnGiftClass +'"><i class="icon live-gift"></i></div>';

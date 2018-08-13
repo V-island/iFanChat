@@ -5,7 +5,13 @@ import SignalingClient from '../signalingClient';
 import Client from '../client';
 import Modal from '../modal';
 import VideoPreview from '../videoPreview';
+
+import SendBirdAction from '../SendBirdAction';
+import MessageChat from '../components/MessageChat';
+import { Spinner } from '../components/Spinner';
+
 import {
+	body,
     fcConfig,
     agoraConfig
 } from '../intro';
@@ -16,9 +22,7 @@ import {
 	follow,
 	playVideo,
 	getUserInfo,
-    personInfo,
-    findHobbyByUserId,
-    findCharacterTypeByUserId,
+	searchUserInfo,
     selVideoByUserId,
 } from '../api';
 import {
@@ -31,6 +35,7 @@ import {
     addClass,
     removeClass,
     toggleClass,
+    errorAlert,
     importTemplate,
     getVariableFromUrl
 } from '../util';
@@ -75,18 +80,12 @@ export default class OtherDetails extends EventEmitter {
 
 		let _page = 1;
 		let _number = 10;
-		let getPersonInfo = personInfo();
-		let getHobby = findHobbyByUserId(userid);
-		let getUserCharacterType = findCharacterTypeByUserId(userid, 1);
-		let getCharacterType = findCharacterTypeByUserId(userid, 2);
+		let getUserDetail = searchUserInfo(userid);
 		let getVideo = selVideoByUserId(userid, _page, _number);
 
-		Promise.all([getPersonInfo, getHobby, getUserCharacterType, getCharacterType, getVideo]).then((data) => {
+		Promise.all([getUserDetail, getVideo]).then((data) => {
 			this.data.UserDetail = data[0] ? data[0] : false;
-			this.data.HobbyList = data[1] ? data[1] : false;
-			this.data.UserTypeList = data[2] ? data[2] : false;
-			this.data.TypeList = data[3] ? data[3] : false;
-			this.data.VideoList = data[4] ? data[4] : false;
+			this.data.VideoList = data[1] ? data[1] : false;
 
 			this.OtherDetailsEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.OtherDetailsEl);
@@ -158,7 +157,25 @@ export default class OtherDetails extends EventEmitter {
 
 		// 发消息
 		addEvent(this.btnPrivateLetterEl, 'click', () => {
+			const {userId} = getUserInfo();
+			const {userid} = getVariableFromUrl();
+			const SendBird = new SendBirdAction();
 
+			// SendBird SDK 初始化
+			Spinner.start(body);
+			SendBird.connect(userId).then(user => {
+				SendBirdAction.getInstance()
+				.createChannelWithUserIds(userid)
+					.then(channel => {
+						MessageChat.getInstance().render(channel.url, false);
+					})
+					.catch(error => {
+						errorAlert(error.message);
+					});
+				Spinner.remove();
+			}).catch(() => {
+				redirectToIndex('SendBird connection failed.');
+			});
 		});
 
 		// 视频呼叫

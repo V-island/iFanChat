@@ -317,7 +317,7 @@ export const createDom = element => {
 };
 
 // 创建DIV Element
-export const createDivEl = ({ element, id, className, content, background }) => {
+export const createDivEl = ({ element, id, className, content, background, data }) => {
     const el = document.createElement( element ? element : 'div');
     if (id) {
         el.id = id;
@@ -330,6 +330,16 @@ export const createDivEl = ({ element, id, className, content, background }) => 
     }
     if (background) {
         el.style.backgroundImage = `url(${background})`;
+    }
+    if (data) {
+        el[data.name] = data.value;
+    }
+    if (isObject(data) && data.length > 0) {
+        data.forEach((_data) => {
+            if (isObject(_data)) {
+                el[_data.name] = _data.value;
+            }
+        });
     }
     return el;
 };

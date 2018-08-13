@@ -697,6 +697,26 @@ export default class Modal extends EventEmitter {
     }
 
     /**
+     * 视频弹框
+     * @param  {[type]} videoUrl 视频URL
+     * @return {[type]}          [description]
+     */
+    videoModal(videoUrl) {
+        const self = this;
+        let modalHTML = '';
+
+        modalHTML = '<div class="popup remove-on-close lives-wrapper">';
+        modalHTML += '<div class="lives-video"><video id="video" class="video" controls autoplay="autoplay" preload="auto"><source src="'+ videoUrl +'" type="video/mp4"></video></div>';
+        modalHTML += '<div class="lives-header"><div class="icon live-close btn-close"></div></div></div>';
+
+        return self.popup(modalHTML, function(modal) {
+            modal.find('.btn-close').on('click', function() {
+                self.closeModal(modal);
+            });
+        });
+    }
+
+    /**
      * Modal.toast()
      * //显示一个消息，会在2秒钟后自动消失
      * @param  {[string]} msg        [description]

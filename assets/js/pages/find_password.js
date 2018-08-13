@@ -85,7 +85,7 @@ export default class FindPassWord extends EventEmitter {
 			let _value = $input.val();
 			// isPoneAvailable(_value)；
 			if (true) {
-				sendVerificationCode(_value, function() {
+				sendVerificationCode(_value).then(() => {
 					$self.addClass('disabled');
 					addCountdown($self, 60);
 				});
@@ -111,8 +111,8 @@ export default class FindPassWord extends EventEmitter {
 			let $self = $(this);
 			// let $input = $(this).find('input.form-control');
 			let _params = $self.serialize();
-			console.log(_params);
-			getFindPassword(_params, function() {
+
+			getFindPassword(_params).then(() => {
 				location.href = '#/login/set';
 			});
 			e.preventDefault();

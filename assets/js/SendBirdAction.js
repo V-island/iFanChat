@@ -27,17 +27,11 @@ export default class SendBirdAction {
     }
 
     // 连接
-    connect(userId, nickname) {
+    connect(userId) {
         return new Promise((resolve, reject) => {
             const sb = SendBird.getInstance();
             sb.connect(userId, (user, error) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    sb.updateCurrentUserInfo(decodeURIComponent(nickname), null, (user, error) => {
-                        error ? reject(error) : resolve(user);
-                    });
-                }
+                error ? reject(error) : resolve(user);
             });
         });
     }
@@ -47,6 +41,15 @@ export default class SendBirdAction {
         return new Promise((resolve, reject) => {
             this.sb.disconnect((response, error) => {
                 error ? reject(error) : resolve();
+            });
+        });
+    }
+
+    // 更新用户个人资料和个人资料图片
+    updateCurrentUserInfo(nickname, profileUrl) {
+        return new Promise((resolve, reject) => {
+            this.sb.updateCurrentUserInfo(nickname, profileUrl, (user, error) => {
+                error ? reject(error) : resolve(user);
             });
         });
     }
@@ -243,15 +246,21 @@ export default class SendBirdAction {
         });
     }
 
-    /**
-     * 创建群组频道
-     * @param  {[type]} userIds [description]
-     * @return {[type]}         [description]
-     */
-    createGroupChannel(userIds) {
+     /**
+      * 创建群组频道
+      * @param  {[type]} userIds    用户ID
+      * @param  {[type]} type       群组频道类型
+      * @return {[type]}            [description]
+      */
+    createGroupChannel(userIds, type) {
         return new Promise((resolve, reject) => {
             let params = new this.sb.GroupChannelParams();
             params.addUserIds(userIds);
+            params.name = type;
+            params.customType = type;
+            params.channelUrl = `${userIds}_${type}_channel`;
+            params.isPublic = true;
+            console.log(params);
             this.sb.GroupChannel.createChannel(params, (groupChannel, error) => {
                 error ? reject(error) : resolve(groupChannel);
             });
@@ -267,6 +276,7 @@ export default class SendBirdAction {
     inviteGroupChannel(channelUrl, userIds) {
         return new Promise((resolve, reject) => {
             this.sb.GroupChannel.getChannel(channelUrl, (groupChannel, error) => {
+                console.log(groupChannel);
                 if (error) {
                     reject(error);
                 } else {
@@ -342,6 +352,15 @@ export default class SendBirdAction {
     sendUserMessage({channel, message, handler}) {
         return channel.sendUserMessage(message, (message, error) => {
             if (handler) handler(message, error);
+        });
+    }
+
+    // 发送频道消息
+    sendChannelMessage({channel, message, data}) {
+        return new Promise((resolve, reject) => {
+            channel.sendUserMessage(message, data, (message, error) => {
+                error ? reject(false) : resolve(true);
+            });
         });
     }
 

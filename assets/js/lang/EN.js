@@ -89,11 +89,22 @@ const Lang = {
 	},
 	FAVORITE: {
 		You_May_Also_Like: 'You may also like',
-		Another_Batch: 'Another batch'
+		Another_Batch: 'Another batch',
+		Follow: 'Follow +',
+		Followed: 'Followed'
 	},
 	MESSAGE: {
-		Like: 'Like',
-		Comment: 'Comment',
+		Like: {
+			Title: 'Like',
+			Text: 'Carrie likes your video！'
+		},
+		Comment: {
+			Title: 'Comment'
+		},
+		Gift: {
+			Title: 'Gift',
+			Text: 'Give you a gift，earned %S score.'
+		},
 		System_Message: 'System  message',
 		Customer_Service: 'Customer service',
 		Friends: 'Friends',

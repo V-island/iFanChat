@@ -60,90 +60,85 @@ export default class Tabs extends EventEmitter {
     }
 
     init() {
-        const self = this;
-        self.tpl = {};
+        this.tpl = {};
 
-        importTemplate(self.tabFile, function(id, _template) {
-            self.tpl[id] = Template.render(_template, LANG);
+        importTemplate(this.tabFile, (id, _template) => {
+            this.tpl[id] = Template.render(_template, LANG);
         });
 
         if (getLocalStorage(LIVE_STATUS)) {
-            self.startLiveWaiting();
+            this.startLiveWaiting();
         }
 
         this._bindEvent();
     }
 
     _bindEvent() {
-        let self = this;
-
         // 页面切换
-        for (let i = 0; i < self.itemEl.length; i++) {
-            addEvent(self.itemEl[i], 'click', function() {
-                let itemActive = self.tabsEl.getElementsByClassName(self.options.showClass)[0];
+        for (let i = 0; i < this.itemEl.length; i++) {
+            addEvent(this.itemEl[i], 'click', () => {
+                let itemActive = this.tabsEl.getElementsByClassName(this.options.showClass)[0];
 
-                if (hasClass(self.itemEl[i], self.options.showClass)) {
+                if (hasClass(this.itemEl[i], this.options.showClass)) {
                     return false;
                 }
 
-                removeClass(itemActive, self.options.showClass);
-                addClass(self.itemEl[i], self.options.showClass);
+                removeClass(itemActive, this.options.showClass);
+                addClass(this.itemEl[i], this.options.showClass);
             });
         }
 
         // 直播开始按钮
-        addEvent(self.modallLiveEl, 'click', function() {
-            let _modal = modal.actions(self.tpl.start_lives, {
+        addEvent(this.modallLiveEl, 'click', () => {
+            let _modal = modal.actions(this.tpl.start_lives, {
                 theme: 'theme-black',
                 cancelBtn: true,
                 cancelIcon: true
             });
-            self._LivesEvent(_modal);
+            this._LivesEvent(_modal);
         });
     }
 
     _LivesEvent(modalEl) {
-        let self = this;
         let liveEl = modalEl.getElementsByClassName(this.options.liveBtnClass)[0];
         let videoEl = modalEl.getElementsByClassName(this.options.videoBtnClass)[0];
 
         // 直播
-        addEvent(liveEl, 'click', function() {
+        addEvent(liveEl, 'click', () => {
             modal.closeModal(modalEl);
 
             if (!checkAuth()) {
                 let _dataIncomplete = MADAL.DataIncomplete;
 
-                modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, function() {
+                modal.alert(_dataIncomplete.Text, _dataIncomplete.Title, () => {
                     location.href = '#/user';
                 }, _dataIncomplete.ButtonsText);
             }
 
-            newDayRecord(function(checkRecord) {
-                if (checkRecord) return self.startLiveWaiting();
+            newDayRecord().then((checkRecord)=>{
+                if (checkRecord) return this.startLiveWaiting();
 
                 let _newDay = MADAL.NewDay;
-                modal.confirm(_newDay.Text, function() {
+                modal.confirm(_newDay.Text, () => {
                     let _record = new RecordVideo({
                         maxTimes: 5,
                         newDayVideo: true
                     });
                     _record.show();
-                    _record.on('recordVideo.upload.success', function() {
-                        self.startLiveWaiting();
+                    _record.on('recordVideo.upload.success', () => {
+                        this.startLiveWaiting();
                     });
-                }, function() {
-                    self.startLiveWaiting();
+                }, () => {
+                    this.startLiveWaiting();
                 }, true);
             });
 
         });
 
         // 小视频
-        addEvent(videoEl, 'click', function() {
+        addEvent(videoEl, 'click', () => {
             modal.closeModal(modalEl);
-
-            console.log('video');
+            location.href = '#/user/video';
         });
     }
 

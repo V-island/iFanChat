@@ -406,8 +406,11 @@ import {
         _doSwitchDocument(url, direction) {
             // 判断是否登录
             if (checkLogin() && this.cache[url].init !== 1) {
-                return location.hash = '#/login';
+                return location.href = '#/login';
             }
+            // if (this.cache[url].init !== 1) {
+            //     return location.href = '#/login';
+            // }
 
             //读取成功后
             // window.addEventListener('HTMLImportsLoaded', function(e) {

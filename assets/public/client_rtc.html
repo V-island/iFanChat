@@ -11,30 +11,16 @@
 <script id="live_comments" type="text/html">
     <div class="actions-modal-group comments-group">
         <ul class="list list-comments">
-            <li class="list-item">
-                <span class="list-item-graphic image"></span>
-                <span class="list-item-text">Evangeline
-                    <span class="list-item-secondary">Are you so beautiful that you can meet you?</span>
-                </span>
-            </li>
-            <li class="list-item">
-                <span class="list-item-graphic image"></span>
-                <span class="list-item-text">Otter
-                    <span class="list-item-secondary">Hello, what can I do for you?</span>
-                </span>
-            </li>
-            <li class="list-item">
-                <span class="list-item-graphic image"></span>
-                <span class="list-item-text">Carrie
-                    <span class="list-item-secondary">Nice!</span>
-                </span>
-            </li>
-            <li class="list-item">
-                <span class="list-item-graphic image"></span>
-                <span class="list-item-text">One
-                    <span class="list-item-secondary">HI like you! Are you so beautiful that you can meet you?</span>
-                </span>
-            </li>
+            {{if CommentList}}
+                {{each CommentList}}
+                <li class="list-item">
+                    <span class="list-item-graphic image" style="{{if $value.user_head}} background-image: url({{$value.user_head}}); {{/if}}"></span>
+                    <span class="list-item-text">{{$value.user_name}}
+                        <span class="list-item-secondary">{{$value.comment_content}}</span>
+                    </span>
+                </li>
+                {{/each}}
+            {{/if}}
         </ul>
         <p class="no-more">{{PUBLIC.No_More}}</p>
     </div>
@@ -73,7 +59,7 @@
                 <div class="tag gift-item">
                 {{each GiftList}}
                     {{if ($index > 7) && (($index % 8) == 0) }} <div class="tag gift-item"> {{/if}}
-                    <label class="gift-label {{if $value.gifts_price == 0 }} active {{/if}}" data-id="{{$value.id}}" data-ripple>
+                    <label class="gift-label {{if $value.gifts_price == 0 }} active {{/if}}" data-id="{{$value.id}}" data-price="{{$value.gifts_price}}" data-gift-url="{{$value.gifts_url}}" data-ripple>
                         <i class="icon" style="{{if $value.gifts_url}} background-image: url({{$value.gifts_url}}); {{/if}}"></i>
                         <p class="name">{{$value.gifts_name}}</p>
                         <p>{{$value.gifts_price}} {{LIVE_PREVIEW.Actions.Coins}}</p>

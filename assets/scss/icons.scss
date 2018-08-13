@@ -104,7 +104,7 @@ $lives: attention, add-attention, close, news, share, gift, thumbs-upion, cutove
 // Message Icon
 // -----------------------------
 
-$messages: comment, friends, hi, like, message, service;
+$messages: comment, friends, hi, like, message, service, album, giving, video, voice;
 
 @each $message in $messages {
     .message-#{$message}{
