@@ -1036,7 +1036,7 @@ export function followList(_page = 1, _number = 10, _type) {
  * @param  {[type]} amount      礼物数量
  * @return {[type]}             [description]
  */
-export function videlGifts(videoUserId, videoId, giftsId, amount = 1) {
+export function videoGifts(videoUserId, videoId, giftsId, amount = 1) {
 	let {userId} = getUserInfo();
 	let _params = {
 		gifts_id: giftsId,
@@ -1050,7 +1050,7 @@ export function videlGifts(videoUserId, videoId, giftsId, amount = 1) {
 	}
 
 	return new Promise((resolve) => {
-		getPost('/videlGifts', _params, (response) => {
+		getPost('/videoGifts', _params, (response) => {
 			resolve(response.data ? response.data : false);
 		}, (response) => {
 			resolve(false);

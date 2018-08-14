@@ -356,11 +356,9 @@ export default class SendBirdAction {
     }
 
     // 发送频道消息
-    sendChannelMessage({channel, message, data}) {
-        return new Promise((resolve, reject) => {
-            channel.sendUserMessage(message, data, (message, error) => {
-                error ? reject(false) : resolve(true);
-            });
+    sendChannelMessage({channel, message, data, handler}) {
+        return channel.sendUserMessage(message, JSON.stringify(data), (message, error) => {
+            if (handler) handler(message, error);
         });
     }
 

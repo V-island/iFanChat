@@ -105,6 +105,10 @@ const Lang = {
 			Title: 'Gift',
 			Text: 'Give you a gift，earned %S score.'
 		},
+		Prompt: {
+			Pay: 'It takes 1 gold coins，be an anchor can get more free times',
+			Free: 'Free to send the message (10 per day)'
+		},
 		System_Message: 'System  message',
 		Customer_Service: 'Customer service',
 		Friends: 'Friends',

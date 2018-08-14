@@ -1,6 +1,6 @@
 // import Template from 'art-template/lib/template-web';
 import { Spinner } from '../components/Spinner';
-import { MessageItemModal } from '../components/MessageItemModal';
+import { MessageItemSystem, MessageItemModal } from '../components/MessageItemModal';
 
 import SendBirdAction from '../SendBirdAction';
 import SendBirdChatEvent from '../SendBirdChatEvent';
@@ -12,6 +12,10 @@ import {
 } from '../lang';
 
 import {
+    getUserInfo
+} from '../api';
+
+import {
     body
 } from '../intro';
 
@@ -20,14 +24,15 @@ import {
     createDivEl,
     toggleClass,
     addClass,
-    removeClass
+    removeClass,
+    errorAlert
 } from '../util';
 
 const LANG = getLangConfig();
 
 let instance = null;
 
-export default class MessageChat {
+class MessageChat {
     constructor() {
         if (instance) {
             return instance;
@@ -79,7 +84,7 @@ export default class MessageChat {
         targetEl.appendChild(this.emptyElement);
     }
 
-    // 添加聊天内容
+    // 创建一对一聊天Element
     _createChatElement(channel) {
         const chatWrapper = createDivEl({className: 'message-chat-wrapper'});
 
@@ -93,10 +98,11 @@ export default class MessageChat {
         barHeader.appendChild(title);
         chatWrapper.appendChild(barHeader);
 
-        const chatContent = createDivEl({className: ['content', 'block', 'message-chat-content']});
-        chatWrapper.appendChild(chatContent);
-
         const chatFooter = createDivEl({className: 'message-chat-footer'});
+        const channelPrompt = createDivEl({element: 'p', className: 'channel-prompt', content: LANG.MESSAGE.Prompt.Free});
+        chatFooter.appendChild(channelPrompt);
+
+        const chatForm = createDivEl({className: 'message-chat-form'});
         const chatGroup = createDivEl({className: ['news-group', 'chat-group']});
         const chatInput = createDivEl({element: 'textarea', className: 'news-input', data: [{name: 'rows', value: 1}]});
         chatGroup.appendChild(chatInput);
@@ -108,7 +114,7 @@ export default class MessageChat {
 
         const chatButtonSend = createDivEl({className: ['button', 'fill-gray', 'btn-send'], content: LANG.LIVE_PREVIEW.Actions.Send});
         chatGroup.appendChild(chatButtonSend);
-        chatFooter.appendChild(chatGroup);
+        chatForm.appendChild(chatGroup);
 
         const chatMediaList = createDivEl({className: 'chat-media-list'});
         const chatMediaVoice = createDivEl({element: 'i', className: ['icon', 'message-voice', 'btn-voice']});
@@ -119,10 +125,15 @@ export default class MessageChat {
         chatMediaList.appendChild(chatMediaAlbum);
         chatMediaList.appendChild(chatMediaVideo);
         chatMediaList.appendChild(chatMediaGiving);
-        chatFooter.appendChild(chatMediaList);
+        chatForm.appendChild(chatMediaList);
+        chatFooter.appendChild(chatForm);
         chatWrapper.appendChild(chatFooter);
 
-        this.main = new MessageItemModal(chatContent, channel);
+        const chatContent = createDivEl({className: ['content', 'block', 'message-chat-content']});
+        chatWrapper.appendChild(chatContent);
+
+        const {userId} = getUserInfo();
+        this.main = new MessageItemModal(chatContent, channel, userId);
         this.element = chatWrapper;
 
         // 关闭聊天
@@ -132,7 +143,17 @@ export default class MessageChat {
 
         // 发送消息
         addEvent(chatButtonSend, 'click', () => {
-            
+            if (chatInput.value == "") return false;
+
+            SendBirdAction.getInstance()
+                .sendUserMessage({
+                    channel: this.channel,
+                    message: chatInput.value,
+                    handler: (message, error) => {
+                        this.main.renderMessages([message], false);
+                        chatInput.value = "";
+                    }
+                });
         });
 
         // 开启表情包
@@ -161,40 +182,66 @@ export default class MessageChat {
         });
     }
 
+    // 创建点赞、评论、礼物、开发频道Element
+    _createOpenChatElement(channel) {
+        const chatWrapper = createDivEl({className: 'message-chat-wrapper'});
+
+        const barHeader = createDivEl({element: 'header', className: ['bar', 'bar-flex']});
+        const iconBtn = createDivEl({className: 'icon-btn'});
+        const iconsBack = createDivEl({element: 'i', className: ['icon', 'icon-arrow-back']});
+        iconBtn.appendChild(iconsBack);
+        barHeader.appendChild(iconBtn);
+
+        const title = createDivEl({element: 'h1', className: 'title', content: channel.name});
+        barHeader.appendChild(title);
+        chatWrapper.appendChild(barHeader);
+
+        const chatContent = createDivEl({className: ['content', 'block', 'message-chat-content']});
+        chatWrapper.appendChild(chatContent);
+
+        this.main = new MessageItemSystem(chatContent, channel);
+        this.element = chatWrapper;
+
+        // 关闭聊天
+        addEvent(iconsBack, 'click', () => {
+            this.hide();
+        });
+    }
+
     // 添加监听事件
     _addEventHandler() {
         const channelEvent = new SendBirdChatEvent();
 
         channelEvent.onMessageReceived = (channel, message) => {
             if (this.channel.url === channel.url) {
-                // this.main.renderMessages([message], false);
+                this.main.renderMessages([message], false);
             }
         };
 
         channelEvent.onMessageUpdated = (channel, message) => {
             if (this.channel.url === channel.url) {
-                // this.main.renderMessages([message], false);
+                this.main.renderMessages([message], false);
             }
         };
 
         channelEvent.onMessageDeleted = (channel, messageId) => {
             if (this.channel.url === channel.url) {
-                // this.main.removeMessage(messageId, false);
+                this.main.removeMessage(messageId, false);
             }
         };
 
-        if (this.channel.isGroupChannel()) {
-            channelEvent.onReadReceiptUpdated = groupChannel => {
-                if (this.channel.url === groupChannel.url) {
-                    this.main.updateReadReceipt();
-                }
-            };
-            channelEvent.onTypingStatusUpdated = groupChannel => {
-                if (this.channel.url === groupChannel.url) {
-                    this.main.updateTyping(groupChannel.getTypingMembers());
-                }
-            };
-        }
+        // if (this.channel.isGroupChannel()) {
+        //     channelEvent.onReadReceiptUpdated = groupChannel => {
+        //         if (this.channel.url === groupChannel.url) {
+        //             this.main.updateReadReceipt();
+        //         }
+        //     };
+        //     channelEvent.onTypingStatusUpdated = groupChannel => {
+        //         if (this.channel.url === groupChannel.url) {
+        //             this.main.updateTyping(groupChannel.getTypingMembers());
+        //         }
+        //     };
+        // }
     }
 
     _renderChatElement(channelUrl, isOpenChannel = true) {
@@ -206,16 +253,24 @@ export default class MessageChat {
             .then(channel => {
                 this.channel = channel;
                 this._addEventHandler();
-                this._createChatElement(this.channel);
+
+                if (isOpenChannel || this.channel.isPublic) {
+                    this._createOpenChatElement(this.channel);
+                }else {
+                    this._createChatElement(this.channel);
+                }
+
                 body.appendChild(this.element);
                 this.show();
                 sendbirdAction
                     .getMessageList(this.channel, true)
                     .then(messageList => {
                         this.main.renderMessages(messageList);
+
                         if (this.channel.isGroupChannel()) {
                             sendbirdAction.markAsRead(this.channel);
                         }
+
                         Spinner.remove();
                     })
                     .catch(error => {
@@ -258,3 +313,5 @@ export default class MessageChat {
         }, 500);
     }
 }
+
+export { MessageChat };

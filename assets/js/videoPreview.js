@@ -16,7 +16,7 @@ import {
     follow,
     praiseVideo,
     commentVideo,
-    videlGifts
+    videoGifts
 } from './api';
 import {
     getLangConfig
@@ -78,11 +78,12 @@ export default class VideoPreview extends EventEmitter {
         this.tpl = {};
         this._page = 1;
         this._number = 10;
-
+        this.SendBird = new SendBirdAction();
         let getAllgifts = findAllgifts();
         let getComment = selCommentById(this.options.id, this._page, this._number);
+        let SendBirdConnect = this.SendBird.connect(this.localInfo.userId);
 
-        Promise.all([getAllgifts, getComment]).then((data) => {
+        Promise.all([getAllgifts, getComment, SendBirdConnect]).then((data) => {
             console.log(data);
             this.data.GiftList = data[0] ? data[0] : false;
             this.data.CommentList = data[1] ? data[1] : false;
@@ -94,20 +95,12 @@ export default class VideoPreview extends EventEmitter {
 
             this._bindEvent();
         });
-
-        this.SendBird = new SendBirdAction();
-
-        this.SendBird.connect(this.localInfo.userId).then(user => {
-            console.log(user);
-        }).catch(() => {
-            redirectToIndex('SendBird connection failed.');
-        });
     }
 
     _bindEvent() {
         // 关闭
         addEvent(this.btnLiveCloseEl, 'click', () => {
-            this.SendBird.disconnect(() => {
+            this.SendBird.disconnect().then(() => {
                 modal.closeModal(this.previewModalEl);
             });
         });
@@ -151,6 +144,7 @@ export default class VideoPreview extends EventEmitter {
                 let getCommentVideo = commentVideo(this.options.id, _val);
 
                 Promise.all([getJoinGroupChannel, getCommentVideo]).then((data) => {
+                    textareaEl.value = "";
                     let itemEl = createDom(this._itemCommentsTemplate(_val));
                     listCommentsEl.append(itemEl);
                 });
@@ -191,6 +185,7 @@ export default class VideoPreview extends EventEmitter {
             let giftWrapperEl = giftModalEl.querySelector('.gift-wrapper');
             let giftContentEl = giftModalEl.getElementsByClassName('gift-content')[0];
             let giftItemEl = giftModalEl.getElementsByClassName('gift-item');
+            addClass(giftContentEl, 'video-item');
 
             let giftLabelEl = giftModalEl.getElementsByClassName('gift-label');
             let btnRechargeEl = giftModalEl.getElementsByClassName('btn-recharge')[0];
@@ -237,16 +232,14 @@ export default class VideoPreview extends EventEmitter {
                 let giftId = getData(tagActiveEl, 'id');
                 let giftUrl = getData(tagActiveEl, 'giftUrl');
                 let giftPrice = getData(tagActiveEl, 'price');
-                console.log(giftId);
-                console.log(giftPrice);
 
                 const {id, vuser_id} = this.options;
 
-                videlGifts(vuser_id, id, giftId, 1).then((data) =>{
+                videoGifts(vuser_id, id, giftId, 1).then((data) =>{
                     if (!data) return;
 
                     setUserInfo('userPackage', data);
-                    this._joinGroupChannel(this.options.gift_channel, LANG.MESSAGE.Gift.Text.replace('%S', giftPrice));
+                    this._joinGroupChannel(this.options.gift_channel, LANG.MESSAGE.Gift.Text.replace('%S', giftPrice), giftUrl);
                 });
             });
 
@@ -269,21 +262,27 @@ export default class VideoPreview extends EventEmitter {
      */
     _joinGroupChannel(channelURL, message, giftUrl) {
         const {img_url, id} = this.options;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.SendBird.getChannel(channelURL, false).then((groupChannel) => {
                 console.log(groupChannel);
 
                 groupChannel.join(() => {
 
-                    SendBird.sendChannelMessage({
+                    this.SendBird.sendChannelMessage({
                         channel: groupChannel,
-                        message: message
-                    }).then((error) => {
-                        if (error) reject(false);
+                        message: message,
+                        data: {
+                            videoId: this.options.id,
+                            videoImg: this.options.img_url,
+                            giftUrl: giftUrl
+                        },
+                        handler: (message, error) => {
+                            if (error) return resolve(false);
 
-                        groupChannel.leave(() => {
-                            resolve(true);
-                        });
+                            groupChannel.leave(() => {
+                                resolve(true);
+                            });
+                        }
                     });
                 });
             });

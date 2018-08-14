@@ -10,6 +10,9 @@
 	.gift-item{
 		@include flex-spindle(start);
 	}
+	.video-item{
+	    padding: 0 1.2rem;
+	}
 }
 
 .tag {

@@ -1,6 +1,8 @@
+import BScroll from 'better-scroll';
 import {
     getLangConfig
 } from '../lang';
+
 import {
     addEvent,
     createDivEl,
@@ -8,126 +10,103 @@ import {
     timestampFromNow,
     toggleClass,
     addClass,
-    removeClass
+    removeClass,
+    getData,
+    setData,
+    appendToFirst,
+    isScrollBottom
 } from '../util';
 
 const LANG = getLangConfig();
 const MESSAGE_REQ_ID = 'reqId';
 
 class MessageItemSystem {
-    constructor({channel, handler, Delete}) {
+    constructor(element, channel) {
+        this.element = element;
         this.channel = channel;
-        this.element = this._createElement(handler, Delete);
+
+        this.messageContent = createDivEl({className: 'message-chat-box'});
+        this.element.appendChild(this.messageContent);
     }
 
-    get channelUrl() {
-        return this.channel.url;
+    scrollToBottom() {
+        this.element.scrollTop = this.element.scrollHeight - this.element.offsetHeight;
     }
 
-    get profileUrl() {
-        return this.channel.isOpenChannel() ? `# ${this.channel.coverUrl}` : protectFromXSS(this.channel.members[0].profileUrl);
+    _messageItemElement(message) {
+        const {videoId, videoImg, giftUrl} = JSON.parse(message.data);
+        const messageItem = createDivEl({id: message.messageId, className: ['message-chat-item', 'item-system']});
+        const itemAvatar = createDivEl({className: 'item-avatar', background: message._sender.profileUrl});
+        messageItem.appendChild(itemAvatar);
+
+        const itemMessageContent = createDivEl({className: 'item-message-content'});
+        const itemTitle = createDivEl({className: 'user-title', content: message._sender.nickname});
+        const itemText = createDivEl({className: 'message-text', content: message.message});
+        const itemTime = createDivEl({className: 'message-time', content: timestampFromNow(message.createdAt)});
+        itemMessageContent.appendChild(itemTitle);
+        itemMessageContent.appendChild(itemText);
+        itemMessageContent.appendChild(itemTime);
+        messageItem.appendChild(itemMessageContent);
+
+        const itemMessageThumb = createDivEl({className: 'item-message-thumb', background: videoImg});
+        const iconPlay = createDivEl({element: 'i', className: ['icon', 'message-Play']});
+        setData(itemMessageThumb, 'id', videoId);
+        itemMessageThumb.appendChild(iconPlay);
+        messageItem.appendChild(itemMessageThumb);
+
+        return messageItem;
     }
 
-    get title() {
-        return this.channel.isOpenChannel() ? `# ${this.channel.name}` : protectFromXSS(this.channel.members[0].nickname);
+    renderMessages(messageList, goToBottom = true, isPastMessage = false) {
+        messageList.forEach(message => {
+            const messageItem = this._messageItemElement(message);
+            this.messageContent.appendChild(messageItem);
+        });
+        if (goToBottom) this.scrollToBottom();
     }
 
-    get lastMessagetime() {
-        if (this.channel.isOpenChannel() || !this.channel.lastMessage) {
-            return 0;
-        } else {
-            return this.channel.lastMessage.createdAt;
+    removeMessage(messageId, isRequestId = false) {
+        const removeElement = this._getItem(messageId, isRequestId);
+        if (removeElement) {
+            this.messageContent.removeChild(removeElement);
         }
-    }
-
-    get lastMessageTimeText() {
-        if (this.channel.isOpenChannel() || !this.channel.lastMessage) {
-            return 0;
-        } else {
-            return LeftListItem.getTimeFromNow(this.channel.lastMessage.createdAt);
-        }
-    }
-
-    get lastMessageText() {
-        if (this.channel.isOpenChannel() || !this.channel.lastMessage) {
-            return '';
-        } else {
-            return this.channel.lastMessage.isFileMessage() ?
-                protectFromXSS(this.channel.lastMessage.name) :
-                protectFromXSS(this.channel.lastMessage.message);
-        }
-    }
-
-    get unreadMessageCount() {
-      const count = this.channel.unreadMessageCount > 99 ? '+99' : this.channel.unreadMessageCount.toString();
-      return this.channel.isOpenChannel() ? 0 : count;
-    }
-
-    _createElement(handler, Delete) {
-        const itemBox = createDivEl({className: 'list-item-box', id: this.channelUrl});
-        const item = createDivEl({className: 'list-item'});
-        let startX;
-
-        const itemGraphic = createDivEl({element: 'span', className: ['icon', 'list-item-graphic', 'image'], background: this.profileUrl});
-        item.appendChild(itemGraphic);
-
-        const itemText = createDivEl({element: 'span', className: 'list-item-text', content: this.title});
-        const itemSecondary = createDivEl({element: 'span', className: 'list-item-secondary', content: this.lastMessageText});
-        itemText.appendChild(itemSecondary);
-        item.appendChild(itemText);
-
-        const lastMessageText = createDivEl({element: 'span', className: 'list-item-meta-txt', content: this.lastMessageTimeText});
-        item.appendChild(lastMessageText);
-
-        const unreadMessage = createDivEl({element: 'span', className: 'list-item-meta', content: this.unreadMessageCount > 0 ? this.unreadMessageCount : ''});
-        item.appendChild(unreadMessage);
-        itemBox.appendChild(item);
-
-        const btnDelete = createDivEl({className: 'btn-delete', content: LANG.MESSAGE.Delete});
-        itemBox.appendChild(btnDelete);
-
-        addEvent(item, 'click', () => {
-            if (handler) handler();
-        });
-
-        addEvent(btnDelete, 'click', () => {
-            if (Delete) Delete();
-        });
-
-        addEvent(itemBox, 'touchstart', (e) => {
-            startX = e.changedTouches[0].pageX;
-        });
-
-        addEvent(itemBox, 'touchend', (e) => {
-            let moveX = e.changedTouches[0].pageX;
-
-            if (startX === moveX) return false;
-
-            if (startX > moveX) {
-                addClass(itemBox, 'active');
-            }else {
-                removeClass(itemBox, 'active');
-            }
-        });
-
-        return itemBox;
     }
 }
 
 class MessageItemModal {
-    constructor(element, channel) {
-        this.channel = channel;
+    constructor(element, channel, localUserID) {
         this.element = element;
+        this.channel = channel;
+        this.localUserID = localUserID;
+
+        this.messageContent = createDivEl({className: 'message-chat-box'});
+        this.element.appendChild(this.messageContent);
     }
 
     scrollToBottom() {
-      this.element.scrollTop = this.element.scrollHeight - this.element.offsetHeight;
+        this.element.scrollTop = this.element.scrollHeight - this.element.offsetHeight;
+    }
+
+    _messageItemElement(message) {
+        const messageItem = createDivEl({id: message.messageId, className: 'message-chat-item'});
+        const itemAvatar = createDivEl({className: 'item-avatar', background: message._sender.profileUrl});
+        const itemMessage = createDivEl({className: 'item-message-box', content: message.message});
+
+        messageItem.appendChild(itemAvatar);
+        messageItem.appendChild(itemMessage);
+        setData(messageItem, MESSAGE_REQ_ID, message.reqId);
+
+        if(message.reqId != "" || this.localUserID == parseInt(message._sender.userId)) {
+            addClass(messageItem, 'local-message');
+        }
+
+        return messageItem;
     }
 
     _getItem(messageId, isRequestId = false) {
-        const items = this.element.childNodes;
+        const items = this.messageContent.childNodes;
         for (let i = 0; i < items.length; i++) {
-            const elementId = isRequestId ? getDataInElement(items[i], MESSAGE_REQ_ID) : items[i].id;
+            const elementId = isRequestId ? getData(items[i], MESSAGE_REQ_ID) : items[i].id;
             if (elementId === messageId.toString()) {
                 return items[i];
             }
@@ -138,6 +117,27 @@ class MessageItemModal {
     renderMessages(messageList, goToBottom = true, isPastMessage = false) {
         messageList.forEach(message => {
             console.log(message);
+            const messageItem = this._messageItemElement(message);
+            const requestId = getData(messageItem, MESSAGE_REQ_ID)
+              ? getData(messageItem, MESSAGE_REQ_ID)
+              : '-1';
+            const requestItem = this._getItem(requestId, true);
+            const existItem = this._getItem(messageItem.id, false);
+
+            if (requestItem || existItem) {
+                this.messageContent.replaceChild(messageItem, requestItem ? requestItem : existItem);
+            } else {
+                if (isPastMessage) {
+                    appendToFirst(this.messageContent, messageItem);
+                    this.element.scrollTop = this.element.scrollHeight - this.scrollHeight;
+                } else {
+                    const isBottom = isScrollBottom(this.element);
+                    this.messageContent.appendChild(messageItem);
+                    if (isBottom) {
+                        this.scrollToBottom();
+                    }
+                }
+            }
         });
         if (goToBottom) this.scrollToBottom();
     }
@@ -145,7 +145,7 @@ class MessageItemModal {
     removeMessage(messageId, isRequestId = false) {
         const removeElement = this._getItem(messageId, isRequestId);
         if (removeElement) {
-            this.element.removeChild(removeElement);
+            this.messageContent.removeChild(removeElement);
         }
     }
 

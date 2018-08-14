@@ -1,6 +1,11 @@
 import {
+    body
+} from '../intro';
+
+import {
     getLangConfig
 } from '../lang';
+
 import {
     addEvent,
     createDivEl,
@@ -24,11 +29,11 @@ class MessageItem {
     }
 
     get profileUrl() {
-        return this.channel.isOpenChannel() ? `# ${this.channel.coverUrl}` : protectFromXSS(this.channel.members[0].profileUrl);
+        return this.channel.isOpenChannel() ? `${this.channel.coverUrl}` : protectFromXSS(this.channel.members[0].profileUrl);
     }
 
     get title() {
-        return this.channel.isOpenChannel() ? `# ${this.channel.name}` : protectFromXSS(this.channel.members[0].nickname);
+        return this.channel.isOpenChannel() ? `${this.channel.name}` : protectFromXSS(this.channel.members[0].nickname);
     }
 
     get lastMessagetime() {
@@ -43,7 +48,7 @@ class MessageItem {
         if (this.channel.isOpenChannel() || !this.channel.lastMessage) {
             return 0;
         } else {
-            return LeftListItem.getTimeFromNow(this.channel.lastMessage.createdAt);
+            return timestampFromNow(this.channel.lastMessage.createdAt);
         }
     }
 
@@ -58,7 +63,7 @@ class MessageItem {
     }
 
     get unreadMessageCount() {
-      const count = this.channel.unreadMessageCount > 99 ? '+99' : this.channel.unreadMessageCount.toString();
+      const count = this.channel.unreadMessageCount > 99 ? '+99' : this.channel.unreadMessageCount;
       return this.channel.isOpenChannel() ? 0 : count;
     }
 

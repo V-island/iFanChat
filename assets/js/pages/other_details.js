@@ -7,7 +7,7 @@ import Modal from '../modal';
 import VideoPreview from '../videoPreview';
 
 import SendBirdAction from '../SendBirdAction';
-import MessageChat from '../components/MessageChat';
+import { MessageChat } from '../components/MessageChat';
 import { Spinner } from '../components/Spinner';
 
 import {
