@@ -34,7 +34,14 @@ class MessageItemSystem {
     }
 
     _messageItemElement(message) {
-        const {videoId, videoImg, giftUrl} = JSON.parse(message.data);
+        const isOpenChannel = message.channelType !== "group" ? false : true;
+
+        const {videoId, videoImg, giftUrl} = isOpenChannel ? JSON.parse(message.data) : {};
+        console.log(JSON.parse(message.data));
+        console.log(videoId);
+        console.log(videoImg);
+        console.log(giftUrl);
+
         const messageItem = createDivEl({id: message.messageId, className: ['message-chat-item', 'item-system']});
         const itemAvatar = createDivEl({className: 'item-avatar', background: message._sender.profileUrl});
         messageItem.appendChild(itemAvatar);
@@ -42,17 +49,28 @@ class MessageItemSystem {
         const itemMessageContent = createDivEl({className: 'item-message-content'});
         const itemTitle = createDivEl({className: 'user-title', content: message._sender.nickname});
         const itemText = createDivEl({className: 'message-text', content: message.message});
+
+        if (isOpenChannel && giftUrl) {
+            const itemTextIcon = createDivEl({element: 'i', className: 'icon', background: giftUrl});
+            itemText.appendChild(itemTextIcon);
+        }
+
         const itemTime = createDivEl({className: 'message-time', content: timestampFromNow(message.createdAt)});
         itemMessageContent.appendChild(itemTitle);
         itemMessageContent.appendChild(itemText);
         itemMessageContent.appendChild(itemTime);
         messageItem.appendChild(itemMessageContent);
 
-        const itemMessageThumb = createDivEl({className: 'item-message-thumb', background: videoImg});
-        const iconPlay = createDivEl({element: 'i', className: ['icon', 'message-Play']});
-        setData(itemMessageThumb, 'id', videoId);
-        itemMessageThumb.appendChild(iconPlay);
-        messageItem.appendChild(itemMessageThumb);
+        if (isOpenChannel) {
+            const itemMessageThumb = createDivEl({className: 'item-message-thumb', background: videoImg});
+            const iconPlay = createDivEl({element: 'i', className: ['icon', 'message-Play']});
+            setData(itemMessageThumb, 'id', videoId);
+            itemMessageThumb.appendChild(iconPlay);
+            messageItem.appendChild(itemMessageThumb);
+        }else {
+            const btnDetails = createDivEl({className: ['button', 'fill-success', 'btn-details'], content: LANG.MESSAGE.Details});
+            messageItem.appendChild(btnDetails);
+        }
 
         return messageItem;
     }

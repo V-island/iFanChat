@@ -7,14 +7,22 @@ import {
 } from '../lang';
 
 import {
+	Pay,
     personCenter,
-    getAdvertisement
+    selAllGoods,
+    createOrder
 } from '../api';
 
 import {
     extend,
     createDom,
-    addEvent
+    addEvent,
+    hasClass,
+    addClass,
+    removeClass,
+    toggleClass,
+    setData,
+    getData
 } from '../util';
 
 const LANG = getLangConfig();
@@ -25,10 +33,12 @@ export default class UserAccount extends EventEmitter {
 
 	    this.data = {};
 	    this.options = {
-	    	bannerWrapper: '.banner',
-	    	bannerContent: 'banner-box',
-	    	bannerItem: 'banner-item',
-	    	bannerPagination: '.banner-pagination',
+	    	tagsClass: '.tag',
+	    	tagLabelClass: 'recharge-label',
+	    	listClass: '.list',
+	    	listItemClass: 'list-item',
+	    	btnConfirmClass: 'btn-confirm',
+	    	dataIndex: 'id',
 	    	showClass: 'active'
         };
 
@@ -40,12 +50,16 @@ export default class UserAccount extends EventEmitter {
 	}
 
 	init(element) {
-		let getUserInfo = personCenter();
-		let getUserAdvertisement = getAdvertisement();
+		this.goodsId = null;
+		this.payType = null;
 
-		Promise.all([getUserInfo, getUserAdvertisement]).then((data) => {
+		let getUserInfo = personCenter();
+		let getselAllGoods = selAllGoods();
+
+		Promise.all([getUserInfo, getselAllGoods]).then((data) => {
 			this.data.UserInfo = data[0] ? data[0] : false;
-			this.data.AdvertisementList = data[1] ? data[1] : false;
+			this.data.AllGoodsList = data[1] ? data[1] : false;
+
 			this.UserAccountEl = createDom(Template.render(element, this.data));
 			this.trigger('pageLoadStart', this.UserAccountEl);
 			this._init();
@@ -53,25 +67,53 @@ export default class UserAccount extends EventEmitter {
 	}
 
 	_init() {
-		// this.listItemEl = this.UserAccountEl.getElementsByClassName(this.options.listItemClass);
+		this.tagsEl = this.UserAccountEl.querySelector(this.options.tagsClass);
+		this.tagLabelEl = this.tagsEl.getElementsByClassName(this.options.tagLabelClass);
 
-		this._bannerSwiper();
+		this.listEl = this.UserAccountEl.querySelector(this.options.listClass);
+		this.listItemEl = this.listEl.getElementsByClassName(this.options.listItemClass);
+
+		this.btnConfirmEl = this.UserAccountEl.getElementsByClassName(this.options.btnConfirmClass)[0];
+
 		this._bindEvent();
 	}
 
 	_bindEvent() {
+		Array.prototype.slice.call(this.tagLabelEl).forEach(labelEl => {
+			addEvent(labelEl, 'click', () => {
+				if (hasClass(labelEl, this.options.showClass)) return false;
 
-	}
+				const activeLabelEl = this.tagsEl.getElementsByClassName(this.options.showClass)[0];
 
-	// banner 模块
-	_bannerSwiper() {
-		let bannerSwiper = new Swiper(this.options.bannerWrapper, {
-			wrapperClass: this.options.bannerContent,
-			slideClass: this.options.bannerItem,
-			slideActiveClass: this.options.showClass,
-			loop: true,
-			pagination: false
-		})
+				if (activeLabelEl) {
+					removeClass(activeLabelEl, this.options.showClass);
+				}
+				this.goodsId = parseInt(getData(labelEl, this.options.dataIndex));
+				addClass(labelEl, this.options.showClass);
+	        });
+		});
+
+		Array.prototype.slice.call(this.listItemEl).forEach(itemEl => {
+			addEvent(itemEl, 'click', () => {
+				if (hasClass(itemEl, this.options.showClass)) return false;
+
+				const activeitemEl = this.listEl.getElementsByClassName(this.options.showClass)[0];
+
+				if (activeitemEl) {
+					removeClass(activeitemEl, this.options.showClass);
+				}
+				this.payType = parseInt(getData(itemEl, this.options.dataIndex));
+				addClass(itemEl, this.options.showClass);
+	        });
+		});
+
+		addEvent(this.btnConfirmEl, 'click', () => {
+			if (this.goodsId === null && this.payType === null) return false;
+
+			createOrder(this.goodsId, this.payType).then((data) => {
+				console.log(data);
+			});
+        });
 	}
 
 	static attachTo(element, options) {

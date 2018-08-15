@@ -212,26 +212,46 @@ export default class Home extends EventEmitter {
 		this.cardVideoEl = this.HomeEl.querySelectorAll('.card-video');
 
 		// live list
-		for (let i = 0; i < this.cardListEl.length; i++) {
-		    addEvent(this.cardListEl[i], 'click', function() {
-		    	let info = JSON.parse(getData(this, 'userInfo'));
-		    	let _livePreview = new LivePreview(info);
-		    });
-		}
+		// for (let i = 0; i < this.cardListEl.length; i++) {
+		//     addEvent(this.cardListEl[i], 'click', function() {
+		//     	let info = JSON.parse(getData(this, 'userInfo'));
+		//     	let _livePreview = new LivePreview(info);
+		//     });
+		// }
+
+		Array.prototype.slice.call(this.cardListEl).forEach(cardListItemEl => {
+			addEvent(cardListItemEl, 'click', () => {
+				let info = JSON.parse(getData(cardListItemEl, 'userInfo'));
+				let _livePreview = new LivePreview(info);
+			});
+		});
 
 		// video list
-		for (let i = 0; i < this.cardVideoEl.length; i++) {
-		    addEvent(this.cardVideoEl[i], 'click', function() {
-		    	let info = JSON.parse(getData(this, 'userInfo'));
+		// for (let i = 0; i < this.cardVideoEl.length; i++) {
+		//     addEvent(this.cardVideoEl[i], 'click', function() {
+		//     	let info = JSON.parse(getData(this, 'userInfo'));
 
-		    	playVideo(info.id).then((data) => {
-		    		if (!data) return;
+		//     	playVideo(info.id).then((data) => {
+		//     		if (!data) return;
 
-		    		extend(info, data);
-		    		let _videoPreview = new VideoPreview(info);
-		    	});
-		    });
-		}
+		//     		extend(info, data);
+		//     		let _videoPreview = new VideoPreview(info);
+		//     	});
+		//     });
+		// }
+
+		Array.prototype.slice.call(this.cardVideoEl).forEach(cardVideoItemEl => {
+			addEvent(cardVideoItemEl, 'click', () => {
+				let info = JSON.parse(getData(cardVideoItemEl, 'userInfo'));
+
+				playVideo(info.id).then((data) => {
+					if (!data) return;
+
+					extend(info, data);
+					let _videoPreview = new VideoPreview(info);
+				});
+			});
+		});
 	}
 
 	// 滑块初始化

@@ -3,7 +3,7 @@ import {
     getUuid
 } from './util';
 
-class SendBirdEvent {
+export default class SendBirdEvent {
     constructor() {
         this.sb = SendBird.getInstance();
         this.key = getUuid();
@@ -60,7 +60,3 @@ class SendBirdEvent {
         this.sb.removeChannelHandler(this.key);
     }
 }
-
-export {
-    SendBirdEvent
-};

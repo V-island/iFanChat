@@ -19,6 +19,7 @@ import UserWatch from './pages/user_watch';
 
 import UserPrice from './pages/user_price';
 import UserAccount from './pages/user_account';
+import UserAccountHistory from './pages/user_account_history';
 import UserScore from './pages/user_score';
 
 import UserProof from './pages/user_proof';
@@ -149,7 +150,12 @@ export const fcConfig = {
         }, {
             name: 'account',
             path: '../pages/user_account.html',
-            component: UserAccount
+            component: UserAccount,
+            children: [{
+                name: 'history',
+                path: '../pages/user_account_history.html',
+                component: UserAccountHistory
+            }]
         }, {
             name: 'score',
             path: '../pages/user_score.html',

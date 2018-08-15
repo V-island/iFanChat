@@ -103,7 +103,7 @@ const Lang = {
 		},
 		Gift: {
 			Title: 'Gift',
-			Text: 'Give you a gift，earned %S score.'
+			Text: 'Give you a gift，The corresponding points have been added to your account.'
 		},
 		Prompt: {
 			Pay: 'It takes 1 gold coins，be an anchor can get more free times',
@@ -111,7 +111,7 @@ const Lang = {
 		},
 		System_Message: 'System  message',
 		Customer_Service: 'Customer service',
-		Friends: 'Friends',
+		Details: 'Details',
 		Delete: 'Delete'
 	},
 	USER: {

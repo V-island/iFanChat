@@ -154,6 +154,8 @@ export default class VideoPreview extends EventEmitter {
         // 点赞
         addEvent(this.btnThumbsEl, 'click', () => {
 
+            if (hasClass(this.btnThumbsEl, this.options.showClass)) return false;
+
             let getJoinGroupChannel = this._joinGroupChannel(this.options.praise_channel, LANG.MESSAGE.Like.Text);
             let getPraiseVideo = praiseVideo(this.options.id, 1);
 
@@ -188,6 +190,7 @@ export default class VideoPreview extends EventEmitter {
             addClass(giftContentEl, 'video-item');
 
             let giftLabelEl = giftModalEl.getElementsByClassName('gift-label');
+            let userPackageEl = giftModalEl.getElementsByClassName('user-package')[0];
             let btnRechargeEl = giftModalEl.getElementsByClassName('btn-recharge')[0];
             let btnSendEl = giftModalEl.getElementsByClassName('btn-send')[0];
             let giftWidth = giftWrapperEl.offsetWidth;
@@ -228,18 +231,19 @@ export default class VideoPreview extends EventEmitter {
 
             addEvent(btnSendEl, 'click', () => {
                 let tagActiveEl = giftWrapperEl.getElementsByClassName('active')[0];
-                console.log(tagActiveEl);
                 let giftId = getData(tagActiveEl, 'id');
                 let giftUrl = getData(tagActiveEl, 'giftUrl');
-                let giftPrice = getData(tagActiveEl, 'price');
+                // let giftPrice = getData(tagActiveEl, 'price');
 
                 const {id, vuser_id} = this.options;
 
-                videoGifts(vuser_id, id, giftId, 1).then((data) =>{
+                videoGifts(vuser_id, id, parseInt(giftId), 1).then((data) =>{
                     if (!data) return;
 
                     setUserInfo('userPackage', data);
-                    this._joinGroupChannel(this.options.gift_channel, LANG.MESSAGE.Gift.Text.replace('%S', giftPrice), giftUrl);
+                    userPackageEl.innerHTML = data;
+                    this._joinGroupChannel(this.options.gift_channel, LANG.MESSAGE.Gift.Text, giftUrl);
+                    // this._joinGroupChannel(this.options.gift_channel, LANG.MESSAGE.Gift.Text.replace('%S', giftPrice), giftUrl);
                 });
             });
 
@@ -296,12 +300,12 @@ export default class VideoPreview extends EventEmitter {
         html += '<video id="video" class="'+ options.videoClass +'" controls autoplay="autoplay" preload="auto" poster="'+ options.img_url +'"><source src="'+ options.video_url +'" type="video/mp4"></video>';
         html += '</div><div class="lives-header"><div class="lives-attention"><div class="user-info across"><div class="user-img avatar-female">';
         html += options.user_head ? '<img src="'+ options.user_head +'">' : '';
-        html += '</div><div class="across-body"><p class="user-name">'+ options.user_name +'</p><p class="user-txt">'+ options.support + ' ' + LANG.PUBLIC.Heat +'</p></div>';
+        html += '</div><div class="across-body"><p class="user-name">'+ options.user_name +'</p><p class="user-txt">'+ options.watch_number + ' ' + LANG.PUBLIC.Heat +'</p></div>';
         html += '</div><i class="icon '+ options.btnAddAttentionClass + ' ' + (options.followStatus == 1 ? options.iconAddAttentionClass : options.iconAttentionClass) +'" data-id="'+ options.id +'"></i></div><div class="icon live-close '+ options.btnLiveCloseClass +'"></div></div>';
         html += '<div class="video-preview-content"><p class="preview-text">'+ options.video_description +'</p></div>';
         html += '<div class="video-preview-footer"><div class="lives-buttons">';
         html += '<div class="video-preview-item '+ options.btnNewsClass +'"><i class="icon live-news"></i><span>'+ options.countComment +'</span></div>';
-        html += '<div class="video-preview-item '+ options.btnThumbsClass +'"><i class="icon live-thumbs-upion"></i><span>'+ options.watch_number +'</span></div>';
+        html += '<div class="video-preview-item '+ options.btnThumbsClass +'"><i class="icon live-thumbs-upion"></i><span>'+ options.support +'</span></div>';
         html += '<div class="video-preview-item '+ options.btnShareClass +'"><i class="icon live-share"></i></div></div>';
         html += '<div class="'+ options.btnGiftClass +'"><i class="icon live-gift"></i></div>';
         html += '</div></div>';

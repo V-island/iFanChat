@@ -11,12 +11,15 @@ import {
     createDivEl,
     protectFromXSS,
     timestampFromNow,
+    setData,
+    getData,
     toggleClass,
     addClass,
     removeClass
 } from '../util';
 
 const LANG = getLangConfig();
+const KEY_MESSAGE_LAST_TIME = 'origin';
 
 class MessageItem {
     constructor({channel, handler, Delete}) {
@@ -28,12 +31,16 @@ class MessageItem {
         return this.channel.url;
     }
 
+    get customType() {
+        return this.channel.isPublic ? `message-${this.channel.customType.toLowerCase()}` : false;
+    }
+
     get profileUrl() {
-        return this.channel.isOpenChannel() ? `${this.channel.coverUrl}` : protectFromXSS(this.channel.members[0].profileUrl);
+        return this.channel.isOpenChannel() || this.channel.isPublic ? `${this.channel.coverUrl}` : protectFromXSS(this.channel.members[0].profileUrl);
     }
 
     get title() {
-        return this.channel.isOpenChannel() ? `${this.channel.name}` : protectFromXSS(this.channel.members[0].nickname);
+        return this.channel.isOpenChannel() || this.channel.isPublic ? `${this.channel.name}` : protectFromXSS(this.channel.members[0].nickname);
     }
 
     get lastMessagetime() {
@@ -72,8 +79,13 @@ class MessageItem {
         const item = createDivEl({className: 'list-item'});
         let startX;
 
-        const itemGraphic = createDivEl({element: 'span', className: ['icon', 'list-item-graphic', 'image'], background: this.profileUrl});
-        item.appendChild(itemGraphic);
+        if (this.customType) {
+            const itemGraphic = createDivEl({element: 'span', className: ['icon', 'list-item-graphic', this.customType]});
+            item.appendChild(itemGraphic);
+        }else {
+            const itemGraphic = createDivEl({element: 'span', className: ['icon', 'list-item-graphic', 'image'], background: this.profileUrl});
+            item.appendChild(itemGraphic);
+        }
 
         const itemText = createDivEl({element: 'span', className: 'list-item-text', content: this.title});
         const itemSecondary = createDivEl({element: 'span', className: 'list-item-secondary', content: this.lastMessageText});
@@ -81,6 +93,7 @@ class MessageItem {
         item.appendChild(itemText);
 
         const lastMessageText = createDivEl({element: 'span', className: 'list-item-meta-txt', content: this.lastMessageTimeText});
+        setData(lastMessageText, KEY_MESSAGE_LAST_TIME, this.lastMessagetime);
         item.appendChild(lastMessageText);
 
         const unreadMessage = createDivEl({element: 'span', className: 'list-item-meta', content: this.unreadMessageCount > 0 ? this.unreadMessageCount : ''});
@@ -95,7 +108,7 @@ class MessageItem {
         });
 
         addEvent(btnDelete, 'click', () => {
-            if (Delete) Delete();
+            if (Delete) Delete(itemBox);
         });
 
         addEvent(itemBox, 'touchstart', (e) => {

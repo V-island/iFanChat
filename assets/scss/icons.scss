@@ -1,3 +1,6 @@
+// Variables
+@import "variables";
+
 @charset "UTF-8";
 $ionicons-font-path: "../fonts" !default;
 $ionicons-font-family: "Ionicons" !default;
@@ -104,7 +107,7 @@ $lives: attention, add-attention, close, news, share, gift, thumbs-upion, cutove
 // Message Icon
 // -----------------------------
 
-$messages: comment, friends, hi, like, message, service, album, giving, video, voice, Play;
+$messages: comment, friends, hi, like, message, service, gift, album, giving, video, voice, Play;
 
 @each $message in $messages {
     .message-#{$message}{
@@ -147,16 +150,16 @@ $modals: fecebook, tumblr, Twitter, cards, paypal, confirm, phiz, video, live, c
 
 // Modal Icon
 // -----------------------------
-
+/***
 $gifts: aircraft, baby-bear, bunch-love, cake, castle, chocolate, crown, flowers, kiss, lollipop, love, perfume, ring, sports-car;
 
 @each $gift in $gifts {
-    .gift-#{$gift}{
+    .gift-# {$gift}{
         @include iconImage($gift, 'gifts/gift');
     }
 
 }
-
+***/
 // Star Icon
 // -----------------------------
 

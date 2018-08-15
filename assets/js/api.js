@@ -1039,7 +1039,7 @@ export function followList(_page = 1, _number = 10, _type) {
 export function videoGifts(videoUserId, videoId, giftsId, amount = 1) {
 	let {userId} = getUserInfo();
 	let _params = {
-		gifts_id: giftsId,
+		giftsId: giftsId,
 		videoId: videoId,
 		amount: amount,
 		videoUserId: videoUserId,
@@ -1524,6 +1524,82 @@ export function deleteVideo(_id) {
 	return new Promise((resolve) => {
 		getPost('/deleteVideo', _params, (response) => {
 			resolve(true);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+//------------------------------------------------------------------------------------------------------
+//-----支付模块
+//------------------------------------------------------------------------------------------------------
+/**
+ * 创建订单
+ * @param  {[type]} goodsId 商品ID
+ * @param  {[type]} type    支付类型
+ * @return {[type]}         [description]
+ */
+export function createOrder(goodsId, type) {
+	let {userId} = getUserInfo();
+	let _params = {
+		goods_id: goodsId,
+		pay_type: type,
+		userId: userId,
+		token: getLocalStorage(TOKEN_NAME),
+		loginMode: LoginMode,
+		mac: getMac()
+	}
+
+	return new Promise((resolve) => {
+		getPost('/createOrder', _params, (response) => {
+			resolve(response.data);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 支付接口
+ * @param {[type]} orderId     订单号
+ * @param {[type]} total       总金额
+ * @param {[type]} currency    货币
+ * @param {[type]} description 描述
+ */
+export function Pay(orderId, total, currency, description) {
+	let {userId} = getUserInfo();
+	let _params = {
+		userId: userId,
+		orderId: orderId,
+		total: total,
+		currency: currency,
+		description: description
+	}
+
+	return new Promise((resolve) => {
+		getPost('/Pay', _params, (response) => {
+			resolve(response.data);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+
+//------------------------------------------------------------------------------------------------------
+//-----商品订单模块
+//------------------------------------------------------------------------------------------------------
+
+/**
+ * 获取这个区域的所有商品
+ * @return {[type]} [description]
+ */
+export function selAllGoods() {
+	let { id } = getLocalStorage(COUNTRY_ID_NAME);
+
+	return new Promise((resolve) => {
+		getPost('/selAllGoods', {country_id: id}, (response) => {
+			resolve(response.data);
 		}, (response) => {
 			resolve(false);
 		});

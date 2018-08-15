@@ -20,14 +20,18 @@ import {
 	extend,
 	addEvent,
 	createDom,
+	setData,
+    getData,
 	appendToFirst,
 	isScrollBottom,
+	timestampFromNow,
 	createDivEl,
 	errorAlert
 } from '../util';
 
 const LANG = getLangConfig();
 const UPDATE_INTERVAL_TIME = 5 * 1000;
+const KEY_MESSAGE_LAST_TIME = 'origin';
 
 export default class Message extends EventEmitter {
 	constructor(element) {
@@ -56,13 +60,15 @@ export default class Message extends EventEmitter {
 		// SendBird SDK 初始化
 		Spinner.start(this.contentEl);
 		SendBird.connect(userId).then(user => {
+			this.createConnectionHandler();
+			this.createChannelEvent();
+			this.updateGroupChannelTime();
 			this.getOpenChannelList(true);
 			this.getGroupChannelList(true);
-
 			this._init();
 			Spinner.remove();
 		}).catch(() => {
-			redirectToIndex('SendBird connection failed.');
+			errorAlert('SendBird connection failed.');
 		});
 	}
 
@@ -73,8 +79,8 @@ export default class Message extends EventEmitter {
 	}
 
 	_bindEvent() {
-		addEvent(this.listMessageEl, 'scroll', () => {
-			if (isScrollBottom(this.listMessageEl)) {
+		addEvent(this.contentEl, 'scroll', () => {
+			if (isScrollBottom(this.contentEl)) {
 				this.getGroupChannelList();
 			}
 		});
@@ -85,9 +91,7 @@ export default class Message extends EventEmitter {
 		SendBirdAction.getInstance()
 			.getOpenChannelList(isInit)
 			.then(openChannelList => {
-				console.log(openChannelList);
 				openChannelList.forEach(channel => {
-					console.log(channel);
 					const handler = () => {
 						MessageChat.getInstance().render(channel.url);
 					};
@@ -95,8 +99,8 @@ export default class Message extends EventEmitter {
 						channel,
 						handler
 					});
-					// this.listMessageEl.appendChild(item.element);
-					appendToFirst(this.listMessageEl, item.element);
+					this.listMessageEl.appendChild(item.element);
+					// appendToFirst(this.listMessageEl, item.element);
 				});
 			})
 			.catch(error => {
@@ -109,13 +113,12 @@ export default class Message extends EventEmitter {
 		SendBirdAction.getInstance()
 			.getGroupChannelList(isInit)
 			.then(groupChannelList => {
-				console.log(groupChannelList);
 				groupChannelList.forEach(channel => {
 					const handler = () => {
 						MessageChat.getInstance().render(channel.url, false);
 					};
-					const Delete = () => {
-						this.listMessageEl.removeChild(item.element);
+					const Delete = (itemBox) => {
+						this.listMessageEl.removeChild(itemBox);
 					};
 					const item = new MessageItem({
 						channel,
@@ -135,88 +138,154 @@ export default class Message extends EventEmitter {
 			});
 	}
 
-	// // 注册ConnectionHandler以检测用户自身连接状态的变化
-	// createConnectionHandler() {
-	// 	const connectionManager = new SendBirdConnection();
+	// 更新聊天列表时间
+	updateLastMessageTime() {
+		const items = this.listMessageEl.getElementsByClassName('list-item-meta-txt');
+		if (items && items.length > 0) {
+			Array.prototype.slice.call(items).forEach(targetItemEl => {
+				const originTs = parseInt(getData(targetItemEl, KEY_MESSAGE_LAST_TIME));
+				if (originTs) {
+					targetItemEl.innerHTML = timestampFromNow(originTs);
+				}
+			});
+		}
+	}
 
-	// 	connectionManager.onReconnectStarted = () => {
-	// 		Spinner.start(body);
-	// 		console.log('[SendBird JS SDK] Reconnect : Started');
-	// 		connectionManager.channel = chat.channel;
-	// 	};
+	// 清除当前聊天栏
+	removeGroupChannelItem(elementId) {
+		const removeEl = this.getItem(elementId);
+		if (removeEl) {
+			this.listMessageEl.removeChild(removeEl);
+		}
+	}
 
-	// 	connectionManager.onReconnectSucceeded = () => {
-	// 		console.log('[SendBird JS SDK] Reconnect : Succeeded');
-	// 		chatLeft.clear();
-	// 		chatLeft.updateUserInfo(SendBirdAction.getInstance().getCurrentUser());
-	// 		chatLeft.getGroupChannelList(true);
-	// 		Spinner.start(body);
-	// 		chat.refresh(connectionManager.channel);
-	// 	};
+	// 清空
+	clear() {
+		const removeItems = this.listMessageEl.getElementsByClassName('list-item-box');
+		for (let i = 0; i < removeItems.length; i++) {
+		  removeItems[i].parentNode.removeChild(removeItems[i]);
+		}
+	}
 
-	// 	connectionManager.onReconnectFailed = () => {
-	// 		console.log('[SendBird JS SDK] Reconnect : Failed');
-	// 		connectionManager.remove();
-	// 		redirectToIndex('SendBird Reconnect Failed...');
-	// 	};
-	// }
+	getItem(elementId) {
+		const groupChannelItems = this.listMessageEl.getElementsByClassName('list-item-box');
+		for (let i = 0; i < groupChannelItems.length; i++) {
+			if (groupChannelItems[i].id === elementId) {
+				return groupChannelItems[i];
+			}
+		}
 
-	// // 注册ChannelHandler以在通道内发生事件时接收信息。
-	// createChannelEvent() {
-	// 	const channelEvent = new SendBirdEvent();
+		return null;
+	}
 
-	// 	channelEvent.onChannelChanged = channel => {
-	// 		chatLeft.updateItem(channel, true);
-	// 	};
+	// 更新列表
+	updateItem(channel, isFirst = false) {
+		const item = this.getItem(channel.url);
+		const handler = () => {
+			MessageChat.getInstance().render(channel.url, false);
+		};
+		const Delete = (itemBox) => {
+			this.listMessageEl.removeChild(itemBox);
+		};
+		const newItem = new MessageItem({
+			channel,
+			handler,
+			Delete
+		});
 
-	// 	channelEvent.onUserEntered = (openChannel, user) => {
-	// 		if (SendBirdAction.getInstance().isCurrentUser(user)) {
-	// 			const handler = () => {
-	// 				chat.render(openChannel.url);
-	// 				ChatLeftMenu.getInstance().activeChannelItem(openChannel.url);
-	// 			};
-	// 			const item = new LeftListItem({
-	// 				channel: openChannel,
-	// 				handler
-	// 			});
-	// 			chatLeft.addOpenChannelItem(item.element);
-	// 			chat.render(openChannel.url);
-	// 		}
-	// 	};
+		const parentNode = this.listMessageEl;
+		if (isFirst) {
+			if (item) {
+				parentNode.removeChild(item);
+			}
+			appendToFirst(parentNode, newItem.element);
+		} else {
+			parentNode.replaceChild(newItem.element, item);
+		}
+	}
 
-	// 	channelEvent.onUserJoined = (groupChannel, user) => {
-	// 		const handler = () => {
-	// 			chat.render(groupChannel.url, false);
-	// 			ChatLeftMenu.getInstance().activeChannelItem(groupChannel.url);
-	// 		};
-	// 		const item = new LeftListItem({
-	// 			channel: groupChannel,
-	// 			handler
-	// 		});
-	// 		chatLeft.addGroupChannelItem(item.element);
-	// 		chat.updateChatInfo(groupChannel);
-	// 	};
+	// 注册ConnectionHandler以检测用户自身连接状态的变化
+	createConnectionHandler() {
+		const connectionManager = new SendBirdConnection();
 
-	// 	channelEvent.onUserLeft = (groupChannel, user) => {
-	// 		if (SendBirdAction.getInstance().isCurrentUser(user)) {
-	// 			chatLeft.removeGroupChannelItem(groupChannel.url);
-	// 		} else {
-	// 			chatLeft.updateItem(groupChannel);
-	// 		}
-	// 		chat.updateChatInfo(groupChannel);
-	// 	};
+		connectionManager.onReconnectStarted = () => {
+			console.log('[SendBird JS SDK] Reconnect : Started');
+		};
 
-	// 	channelEvent.onChannelHidden = groupChannel => {
-	// 		chatLeft.removeGroupChannelItem(groupChannel.url);
-	// 	};
-	// };
+		connectionManager.onReconnectSucceeded = () => {
+			console.log('[SendBird JS SDK] Reconnect : Succeeded');
+			this.clear();
+			this.getOpenChannelList(true);
+			this.getGroupChannelList(true);
+		};
 
-	// // 更新组频道时间
-	// updateGroupChannelTime() {
-	// 	setInterval(() => {
-	// 		LeftListItem.updateLastMessageTime();
-	// 	}, UPDATE_INTERVAL_TIME);
-	// }
+		connectionManager.onReconnectFailed = () => {
+			console.log('[SendBird JS SDK] Reconnect : Failed');
+			connectionManager.remove();
+			redirectToIndex('SendBird Reconnect Failed...');
+		};
+	}
+
+	// 注册ChannelHandler以在通道内发生事件时接收信息。
+	createChannelEvent() {
+		const channelEvent = new SendBirdEvent();
+		channelEvent.onChannelChanged = channel => {
+			this.updateItem(channel, true);
+		};
+
+		channelEvent.onUserEntered = (openChannel, user) => {
+			if (SendBirdAction.getInstance().isCurrentUser(user)) {
+				const handler = () => {
+					MessageChat.getInstance().render(channel.url, false);
+				};
+				const item = new MessageItem({
+					channel: openChannel,
+					handler
+				});
+
+				this.listMessageEl.appendChild(item.element);
+			}
+		};
+
+		channelEvent.onUserJoined = (groupChannel, user) => {
+			const handler = () => {
+				MessageChat.getInstance().render(channel.url, false);
+			};
+			const Delete = (itemBox) => {
+				this.listMessageEl.removeChild(itemBox);
+			};
+			const item = new MessageItem({
+				channel: groupChannel,
+				handler,
+				Delete
+			});
+
+			if (groupChannel.unreadMessageCount > 0) {
+				appendToFirst(this.listMessageEl, item.element);
+			}else {
+				this.listMessageEl.appendChild(item.element);
+			}
+		};
+
+		channelEvent.onUserLeft = (groupChannel, user) => {
+			if (SendBirdAction.getInstance().isCurrentUser(user)) {
+				this.removeGroupChannelItem(groupChannel.url);
+			} else {
+				this.updateItem(groupChannel);
+			}
+		};
+
+		channelEvent.onChannelHidden = groupChannel => {
+			this.removeGroupChannelItem(groupChannel.url);
+		};
+	};
+
+	// 更新组频道时间
+	updateGroupChannelTime() {
+		setInterval(() => {
+			this.updateLastMessageTime();
+		}, UPDATE_INTERVAL_TIME);
+	}
 
 	static attachTo(element) {
 		return new Message(element);
