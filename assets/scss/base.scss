@@ -142,11 +142,11 @@ a {
 }
 
 .hide{
-    display: none;
+    display: none !important;
 }
 
 .show{
-    display: block;
+    display: block !important;
 }
 
 .no-bg {
@@ -180,6 +180,14 @@ p.no-more {
 
 .color-danger{
     color: $color-danger !important;
+}
+
+.color-review{
+    color: #4E87FA !important;
+}
+
+.color-refuse{
+    color: #FF5E5E !important;
 }
 
 // bg color

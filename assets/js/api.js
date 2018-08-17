@@ -1,7 +1,8 @@
 import SendBirdAction from './SendBirdAction';
 import Modal from './modal';
 import {
-	fcConfig
+	fcConfig,
+	baseURL
 } from './intro';
 import {
 	getLangConfig
@@ -23,7 +24,7 @@ const LANG = getLangConfig();
 const modal = new Modal();
 
 // const baseURL = 'http://10.30.11.112:8080/live-app/open/gate';
-const baseURL = 'https://10.30.11.112:8443/live-app/open/gate';
+// const baseURL = 'https://10.30.11.112:8443/live-app/open/gate';
 // const baseURL = 'https://10.30.11.112:8443/live-app/register';
 const Type = 'POST';
 const MacType = 1; // 设备类型 1.手机 2.PC

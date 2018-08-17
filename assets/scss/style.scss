@@ -359,6 +359,14 @@
 		}
 	}
 
+	>.button-paypal {
+		width: 14rem;
+	    height: 2.1rem;
+	    border-radius: 0.1rem;
+	    margin: 0.7rem auto 0.25rem;
+	    overflow: hidden;
+	}
+
 	&.theme-white{
 		>p.recharge-label{
 			span{
@@ -390,9 +398,12 @@
 		.list{
 			color: $color-text;
 		}
-		> .button{
+		>.button{
 			width: 12rem;
 			margin-top: 2rem;
+		}
+		>.button-paypal {
+		    margin-top: 2rem;
 		}
 		.account-pay{
 			font-size: 0.6rem;
@@ -846,6 +857,37 @@ p.lives-remark{
 // ------------------------------
 .login-wrapper{
 	overflow: hidden;
+
+	&.greet-group{
+		background: $login-bg-color;
+
+		.login-content{
+			padding: 1rem 2.45rem;
+		}
+	}
+}
+
+.login-header{
+	@include spindle-vertical(column);
+    margin-top: 3rem;
+
+	.login-title{
+		font-size: 1.5rem;
+		color: $color-text;
+	    margin: 0;
+	    width: 9.8rem;
+	    height: 2.45rem;
+	    background-image: url("#{$imgBaseUrl}/login-title.png");
+	    background: image-set(url("#{$imgBaseUrl}/login-title.png") 1x, url("#{$imgBaseUrl}/login-title@2x.png") 2x) center;
+    	background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+	}
+	.login-text{
+		color: $color-text;
+		opacity: 0.5;
+		font-size: 0.6rem;
+	}
 }
 
 .login-content{
@@ -855,6 +897,15 @@ p.lives-remark{
 		font-size: 1.5rem;
 		color: $color-text;
 	    margin: 0 0 1rem 0;
+	}
+	.login-banner{
+		width: 14.35rem;
+		height: 11.55rem;
+		background-image: url("#{$imgBaseUrl}/login-banner-bg.png");
+		background: image-set(url("#{$imgBaseUrl}/login-banner-bg.png") 1x, url("#{$imgBaseUrl}/login-banner-bg@2x.png") 2x) center;
+		background-position: center;
+	    background-size: contain;
+	    background-repeat: no-repeat;
 	}
 }
 

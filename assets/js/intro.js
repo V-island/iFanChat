@@ -1,5 +1,6 @@
 // gages
 import Login from './pages/login';
+import LoginMobile from './pages/login_mobile';
 import Register from './pages/register';
 import FindPassword from './pages/find_password';
 import SetPassword from './pages/set_password';
@@ -21,6 +22,7 @@ import UserPrice from './pages/user_price';
 import UserAccount from './pages/user_account';
 import UserAccountHistory from './pages/user_account_history';
 import UserScore from './pages/user_score';
+import UserScoreHistory from './pages/user_score_history';
 
 import UserProof from './pages/user_proof';
 import UserInvite from './pages/user_invite';
@@ -79,6 +81,11 @@ export const fcConfig = {
         component: Login,
         init: 1,
         children: [{
+            name: 'mobile',
+            path: '../pages/login_mobile.html',
+            component: LoginMobile,
+            init: 1
+        }, {
             name: 'find',
             path: '../pages/find_password.html',
             component: FindPassword,
@@ -159,7 +166,12 @@ export const fcConfig = {
         }, {
             name: 'score',
             path: '../pages/user_score.html',
-            component: UserScore
+            component: UserScore,
+            children: [{
+                name: 'history',
+                path: '../pages/user_score_history.html',
+                component: UserScoreHistory
+            }]
         }, {
             name: 'proof',
             path: '../pages/user_proof.html',
@@ -197,9 +209,12 @@ export const fcConfig = {
     }]
 };
 
+// Server 地址配置
+export const baseURL = 'https://10.30.11.112:8443/live-app/open/gate';
+
 // 直播配置
 export const agoraConfig = {
-    agora: true, //默认使用Agora DSK
+    agora: true, // 默认使用Agora DSK
     agoraAppId: '130106827c954803a398814859761e19',
     agoraCertificateId: '',
     adminChannel: 'douliao',
@@ -207,9 +222,17 @@ export const agoraConfig = {
 
 // IM配置
 export const sendBirdConfig = {
-    sendBird: true, //默认使用SendBird DSK
+    sendBird: true, // 默认使用SendBird DSK
     sendBirdAppID: '07F10EB7-6318-4B3C-887B-F69758A7C257',
     sendBirdAppURL: 'https://api.sendbird.com'
+};
+
+// 配置
+export const paypalConfig = {
+    paypal: true, // 默认使用paypal DSK
+    paypalSDKAPI: 'https://www.paypalobjects.com/api/checkout.js',
+    sandboxClientID: '07F10EB7-6318-4B3C-887B-F69758A7C257', // 沙盒，用于测试，用添加的sandbox账号测试能否交易成功
+    productionClientID: '***' // 生产环境，部署上线时使用的环境
 };
 
 export const body = document.querySelector('body');

@@ -18,7 +18,7 @@ import {
 
 const LANG = getLangConfig();
 
-export default class UserAccountHistory extends EventEmitter {
+export default class UserScoreHistory extends EventEmitter {
 	constructor(element, options) {
 	    super();
 
@@ -38,14 +38,14 @@ export default class UserAccountHistory extends EventEmitter {
 		personCenter().then((data) => {
 			this.data.HistoryList = data;
 
-			this.UserAccountHistoryEl = createDom(Template.render(element, this.data));
-			this.trigger('pageLoadStart', this.UserAccountHistoryEl);
+			this.UserScoreHistoryEl = createDom(Template.render(element, this.data));
+			this.trigger('pageLoadStart', this.UserScoreHistoryEl);
 			this._init();
 		});
 	}
 
 	_init() {
-		// this.listItemEl = this.UserAccountHistoryEl.getElementsByClassName(this.options.listItemClass);
+		// this.listItemEl = this.UserScoreHistoryEl.getElementsByClassName(this.options.listItemClass);
 
 		this._bindEvent();
 	}
@@ -55,6 +55,6 @@ export default class UserAccountHistory extends EventEmitter {
 	}
 
 	static attachTo(element, options) {
-	    return new UserAccountHistory(element, options);
+	    return new UserScoreHistory(element, options);
 	}
 }

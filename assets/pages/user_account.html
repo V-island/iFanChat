@@ -29,7 +29,7 @@
                 <div class="tag">
                     {{if AllGoodsList}}
                         {{each AllGoodsList}}
-                            <label class="recharge-label" data-id="{{$value.id}}" data-ripple>
+                            <label class="recharge-label {{if $index == 0}}active{{/if}}" data-id="{{$value.id}}" data-currency="USD" data-ripple>
                                 <p class="cost">{{$value.title}} {{LIVE_PREVIEW.Actions.Coins}}</p>
                                 <p>{{$value.goods_price}}</p>
                             </label>
@@ -38,11 +38,11 @@
                 </div>
             </div>
             <div class="recharge-group theme-white">
-                <p class="recharge-label">
+                <!-- <p class="recharge-label">
                     <span>{{LIVE_PREVIEW.Recharge.Payment_Method}}</span>
                 </p>
                 <ul class="list">
-                    <li class="list-item" data-id="1" data-ripple>
+                    <li class="list-item active" data-id="1" data-ripple>
                         <span class="icon modals-paypal list-item-graphic"></span>
                         <span class="list-item-text">{{LIVE_PREVIEW.Recharge.PayPal}}</span>
                         <span class="icon modals-confirm list-item-meta"></span>
@@ -52,8 +52,9 @@
                         <span class="list-item-text">{{LIVE_PREVIEW.Recharge.Credit_Card}}</span>
                         <span class="icon modals-confirm list-item-meta"></span>
                     </li>
-                </ul>
-                <div class="button button-primary btn-confirm" data-ripple>{{USER_ACCOUNT.Buttons}}</div>
+                </ul> -->
+                <div id="paypal-button" class="button-paypal hide"></div>
+                <div id="credit-card-button" class="button button-primary" data-ripple>{{USER_ACCOUNT.Buttons}}</div>
                 <p class="account-pay">{{USER_ACCOUNT.Remarks_Content}} <a class="color-primary" href="">{{USER_ACCOUNT.Remarks_Text}}</a></p>
             </div>
         </div>

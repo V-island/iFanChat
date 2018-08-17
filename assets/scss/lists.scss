@@ -127,6 +127,8 @@
             font-size: 0.5rem;
             align-self: flex-start;
             margin-right: 0;
+            flex: 0 0 4rem;
+            text-align: right;
         }
 
         .list-item-meta{
@@ -252,6 +254,57 @@
         .list-item-text{
             color: $color-text;
             flex-grow: 1;
+        }
+
+        .list-item-meta{
+            width: 0.35rem;
+            height: 0.7rem;
+        }
+    }
+
+    &.list-history{
+        position: relative;
+
+        .list-item{
+            background: $list-user-bg-color;
+            margin-bottom: 0.35rem;
+            padding: 0.35rem 0.7rem;
+            height: auto;
+        }
+
+        .list-item-graphic{
+            @include size(2.1rem);
+            flex: 0 0 2.1rem;
+            &.image{
+                background-size: cover;
+                border-radius: 50%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-color: $list-message-text;
+            }
+        }
+
+        .list-item-text{
+            color: $list-message-text;
+            font-size: 0.6rem;
+            line-height: 1rem;
+            height: 2rem;
+            flex-grow: 1;
+        }
+
+        .list-item-secondary{
+            font-size: 0.5rem;
+            color: $list-message-text-secondary;
+
+            >.list-item-status{
+                margin-left: 0.35rem;
+            }
+        }
+
+        .list-item-meta-txt{
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: $color-primary;
         }
 
         .list-item-meta{

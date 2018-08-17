@@ -246,13 +246,19 @@ const Lang = {
 	},
 	LOGIN: {
 		Title: 'Welcome',
+		Text: 'What you want can always be found',
 		Buttons: {
 			Login: 'Login',
 			Forget_password: 'Forget  password?',
 			Register: 'Register'
 		},
 		Third_party: {
-			Title: 'or login'
+			Title: 'or login',
+			Mobile: 'Mobile',
+			Facebook: 'Facebook',
+			Snapchat: 'Snapchat',
+			Twitter: 'Twitter',
+			Tumblr: 'Tumblr'
 		},
 		Find_Password: {
 			Title: 'Find password',
