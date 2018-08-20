@@ -23,12 +23,16 @@ import {
     addEvent,
     getData,
     setData,
+    dateFormat,
     showHideDom,
     importTemplate
 } from '../util';
 
 const LANG = getLangConfig();
 const modal = new Modal();
+Template.defaults.imports.dateFormat = (date, format) => {
+	return dateFormat(date, format);
+};
 
 export default class UserVideo extends EventEmitter {
 	constructor(element, options) {
@@ -115,7 +119,6 @@ export default class UserVideo extends EventEmitter {
 
 		// 浏览视频
 		for (let i = 0; i < this.videoEl.length; i++) {
-			console.log(123);
 			if (i > 0) {
 				addEvent(this.videoEl[i], 'click', () => {
 					let videoUrl = getData(this.videoEl[i], 'url');
