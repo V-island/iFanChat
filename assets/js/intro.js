@@ -2,6 +2,7 @@
 import Login from './pages/login';
 import LoginMobile from './pages/login_mobile';
 import Register from './pages/register';
+import RegisterTerms from './pages/register_terms';
 import FindPassword from './pages/find_password';
 import SetPassword from './pages/set_password';
 
@@ -21,6 +22,7 @@ import UserWatch from './pages/user_watch';
 import UserPrice from './pages/user_price';
 import UserAccount from './pages/user_account';
 import UserAccountHistory from './pages/user_account_history';
+import UserAccountTerms from './pages/user_account_terms';
 import UserScore from './pages/user_score';
 import UserScoreHistory from './pages/user_score_history';
 
@@ -103,8 +105,8 @@ export const fcConfig = {
         init: 1,
         children: [{
             name: 'terms',
-            path: '../pages/terms_service.html',
-            component: Register,
+            path: '../pages/register_terms.html',
+            component: RegisterTerms,
             init: 1
         }]
     }, {
@@ -162,6 +164,11 @@ export const fcConfig = {
                 name: 'history',
                 path: '../pages/user_account_history.html',
                 component: UserAccountHistory
+            }, {
+                name: 'terms',
+                path: '../pages/user_account_terms.html',
+                component: UserAccountTerms,
+                init: 1
             }]
         }, {
             name: 'score',
@@ -210,7 +217,7 @@ export const fcConfig = {
 };
 
 // Server 地址配置
-export const baseURL = 'https://10.30.11.112:8443/live-app/open/gate';
+export const baseURL = 'https://192.168.1.211:8443/live-app/open/gate';
 
 // 直播配置
 export const agoraConfig = {
