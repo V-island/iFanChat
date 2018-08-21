@@ -251,14 +251,14 @@ function getPost(_url, param, callback, callbackCancel, onProgress, _type, _head
 			return callback(response);
 		}
 		if (response.code === 2012) {
-			modal.toast(response.message);
+			modal.toast(LANG.SYSTEM_CODE[response.code]);
 			clearLocalStorage();
 			return location.href = '#/login';
 		}
 		if (isFunction(callbackCancel)) {
 			return callbackCancel(response);
 		}
-		modal.alert(response.message, function(_modal) {
+		modal.alert(LANG.SYSTEM_CODE[response.code], function(_modal) {
 			modal.closeModal(_modal);
 		});
 	});
@@ -458,7 +458,7 @@ export function getLogin(params, callback) {
 	_params.loginMode = LoginMode;
 	_params.status = 1;
 	getPost('/appLogin', _params, (response) => {
-		modal.toast(response.message);
+		modal.toast(LANG.SYSTEM_CODE[response.code]);
 		const {token, userId, phoneCode, userPhone, praise_channel, comment_channel, gift_channel} = response.data;
 
 		setLocalStorage(TOKEN_NAME, token);
@@ -516,7 +516,7 @@ export function getUpdatePassword(params) {
 
 	return new Promise((resolve) => {
 		getPost('/updatePassword', _params, (response) => {
-			modal.toast(response.message);
+			modal.toast(LANG.SYSTEM_CODE[response.code]);
 			resolve(true);
 		});
 	});
@@ -538,7 +538,7 @@ export function appLoginOut() {
 
 	return new Promise((resolve) => {
 		getPost('/appLoginOut', _params, (response) => {
-			modal.toast(response.message);
+			modal.toast(LANG.SYSTEM_CODE[response.code]);
 			clearLocalStorage();
 			location.href = '#/login';
 			resolve(true);

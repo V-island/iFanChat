@@ -169,6 +169,7 @@ export default class Pay extends EventEmitter {
 					// Make a call to your server to set up the payment
 					return paypal.request.post(baseURL, _data)
 						.then((res) => {
+							console.log(res);
 							let token = res.payUrl.split('token=');
 							return token[1];
 						});
