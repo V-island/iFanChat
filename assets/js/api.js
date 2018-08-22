@@ -392,14 +392,18 @@ export function findAllCountry(id = 2, langId = 2) {
 
 		getPost('/findAllCountry', {
 			language_id: langId
-		}, (response) => {
-			setLocalStorage(COUNTRY_ID_NAME, {
-				id: id,
-				langId: langId,
-				gain: true
+		}, ({data}) => {
+			console.log(data);
+			data.forEach((_data, index) => {
+			    if (_data.id === id) {
+			    	_data.gain = true;
+			    	setLocalStorage(COUNTRY_ID_NAME, _data);
+    				setLocalStorage(COUNTRY_NAME, data);
+    				resolve(true);
+			    }else {
+			    	resolve(false);
+			    }
 			});
-			setLocalStorage(COUNTRY_NAME, response.data);
-			resolve(true);
 		});
 	});
 };
@@ -1576,6 +1580,25 @@ export function payHistory(_page = 1, _number = 10) {
 
 	return new Promise((resolve) => {
 		getPost('/payHistory', _params, (response) => {
+			resolve(response.data);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 积分提现界面接口
+ * @return {[type]} [description]
+ */
+export function extractScore() {
+	let {userId} = getUserInfo();
+	let _params = {
+		userId: userId
+	}
+
+	return new Promise((resolve) => {
+		getPost('/extractScore', _params, (response) => {
 			resolve(response.data);
 		}, (response) => {
 			resolve(false);
