@@ -1606,6 +1606,63 @@ export function extractScore() {
 	});
 };
 
+/**
+ * 申请积分提现
+ * @param  {[type]} money   体现金额（带上货币单位，如50￥，50$）
+ * @param  {[type]} account 提现账户
+ * @param  {Number} type    账户类型 1.paypal 2.visa
+ * @return {[type]}         [description]
+ */
+export function applyCash(money, account, type = 1) {
+	let {userId} = getUserInfo();
+	let _params = {
+		user_id: userId,
+		blank_account: account,
+		blank_type: type,
+		total_money: money
+	}
+
+	return new Promise((resolve) => {
+		getPost('/applyCash', _params, (response) => {
+			resolve(response.data);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
+/**
+ * 绑定银行卡或paypal账号
+ * @param  {[type]} account 提现账户
+ * @param  {Number} type    账户类型 1.paypal 2.visa
+ * @param  {[type]} time    过期时间（paypal不需要，visa必传）
+ * @param  {[type]} csc     安全码（paypal不需要，visa必传）
+ * @return {[type]}         [description]
+ */
+export function bindBlank(account, type = 1, time, csc) {
+	let { userId } = getUserInfo();
+	let { id } = getLocalStorage(COUNTRY_ID_NAME);
+	let _params = {
+		user_id: userId,
+		blank_account: account,
+		blank_type: type,
+		country_id: id
+	}
+
+	if (type == 2) {
+		_params.expire_time = time;
+		_params.csc = csc;
+	}
+
+	return new Promise((resolve) => {
+		getPost('/bindBlank', _params, (response) => {
+			resolve(response.data);
+		}, (response) => {
+			resolve(false);
+		});
+	});
+};
+
 
 //------------------------------------------------------------------------------------------------------
 //-----商品订单模块

@@ -25,7 +25,7 @@ import UserAccountHistory from './pages/user_account_history';
 import UserAccountTerms from './pages/user_account_terms';
 import UserScore from './pages/user_score';
 import UserScoreHistory from './pages/user_score_history';
-
+import UserScoreWithdraw from './pages/user_score_withdraw';
 import UserProof from './pages/user_proof';
 import UserInvite from './pages/user_invite';
 
@@ -178,6 +178,10 @@ export const fcConfig = {
                 name: 'history',
                 path: '../pages/user_score_history.html',
                 component: UserScoreHistory
+            }, {
+                name: 'withdraw',
+                path: '../pages/user_score_withdraw.html',
+                component: UserScoreWithdraw
             }]
         }, {
             name: 'proof',
