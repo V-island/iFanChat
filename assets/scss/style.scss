@@ -10,7 +10,7 @@
     background: image-set(url('#{$imgBaseUrl}/users/avatar-#{$image}.png') 1x, url('#{$imgBaseUrl}/users/avatar-#{$image}@2x.png') 2x) center;
 }
 .user-info {
-	@include flex-spindle(center);
+	@include flex-spindle(start);
 	// @include flex-vertical(column);
 
 	>.user-img {

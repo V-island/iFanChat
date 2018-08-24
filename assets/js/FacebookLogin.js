@@ -125,6 +125,10 @@ export default class FacebookLogin extends EventEmitter {
 	}
 
 	Login() {
+		if(typeof(FB) == 'undefined'){
+			return modal.toast(LANG.LOGIN.Madal.Error);
+		}
+
 		FB.login((response) => {
 			console.log(response);
 			this._statusChangeCallback(response);
