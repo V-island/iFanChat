@@ -15,7 +15,6 @@ import {
 
 const LANG = getLangConfig();
 const modal = new Modal();
-const FB = new FacebookLogin();
 
 export default class Login extends EventEmitter {
 	constructor(element, options) {
@@ -55,6 +54,7 @@ export default class Login extends EventEmitter {
 
         // Facebook 登录
 		addEvent(this.btnFecebookEl, 'click', () => {
+			const FB = new FacebookLogin();
 			FB.Login();
         });
 
