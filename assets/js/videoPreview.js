@@ -262,9 +262,6 @@ export default class VideoPreview extends EventEmitter {
             let btnFecebookEl = shareModalEl.getElementsByClassName(this.options.btnFecebookClass);
             let btnTwitterEl = shareModalEl.getElementsByClassName(this.options.btnTwitterClass);
             let btnTumblrEl = shareModalEl.getElementsByClassName(this.options.btnTumblrClass);
-            console.log(btnFecebookEl);
-            console.log(btnTwitterEl);
-            console.log(btnTumblrEl);
             // Facebook 分享
             if (btnFecebookEl.length > 0) {
                 addEvent(btnFecebookEl[0], 'click', () => {
