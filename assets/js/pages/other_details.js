@@ -271,6 +271,7 @@ export default class OtherDetails extends EventEmitter {
 				toggleClass(itemEl, this.options.showClass);
 			});
 		});
+		this.slideSwiper.goToPage(1, 0);
 	}
 
 	// Video 模块
