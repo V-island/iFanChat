@@ -1,4 +1,5 @@
 import Template from 'art-template/lib/template-web';
+// import webcomponentsLite from '@webcomponents/webcomponentsjs/webcomponents-lite';
 import Tabs from './tabs';
 import {
     fcConfig
@@ -15,6 +16,8 @@ import {
 import {
     replaceNote
 } from './util';
+
+const importJs = fcConfig.importJs;
 
 +function($) {
     'use strict';
@@ -82,7 +85,8 @@ import {
      */
     if (!('import' in document.createElement('link'))) {
         console.log(MSG.nosupport);
-        require(fcConfig.importJs);
+        console.log(importJs);
+        require(importJs);
     }
 
     let Util = {

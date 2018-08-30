@@ -61,6 +61,7 @@ module.exports = {
 				options: {
 					name: '[hash].[ext]',
 					outputPath: '/assets/img',
+					// publicPath: '/dist/',
 					limit: 8192
 				}
 			}]
@@ -71,6 +72,7 @@ module.exports = {
 				options: {
 					name: '[path][name].[ext]',
 					outputPath: '/'
+					// publicPath: '/dist/'
 				}
 			}]
 		}, {

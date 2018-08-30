@@ -75,7 +75,7 @@ export const getVariableFromUrl = () => {
  * @param  {Function} callback [description]
  * @return {[type]}            [description]
  */
-export const importTemplate = (param, callback) => {
+export const importTemplates = (param, callback) => {
     let self = this;
 
     let link = document.createElement('link');
@@ -87,10 +87,24 @@ export const importTemplate = (param, callback) => {
     link.onload = function(e) {
         console.log('Loaded import: ' + e.target.href);
         let _target = e.target.import;
-
+        console.log(_target);
         if (typeof(_target.head) != 'undefined' && _target.head != '') {
             for (let i = 0; i < _target.head.children.length; i++) {
                 callback(_target.head.children[i].id, replaceNote(_target.head.children[i].innerHTML));
+            }
+        }else {
+            console.log('这里是火狐，没有head');
+        }
+
+        if (typeof(_target.head) != 'undefined' && _target.head != '' && bodyHTML == '') {
+            bodyHTML = _target.head.innerHTML;
+        }else if(typeof(_target.head) != 'undefined' && _target.head != '' && bodyHTML != ''){
+            bodyHTML = _target.head.innerHTML + bodyHTML;
+        }
+        //MAC safari bug
+        if (bodyHTML == '') {
+            for (var i = 0; i < _target.children.length; i++) {
+                bodyHTML = bodyHTML + _target.children[i].outerHTML;
             }
         }
 
@@ -106,6 +120,38 @@ export const importTemplate = (param, callback) => {
     };
     document.head.appendChild(link);
 };
+
+/**
+ * createScript 导入
+ * @param  {[type]}   param    [description]
+ * @param  {Function} callback [description]
+ * @return {[type]}            [description]
+ */
+export const importTemplate = (param, callback) => {
+    const heads = document.getElementsByTagName("head");
+    const script = document.createElement("script");
+
+    script.setAttribute("type", "text/javascript");
+    script.setAttribute("id", param.name);
+    script.setAttribute("src", param.path);
+    script.onload = script.onreadystatechange = function(e) {
+        console.log('Loaded import: ' + e.target);
+        // let _target = e.target.import;
+        console.log(e);
+
+        if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {
+
+            // Handle memory leak in IE
+            script.onload = script.onreadystatechange = null;
+        }
+    };
+    if (heads.length) {
+        heads[0].appendChild(script);
+    } else {
+        document.documentElement.appendChild(script);
+    }
+};
+
 
 /**
  * 解析FORM参数
@@ -237,7 +283,7 @@ export const secToTime = (timestamp) => {
         if(min < 10){t += "0";}
         t += min + ":";
         if(sec < 10){t += "0";}
-        t += sec.toFixed(2);
+        t += sec.toFixed();
     }
     return t;
 }
