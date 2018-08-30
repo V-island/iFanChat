@@ -75,7 +75,7 @@ export const getVariableFromUrl = () => {
  * @param  {Function} callback [description]
  * @return {[type]}            [description]
  */
-export const importTemplates = (param, callback) => {
+export const importTemplate = (param, callback) => {
     let self = this;
 
     let link = document.createElement('link');
@@ -87,24 +87,13 @@ export const importTemplates = (param, callback) => {
     link.onload = function(e) {
         console.log('Loaded import: ' + e.target.href);
         let _target = e.target.import;
-        console.log(_target);
         if (typeof(_target.head) != 'undefined' && _target.head != '') {
             for (let i = 0; i < _target.head.children.length; i++) {
                 callback(_target.head.children[i].id, replaceNote(_target.head.children[i].innerHTML));
             }
         }else {
-            console.log('这里是火狐，没有head');
-        }
-
-        if (typeof(_target.head) != 'undefined' && _target.head != '' && bodyHTML == '') {
-            bodyHTML = _target.head.innerHTML;
-        }else if(typeof(_target.head) != 'undefined' && _target.head != '' && bodyHTML != ''){
-            bodyHTML = _target.head.innerHTML + bodyHTML;
-        }
-        //MAC safari bug
-        if (bodyHTML == '') {
             for (var i = 0; i < _target.children.length; i++) {
-                bodyHTML = bodyHTML + _target.children[i].outerHTML;
+                callback(_target.children[i].id, replaceNote(_target.children[i].innerText));
             }
         }
 
@@ -127,7 +116,7 @@ export const importTemplates = (param, callback) => {
  * @param  {Function} callback [description]
  * @return {[type]}            [description]
  */
-export const importTemplate = (param, callback) => {
+export const createScript = (param, callback) => {
     const heads = document.getElementsByTagName("head");
     const script = document.createElement("script");
 

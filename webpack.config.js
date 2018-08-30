@@ -11,6 +11,7 @@ const PRODUCTION = 'production';
 
 module.exports = {
 	entry: {
+		webcomponentsLite: '@webcomponents/webcomponentsjs/webcomponents-lite',
 		fc: [
 			// 'es5-shim',
 			// 'es6-shim',

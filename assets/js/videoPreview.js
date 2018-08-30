@@ -262,6 +262,9 @@ export default class VideoPreview extends EventEmitter {
             let btnFecebookEl = shareModalEl.getElementsByClassName(this.options.btnFecebookClass);
             let btnTwitterEl = shareModalEl.getElementsByClassName(this.options.btnTwitterClass);
             let btnTumblrEl = shareModalEl.getElementsByClassName(this.options.btnTumblrClass);
+            console.log(btnFecebookEl);
+            console.log(btnTwitterEl);
+            console.log(btnTumblrEl);
             // Facebook 分享
             if (btnFecebookEl.length > 0) {
                 addEvent(btnFecebookEl[0], 'click', () => {
@@ -300,8 +303,9 @@ export default class VideoPreview extends EventEmitter {
             let btnRechargeEl = giftModalEl.getElementsByClassName(this.options.btnRechargeClass)[0];
             let btnSendEl = giftModalEl.getElementsByClassName(this.options.btnSendClass)[0];
             let giftWidth = giftWrapperEl.offsetWidth;
+            let { userPackage } = getUserInfo(this.options.dataUserPackage);
 
-            userPackageEl.innerHTML = getUserInfo(this.options.dataUserPackage);
+            userPackageEl.innerHTML = userPackage;
 
             giftContentEl.style.width = giftWidth * 2 + 'px';
 

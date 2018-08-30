@@ -272,8 +272,11 @@ export default class RecordVideo extends EventEmitter {
             this.videoDevices.forEach((devicesID) => {
                 if (devicesID !== _devicesID) {
                     this.videoSource = devicesID;
-                    console.log(devicesID);
-                    this._stopStreamedVideo();
+                    if (window.stream) {
+                        window.stream.getVideoTracks().forEach((track) => {
+                            track.stop();
+                        });
+                    }
                     this._mediaRecorder();
                 }
             });
@@ -418,15 +421,9 @@ export default class RecordVideo extends EventEmitter {
             this.videoEl.srcObject  = stream;
             this.videoEl.autoplay = true;
 
-            try {
-                this.mediaRecoder = new MediaRecorder(stream, options);
-            } catch (e) {
-                console.error(`Exception while creating MediaRecorder: ${e}`);
-                return;
-            }
+            this.mediaRecoder = new MediaRecorder(stream);
 
             this.mediaRecoder.ondataavailable = (event) => {
-
                 if(this.mediaRecoder.state == "inactive"){
                     return;
                 }
@@ -443,7 +440,7 @@ export default class RecordVideo extends EventEmitter {
             this.mediaRecoder.onstart = () => {
                 this.trigger('recordVideo.start');
 
-                this.Timer = this._timedCount(0);
+                this._timedCount(0);
             };
 
             // 添加录制结束的事件监听，保存录制数据
@@ -525,7 +522,6 @@ export default class RecordVideo extends EventEmitter {
 
     // 关闭向Video DOM 推流
     _stopStreamedVideo() {
-        console.log(window.stream);
         if (window.stream) {
             window.stream.getTracks().forEach((track) => {
                 track.stop();
@@ -535,7 +531,7 @@ export default class RecordVideo extends EventEmitter {
 
     // 计时器
     _timedCount(times) {
-        return setTimeout(() => {
+        this.Timer =  setTimeout(() => {
             this.timesEl.innerHTML = secToTime(times);
 
             // 计时器-最小

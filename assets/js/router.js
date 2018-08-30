@@ -17,8 +17,6 @@ import {
     replaceNote
 } from './util';
 
-const importJs = fcConfig.importJs;
-
 +function($) {
     'use strict';
 
@@ -85,8 +83,6 @@ const importJs = fcConfig.importJs;
      */
     if (!('import' in document.createElement('link'))) {
         console.log(MSG.nosupport);
-        console.log(importJs);
-        require(importJs);
     }
 
     let Util = {
