@@ -1,19 +1,13 @@
 import BScroll from 'better-scroll';
 import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
-import SignalingClient from '../signalingClient';
-import Client from '../client';
+import { Spinner } from '../components/Spinner';
 import Modal from '../modal';
 import VideoPreview from '../videoPreview';
 
-import SendBirdAction from '../SendBirdAction';
-import { MessageChat } from '../components/MessageChat';
-import { Spinner } from '../components/Spinner';
-
 import {
 	body,
-    fcConfig,
-    agoraConfig
+    fcConfig
 } from '../intro';
 import {
     getLangConfig
@@ -42,7 +36,7 @@ import {
 } from '../util';
 
 const LANG = getLangConfig();
-const modal = new Modal()
+const modal = new Modal();
 Template.defaults.imports.dateFormat = (date, format) => {
 	return dateFormat(date, format);
 };
@@ -106,8 +100,6 @@ export default class OtherDetails extends EventEmitter {
 	}
 
 	_init() {
-		this.btnPrivateLetterEl = this.OtherDetailsEl.getElementsByClassName(this.options.btnPrivateLetterClass)[0];
-		this.btnVideoChatEl = this.OtherDetailsEl.getElementsByClassName(this.options.btnVideoChatClass)[0];
 		this.btnAddAttentionEl = this.OtherDetailsEl.getElementsByClassName(this.options.btnAddAttentionClass)[0];
 
 		// tab
@@ -131,7 +123,6 @@ export default class OtherDetails extends EventEmitter {
 	}
 
 	_bindEvent() {
-		const Appid = agoraConfig.agoraAppId || '', Appcert = agoraConfig.agoraCertificateId || '';
 
 		// 切换
 		Array.prototype.slice.call(this.tabsItemEl).forEach((itemEl, index) => {
@@ -158,52 +149,6 @@ export default class OtherDetails extends EventEmitter {
 		    }
 		    follow(index, status);
 		});
-
-		// 发消息
-		addEvent(this.btnPrivateLetterEl, 'click', () => {
-			const {userId} = getUserInfo();
-			const {userid} = getVariableFromUrl();
-			const SendBird = new SendBirdAction();
-
-			// SendBird SDK 初始化
-			Spinner.start(body);
-			SendBird.connect(userId).then(user => {
-				SendBirdAction.getInstance()
-				.createChannelWithUserIds(userid)
-					.then(channel => {
-						MessageChat.getInstance().render(channel.url, false);
-					})
-					.catch(error => {
-						errorAlert(error.message);
-					});
-				Spinner.remove();
-			}).catch(() => {
-				redirectToIndex('SendBird connection failed.');
-			});
-		});
-
-		// 视频呼叫
-		addEvent(this.btnVideoChatEl, 'click', () => {
-		    let localInfo = getUserInfo();
-
-		    if (parseInt(localInfo.userPackage / this.info.live_price) < 1) {
-		        return modal.alert(LANG.HOME.Madal.NotCoins.Text, LANG.HOME.Madal.NotCoins.Title, () => {
-		            location.href = '#/user';
-		        }, LANG.HOME.Madal.NotCoins.ButtonsText);
-		    }
-
-		    this.signal = new SignalingClient(Appid, Appcert);
-
-		    this.signal.login(localInfo.userId).then((uid) => {
-		        let client = new Client(this.signal, localInfo, this.info.live_price);
-		        client.invite({
-		            userAccount: this.info.user_id,
-		            userName: this.info.user_name,
-		            userHead: this.info.user_head,
-		            userSex: this.info.user_sex
-		        });
-		    });
-		});
 	}
 
 	_listEvent() {
@@ -214,10 +159,9 @@ export default class OtherDetails extends EventEmitter {
 		Array.prototype.slice.call(this.cardVideoEl).forEach(cardVideoItemEl => {
 			addEvent(cardVideoItemEl, 'click', () => {
 				let info = JSON.parse(getData(cardVideoItemEl, 'userInfo'));
-
+				Spinner.start(body);
 				playVideo(info.id).then((data) => {
-					if (!data) return;
-					Spinner.start(body);
+					if (!data) return Spinner.remove();
 					extend(info, data);
 					let _videoPreview = new VideoPreview(cardVideoItemEl, info);
 					_videoPreview.on('videoPreview.start', () => {
@@ -237,7 +181,6 @@ export default class OtherDetails extends EventEmitter {
 			itemEl.style.width = slideWidth + 'px';
 			width += slideWidth;
 		});
-
 		this.slideContentEl.style.width = width + 'px';
 	}
 
@@ -280,7 +223,7 @@ export default class OtherDetails extends EventEmitter {
 			pullDownInitTop = -50;
 
 		this.pagesVideoSwiper = new BScroll(this.options.pagesVideoClass, {
-			startY: 1,
+			startY: 0,
 			scrollY: true,
 			scrollX: false,
 			probeType: 3,
