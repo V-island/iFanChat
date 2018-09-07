@@ -83,7 +83,7 @@ export default class Home extends EventEmitter {
 	init(element) {
 		this._page = 1;
 		this._number = 10;
-		this.tagId = 1;
+		this.tagId = 0;
 
 		let getNewVideo = newVideo(this._page, this._number);
 		let getHotVideo = hotVideo(this._page, this._number);
