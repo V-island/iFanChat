@@ -748,16 +748,18 @@ export function follow(_id, _status) {
 
 /**
  * 根据用户ID查找用户上传视频
- * @param  {[type]} userId  用户ID
+ * @param  {[type]} Id  用户ID
  * @param  {Number} _page   当前页
  * @param  {Number} _number 数量
  * @return {[type]}         [description]
  */
-export function selVideoByUserId(userId, _page = 1, _number = 10) {
+export function selVideoByUserId(Id, _page = 1, _number = 10) {
+	let {userId} = getUserInfo();
 	let _params = {
-		userId: userId,
+		userId: Id,
 		page: _page,
-		number: _number
+		number: _number,
+		login_user_id: userId
 	}
 
 	return new Promise((resolve) => {

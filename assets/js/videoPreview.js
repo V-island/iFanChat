@@ -2,6 +2,7 @@ import Template from 'art-template/lib/template-web';
 import BScroll from 'better-scroll';
 import EventEmitter from './eventEmitter';
 import FacebookLogin from './FacebookLogin';
+import TwitterLogin from './TwitterLogin';
 import SendBirdAction from './SendBirdAction';
 import SignalingClient from './signalingClient';
 import Client from './client';
@@ -42,7 +43,6 @@ import {
 
 const LANG = getLangConfig();
 const modal = new Modal();
-const FB = new FacebookLogin();
 
 export default class VideoPreview extends EventEmitter {
     constructor(element, options) {
@@ -99,7 +99,8 @@ export default class VideoPreview extends EventEmitter {
         extend(this.options, options);
 
         this.videoPreviewFile = fcConfig.publicFile.client_rtc;
-
+        this.FB = new FacebookLogin();
+        this.Twitter = new TwitterLogin();
         this.init();
     }
 
@@ -274,25 +275,25 @@ export default class VideoPreview extends EventEmitter {
             let btnFecebookEl = shareModalEl.getElementsByClassName(this.options.btnFecebookClass);
             let btnTwitterEl = shareModalEl.getElementsByClassName(this.options.btnTwitterClass);
             let btnTumblrEl = shareModalEl.getElementsByClassName(this.options.btnTumblrClass);
-            console.log(btnFecebookEl);
-            console.log(btnTwitterEl);
-            console.log(btnTumblrEl);
+
             // Facebook 分享
             if (btnFecebookEl.length > 0) {
                 addEvent(btnFecebookEl[0], 'click', () => {
-                    FB.Share(domainURL);
+                    this.FB.Share(domainURL);
                 });
             }
 
             // Twitter 分享
             if (btnTwitterEl.length > 0) {
+                // this.Twitter.Share(btnTwitterEl[0], domainURL);
                 addEvent(btnTwitterEl[0], 'click', () => {
-                    return modal.toast(LANG.LOGIN.Third_party.Text);
+                    this.Twitter.Share(domainURL);
                 });
             }
 
             // Tumblr 分享
             if (btnTumblrEl.length > 0) {
+                btnTumblrEl[0].style.display = 'none';
                 addEvent(btnTumblrEl[0], 'click', () => {
                     return modal.toast(LANG.LOGIN.Third_party.Text);
                 });

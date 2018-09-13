@@ -2,6 +2,7 @@ import Template from 'art-template/lib/template-web';
 import EventEmitter from '../eventEmitter';
 import Modal from '../modal';
 import FacebookLogin from '../FacebookLogin';
+import TwitterLogin from '../TwitterLogin';
 import {
     getLangConfig
 } from '../lang';
@@ -29,6 +30,8 @@ export default class Login extends EventEmitter {
 
 	    extend(this.options, options);
 
+	    this.FB = new FacebookLogin();
+		this.Twitter = new TwitterLogin();
 	    this._init(element);
 	}
 
@@ -54,13 +57,13 @@ export default class Login extends EventEmitter {
 
         // Facebook 登录
 		addEvent(this.btnFecebookEl, 'click', () => {
-			const FB = new FacebookLogin();
-			FB.Login();
+			this.FB.Login();
         });
 
         // Twitter 登录
 		addEvent(this.btnTwitterEl, 'click', () => {
-			return modal.toast(LANG.LOGIN.Third_party.Text);
+			this.Twitter.Login('twitter');
+			// return modal.toast(LANG.LOGIN.Third_party.Text);
         });
 	}
 
