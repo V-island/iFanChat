@@ -7,8 +7,12 @@ import {
 } from './lang';
 
 import {
+    setData,
+    getData,
+    dataSet,
     createDom,
     refreshURL,
+    transitionEnd,
     getLocalStorage,
     setLocalStorage
 } from './util';
@@ -56,7 +60,7 @@ export default class Modal extends EventEmitter {
             let clicked = $(this);
             let url = clicked.attr('href');
             //Collect Clicked data- attributes
-            let clickedData = clicked.dataset();
+            let clickedData = dataSet(clicked);
 
             // Popup
             let popup;
@@ -191,7 +195,8 @@ export default class Modal extends EventEmitter {
 
         // Classes for transition in
         if (!isPickerModal && !isToast) overlay.addClass('modal-overlay-visible');
-        modal.removeClass('modal-out').addClass('modal-in').transitionEnd(function (e) {
+        modal.removeClass('modal-out').addClass('modal-in');
+        transitionEnd(modal[0], () => {
             if (modal.hasClass('modal-out')) modal.trigger('closed');
             else modal.trigger('opened');
         });
@@ -239,7 +244,8 @@ export default class Modal extends EventEmitter {
             $(self.defaults.modalContainer).addClass('picker-modal-closing');
         }
 
-        modal.removeClass('modal-in').addClass('modal-out').transitionEnd(function (e) {
+        modal.removeClass('modal-in').addClass('modal-out');
+        transitionEnd(modal[0], ()=>{
             if (modal.hasClass('modal-out')) modal.trigger('closed');
             else modal.trigger('opened');
 

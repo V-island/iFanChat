@@ -59,7 +59,7 @@ export const addCountdown = (element, inputEl, disabledClass, val) => {
     } else {
         element.innerText = `${val}s`;
         val--;
-        setTimeout(function() {
+        return setTimeout(function() {
             addCountdown(element, inputEl, disabledClass, val);
         }, 1000)
     }
@@ -492,6 +492,19 @@ export const removeData = (target, key) => {
   delete target.dataset[`${key}`];
 };
 
+export const dataSet = (target) => {
+    var dataset = {},
+        ds = target.dataset;
+    for (var key in ds) { // jshint ignore:line
+        var item = (dataset[key] = ds[key]);
+        if (item === 'false') dataset[key] = false;
+        else if (item === 'true') dataset[key] = true;
+        else if (parseFloat(item) === item * 1) dataset[key] = item * 1;
+    }
+    // mixin dataset and __eleData
+    return extend({}, dataset, target.__eleData);
+};
+
 // DOM 监听器 操作
 export const extend = (obj, ...args) => {
     const deep = obj === true;
@@ -585,6 +598,29 @@ export const empty = element => {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
     }
+};
+
+// 动画过渡事件
+const __dealCssEvent = (element, eventNameArr, callback) =>{
+    let fireCallBack = () => {
+        callback.call(element);
+        eventNameArr.forEach(event => {
+            removeEvent(element, event, fireCallBack);
+        });
+    }
+    eventNameArr.forEach(event => {
+        addEvent(element, event, fireCallBack);
+    });
+}
+export const animationEnd = (element, callback) => {
+    let events = ['webkitAnimationEnd', 'animationend'];
+
+    return __dealCssEvent(element, events, callback);
+};
+export const transitionEnd = (element, callback) => {
+    let events = ['webkitTransitionEnd', 'transitionend'];
+
+    return __dealCssEvent(element, events, callback);
 };
 
 
