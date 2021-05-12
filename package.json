@@ -60,7 +60,7 @@
     "moment": "^2.22.2",
     "pickerjs": "^0.2.0",
     "sendbird": "^3.0.69",
-    "swiper": "^4.2.6",
+    "swiper": "^6.5.1",
     "uglify-es": "^3.2.2",
     "video.js": "^7.2.2",
     "webpack-encoding-plugin": "^0.2.1",
